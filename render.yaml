@@ -57,7 +57,7 @@ services:
         fromService:
           type: web
           name: akri-auth
-          property: url
+          property: host
       - key: RABBITMQ_URL
         sync: false   # Fill in your CloudAMQP URL after creating free account at cloudamqp.com
       - key: SECRET_KEY
@@ -79,12 +79,12 @@ services:
         fromService:
           type: web
           name: akri-auth
-          property: url
+          property: host
       - key: API_SERVICE_URL
         fromService:
           type: web
           name: akri-api
-          property: url
+          property: host
       - key: SECRET_KEY
         generateValue: true
       - key: DEBUG

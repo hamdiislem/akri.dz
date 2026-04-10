@@ -48,3 +48,8 @@ STATIC_URL = '/static/'
 # Backend service URLs
 AUTH_SERVICE_URL = os.getenv('AUTH_SERVICE_URL', 'http://localhost:8001')
 API_SERVICE_URL = os.getenv('API_SERVICE_URL', 'http://localhost:8002')
+# Render provides host without protocol — add https:// if needed
+if AUTH_SERVICE_URL and not AUTH_SERVICE_URL.startswith('http'):
+    AUTH_SERVICE_URL = f'https://{AUTH_SERVICE_URL}'
+if API_SERVICE_URL and not API_SERVICE_URL.startswith('http'):
+    API_SERVICE_URL = f'https://{API_SERVICE_URL}'

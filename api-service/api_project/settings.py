@@ -85,6 +85,9 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Auth service (for token verification)
 AUTH_SERVICE_URL = os.getenv('AUTH_SERVICE_URL', 'http://localhost:8001')
+# Render provides host without protocol — add https:// if needed
+if AUTH_SERVICE_URL and not AUTH_SERVICE_URL.startswith('http'):
+    AUTH_SERVICE_URL = f'https://{AUTH_SERVICE_URL}'
 
 # RabbitMQ — supports RABBITMQ_URL (CloudAMQP) or individual vars
 RABBITMQ_URL = os.getenv('RABBITMQ_URL', '')
