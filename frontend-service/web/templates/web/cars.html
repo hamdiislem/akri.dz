@@ -1,0 +1,61 @@
+{% extends "web/base.html" %}
+{% block title %}Voitures disponibles — Akri.dz{% endblock %}
+{% block content %}
+<h1 class="text-2xl font-bold text-gray-900 mb-6">Voitures disponibles</h1>
+
+<!-- Filters -->
+<form method="get" action="/cars/" class="bg-white rounded-xl shadow-sm p-4 mb-6 flex flex-wrap gap-3 items-end">
+  <div>
+    <label class="block text-xs font-medium text-gray-600 mb-1">Wilaya</label>
+    <input type="text" name="wilaya" value="{{ filters.wilaya }}"
+      class="border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Ex: Alger">
+  </div>
+  <div>
+    <label class="block text-xs font-medium text-gray-600 mb-1">Carburant</label>
+    <select name="fuel_type" class="border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+      <option value="">Tous</option>
+      <option value="PETROL" {% if filters.fuel_type == "PETROL" %}selected{% endif %}>Essence</option>
+      <option value="DIESEL" {% if filters.fuel_type == "DIESEL" %}selected{% endif %}>Diesel</option>
+      <option value="ELECTRIC" {% if filters.fuel_type == "ELECTRIC" %}selected{% endif %}>Électrique</option>
+      <option value="HYBRID" {% if filters.fuel_type == "HYBRID" %}selected{% endif %}>Hybride</option>
+    </select>
+  </div>
+  <div>
+    <label class="block text-xs font-medium text-gray-600 mb-1">Boîte</label>
+    <select name="transmission" class="border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+      <option value="">Toutes</option>
+      <option value="MANUAL" {% if filters.transmission == "MANUAL" %}selected{% endif %}>Manuelle</option>
+      <option value="AUTOMATIC" {% if filters.transmission == "AUTOMATIC" %}selected{% endif %}>Automatique</option>
+    </select>
+  </div>
+  <button type="submit" class="bg-blue-600 text-white px-4 py-1.5 rounded-lg text-sm hover:bg-blue-700">Filtrer</button>
+  <a href="/cars/" class="text-sm text-gray-500 hover:text-gray-700 py-1.5">Réinitialiser</a>
+</form>
+
+{% if cars %}
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+  {% for car in cars %}
+  <a href="/cars/{{ car.id }}/" class="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow overflow-hidden block">
+    <div class="h-40 bg-gray-100 flex items-center justify-center text-5xl">🚗</div>
+    <div class="p-4">
+      <h3 class="font-bold text-gray-900">{{ car.make }} {{ car.model }} ({{ car.year }})</h3>
+      <p class="text-sm text-gray-500 mt-1">{{ car.wilaya }} · {{ car.seats }} places · {{ car.transmission }}</p>
+      <div class="flex items-center justify-between mt-3">
+        <span class="text-blue-600 font-bold">{{ car.price_per_day }} DZD<span class="text-xs font-normal text-gray-400">/jour</span></span>
+        {% if car.available %}
+          <span class="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full">Disponible</span>
+        {% else %}
+          <span class="text-xs bg-red-100 text-red-700 px-2 py-0.5 rounded-full">Indisponible</span>
+        {% endif %}
+      </div>
+    </div>
+  </a>
+  {% endfor %}
+</div>
+{% else %}
+<div class="text-center py-16 text-gray-400">
+  <div class="text-5xl mb-4">🔍</div>
+  <p>Aucune voiture trouvée pour ces critères.</p>
+</div>
+{% endif %}
+{% endblock %}

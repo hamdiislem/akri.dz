@@ -1,0 +1,32 @@
+# SERVER 3 — api-service
+# Copy the api-service/ folder to this server, then run: docker compose up -d
+# Replace SERVER1_IP and SERVER2_IP with real IPs
+
+services:
+  api-service:
+    build:
+      context: ../../api-service
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      DB_HOST: ${SERVER1_IP}
+      DB_PORT: "5432"
+      DB_NAME: api_db
+      DB_USER: ${POSTGRES_USER:-postgres}
+      DB_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      AUTH_SERVICE_URL: http://${SERVER2_IP}:8000
+      RABBITMQ_HOST: ${SERVER1_IP}
+      RABBITMQ_PORT: "5672"
+      RABBITMQ_USER: ${RABBITMQ_USER:-guest}
+      RABBITMQ_PASS: ${RABBITMQ_PASS:-guest}
+      CONSUL_HOST: ${SERVER1_IP}
+      CONSUL_PORT: "8500"
+      MY_IP: ${MY_IP}
+      MY_PORT: "8000"
+    volumes:
+      - uploads_data:/app/uploads
+    restart: unless-stopped
+
+volumes:
+  uploads_data:

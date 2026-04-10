@@ -1,0 +1,18 @@
+# SERVER 5 — notification-worker
+# Copy the notification-worker/ folder to this server, then run: docker compose up -d
+# Replace SERVER1_IP with your infra server's IP
+
+services:
+  notification-worker:
+    build:
+      context: ../../notification-worker
+      dockerfile: Dockerfile
+    environment:
+      RABBITMQ_HOST: ${SERVER1_IP}
+      RABBITMQ_PORT: "5672"
+      RABBITMQ_USER: ${RABBITMQ_USER:-guest}
+      RABBITMQ_PASS: ${RABBITMQ_PASS:-guest}
+      CONSUL_HOST: ${SERVER1_IP}
+      CONSUL_PORT: "8500"
+      MY_IP: ${MY_IP}
+    restart: unless-stopped

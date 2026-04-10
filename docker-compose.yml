@@ -1,0 +1,146 @@
+# LOCAL DEVELOPMENT — all 5 services on one machine
+# Use this to test everything before deploying to real VMs
+# Run: docker compose up --build
+# Then open: http://localhost  (Traefik → frontend)
+# Or test APIs directly:
+#   http://localhost:8001 → auth-service
+#   http://localhost:8002 → api-service
+#   http://localhost:8003 → frontend-service
+#   http://localhost:8500 → Consul UI
+#   http://localhost:15672 → RabbitMQ UI (guest/guest)
+#   http://localhost:8080 → Traefik dashboard
+
+services:
+
+  # ─── Infrastructure ──────────────────────────────────────
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./deployment/server1-infra/init-databases.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    ports:
+      - "5432:5432"
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+
+  consul:
+    image: hashicorp/consul:1.19
+    command: "agent -server -bootstrap-expect=1 -ui -client=0.0.0.0"
+    ports:
+      - "8500:8500"
+
+  traefik:
+    image: traefik:v3.0
+    command:
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+    ports:
+      - "80:80"
+      - "8080:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+
+  # ─── Services ────────────────────────────────────────────
+  auth-service:
+    build: ./auth-service
+    ports:
+      - "8001:8000"
+    environment:
+      DB_HOST: postgres
+      DB_NAME: auth_db
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      REDIS_URL: redis://redis:6379
+      JWT_SECRET: local-dev-secret-change-in-prod
+      CONSUL_HOST: consul
+      MY_IP: auth-service
+      MY_PORT: "8000"
+      ADMIN_EMAIL: admin@akri.dz
+      ADMIN_PASSWORD: Admin123456
+    depends_on:
+      - postgres
+      - redis
+      - consul
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.auth.rule=PathPrefix(`/api/auth`)"
+      - "traefik.http.routers.auth.priority=20"
+      - "traefik.http.services.auth.loadbalancer.server.port=8000"
+
+  api-service:
+    build: ./api-service
+    ports:
+      - "8002:8000"
+    environment:
+      DB_HOST: postgres
+      DB_NAME: api_db
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      AUTH_SERVICE_URL: http://auth-service:8000
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_USER: guest
+      RABBITMQ_PASS: guest
+      CONSUL_HOST: consul
+      MY_IP: api-service
+      MY_PORT: "8000"
+    volumes:
+      - uploads_data:/app/uploads
+    depends_on:
+      - postgres
+      - rabbitmq
+      - auth-service
+      - consul
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.api.rule=PathPrefix(`/api`)"
+      - "traefik.http.routers.api.priority=10"
+      - "traefik.http.services.api.loadbalancer.server.port=8000"
+
+  frontend-service:
+    build: ./frontend-service
+    ports:
+      - "8003:8000"
+    environment:
+      AUTH_SERVICE_URL: http://auth-service:8000
+      API_SERVICE_URL: http://api-service:8000
+    depends_on:
+      - auth-service
+      - api-service
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.frontend.rule=PathPrefix(`/`)"
+      - "traefik.http.routers.frontend.priority=1"
+      - "traefik.http.services.frontend.loadbalancer.server.port=8000"
+
+  notification-worker:
+    build: ./notification-worker
+    environment:
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_USER: guest
+      RABBITMQ_PASS: guest
+      CONSUL_HOST: consul
+      MY_IP: notification-worker
+    depends_on:
+      - rabbitmq
+      - consul
+
+volumes:
+  postgres_data:
+  uploads_data:

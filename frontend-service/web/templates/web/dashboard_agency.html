@@ -1,0 +1,60 @@
+{% extends "web/base.html" %}
+{% block title %}Tableau de bord Agence — Akri.dz{% endblock %}
+{% block content %}
+<h1 class="text-2xl font-bold text-gray-900 mb-8">Tableau de bord Agence</h1>
+
+<!-- My Cars -->
+<div class="mb-10">
+  <h2 class="text-lg font-semibold text-gray-800 mb-4">Mes voitures</h2>
+  {% if cars %}
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+    {% for car in cars %}
+    <div class="bg-white rounded-xl shadow-sm p-4">
+      <div class="font-semibold text-gray-900">{{ car.make }} {{ car.model }} ({{ car.year }})</div>
+      <div class="text-sm text-gray-500 mt-1">{{ car.wilaya }} · {{ car.price_per_day }} DZD/jour</div>
+      <span class="mt-2 inline-block px-2 py-0.5 rounded-full text-xs
+        {% if car.available %}bg-green-100 text-green-700{% else %}bg-red-100 text-red-700{% endif %}">
+        {% if car.available %}Disponible{% else %}Indisponible{% endif %}
+      </span>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <p class="text-gray-400">Aucune voiture ajoutée.</p>
+  {% endif %}
+</div>
+
+<!-- Bookings -->
+<div>
+  <h2 class="text-lg font-semibold text-gray-800 mb-4">Réservations reçues</h2>
+  {% if bookings %}
+  <div class="space-y-3">
+    {% for b in bookings %}
+    <div class="bg-white rounded-xl shadow-sm p-5 flex items-center justify-between">
+      <div>
+        <div class="font-semibold text-gray-900">Réservation #{{ b.id }} — Voiture #{{ b.car }}</div>
+        <div class="text-sm text-gray-500 mt-1">{{ b.start_date }} → {{ b.end_date }} · {{ b.total_price }} DZD</div>
+      </div>
+      <div class="flex items-center gap-3">
+        <span class="px-3 py-1 rounded-full text-xs font-medium
+          {% if b.status == 'CONFIRMED' %}bg-green-100 text-green-700
+          {% elif b.status == 'PENDING' %}bg-yellow-100 text-yellow-700
+          {% elif b.status == 'CANCELLED' %}bg-red-100 text-red-700
+          {% else %}bg-gray-100 text-gray-600{% endif %}">
+          {{ b.status }}
+        </span>
+        {% if b.status == 'PENDING' %}
+        <form method="post" action="/bookings/{{ b.id }}/confirmer/">
+          {% csrf_token %}
+          <button class="text-xs bg-green-600 text-white px-3 py-1 rounded-lg hover:bg-green-700">Confirmer</button>
+        </form>
+        {% endif %}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <p class="text-gray-400">Aucune réservation reçue.</p>
+  {% endif %}
+</div>
+{% endblock %}

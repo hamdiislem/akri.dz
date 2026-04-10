@@ -1,0 +1,82 @@
+{% extends "web/base.html" %}
+{% block title %}{{ car.make }} {{ car.model }} — Akri.dz{% endblock %}
+{% block content %}
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+  <!-- Car info -->
+  <div class="lg:col-span-2">
+    <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+      <div class="h-56 bg-gray-100 flex items-center justify-center text-7xl">🚗</div>
+      <div class="p-6">
+        <h1 class="text-2xl font-bold text-gray-900">{{ car.make }} {{ car.model }} ({{ car.year }})</h1>
+        <p class="text-gray-500 mt-1">{{ car.wilaya }}</p>
+
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
+          <div class="text-center bg-gray-50 rounded-lg p-3">
+            <div class="text-lg">🪑</div>
+            <div class="text-sm font-medium mt-1">{{ car.seats }} places</div>
+          </div>
+          <div class="text-center bg-gray-50 rounded-lg p-3">
+            <div class="text-lg">⚙️</div>
+            <div class="text-sm font-medium mt-1">{{ car.transmission }}</div>
+          </div>
+          <div class="text-center bg-gray-50 rounded-lg p-3">
+            <div class="text-lg">⛽</div>
+            <div class="text-sm font-medium mt-1">{{ car.fuel_type }}</div>
+          </div>
+          <div class="text-center bg-gray-50 rounded-lg p-3">
+            <div class="text-lg">{% if car.available %}✅{% else %}❌{% endif %}</div>
+            <div class="text-sm font-medium mt-1">{% if car.available %}Disponible{% else %}Indisponible{% endif %}</div>
+          </div>
+        </div>
+
+        {% if car.description %}
+        <div class="mt-6">
+          <h3 class="font-semibold text-gray-800 mb-2">Description</h3>
+          <p class="text-gray-600 text-sm">{{ car.description }}</p>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Booking form -->
+  <div class="lg:col-span-1">
+    <div class="bg-white rounded-xl shadow-sm p-6 sticky top-6">
+      <div class="text-2xl font-bold text-blue-600 mb-1">{{ car.price_per_day }} DZD<span class="text-base font-normal text-gray-400">/jour</span></div>
+
+      {% if car.available %}
+        <form method="post" action="/cars/{{ car.id }}/" class="mt-4 space-y-4">
+          {% csrf_token %}
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Date de début</label>
+            <input type="date" name="start_date" required
+              class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Date de fin</label>
+            <input type="date" name="end_date" required
+              class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Message (optionnel)</label>
+            <textarea name="message" rows="2"
+              class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+          </div>
+          <button type="submit"
+            class="w-full bg-blue-600 text-white py-2.5 rounded-lg hover:bg-blue-700 font-medium">
+            Réserver
+          </button>
+        </form>
+      {% else %}
+        <div class="mt-4 bg-red-50 text-red-600 rounded-lg p-4 text-sm text-center">
+          Cette voiture n'est pas disponible actuellement.
+        </div>
+      {% endif %}
+
+      <a href="/cars/" class="block text-center text-sm text-gray-400 hover:text-gray-600 mt-4">← Retour aux voitures</a>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

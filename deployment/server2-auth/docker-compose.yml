@@ -1,0 +1,26 @@
+# SERVER 2 — auth-service
+# Copy the auth-service/ folder to this server, then run: docker compose up -d
+# Replace SERVER1_IP with your infra server's IP
+
+services:
+  auth-service:
+    build:
+      context: ../../auth-service
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      DB_HOST: ${SERVER1_IP}
+      DB_PORT: "5432"
+      DB_NAME: auth_db
+      DB_USER: ${POSTGRES_USER:-postgres}
+      DB_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      REDIS_URL: redis://${SERVER1_IP}:6379
+      JWT_SECRET: ${JWT_SECRET}
+      CONSUL_HOST: ${SERVER1_IP}
+      CONSUL_PORT: "8500"
+      MY_IP: ${MY_IP}
+      MY_PORT: "8000"
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-admin@akri.dz}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-Admin123456}
+    restart: unless-stopped

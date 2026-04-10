@@ -1,0 +1,59 @@
+# SERVER 1 — Infrastructure
+# Runs: Traefik, Consul, RabbitMQ, PostgreSQL, Redis
+# Replace SERVER2_IP / SERVER3_IP / SERVER4_IP in ../../traefik/dynamic.yml before starting
+
+services:
+
+  traefik:
+    image: traefik:v3.0
+    ports:
+      - "80:80"
+      - "8080:8080"   # Traefik dashboard
+    volumes:
+      - ../../traefik/traefik.yml:/etc/traefik/traefik.yml:ro
+      - ../../traefik/dynamic.yml:/etc/traefik/dynamic.yml:ro
+    restart: unless-stopped
+
+  consul:
+    image: hashicorp/consul:1.19
+    ports:
+      - "8500:8500"   # Consul UI
+    command: "agent -server -bootstrap-expect=1 -ui -client=0.0.0.0"
+    restart: unless-stopped
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"   # AMQP
+      - "15672:15672" # RabbitMQ management UI
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:-guest}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASS:-guest}
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:16-alpine
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init-databases.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  rabbitmq_data:
+  redis_data:
