@@ -22,12 +22,15 @@ def require_auth(request, *roles):
 def publish_to_rabbitmq(queue, message):
     """Publish a message to a RabbitMQ queue (asynchronous communication)."""
     try:
-        credentials = pika.PlainCredentials(settings.RABBITMQ_USER, settings.RABBITMQ_PASS)
-        params = pika.ConnectionParameters(
-            host=settings.RABBITMQ_HOST,
-            port=settings.RABBITMQ_PORT,
-            credentials=credentials,
-        )
+        if settings.RABBITMQ_URL:
+            params = pika.URLParameters(settings.RABBITMQ_URL)
+        else:
+            credentials = pika.PlainCredentials(settings.RABBITMQ_USER, settings.RABBITMQ_PASS)
+            params = pika.ConnectionParameters(
+                host=settings.RABBITMQ_HOST,
+                port=settings.RABBITMQ_PORT,
+                credentials=credentials,
+            )
         connection = pika.BlockingConnection(params)
         channel = connection.channel()
         channel.queue_declare(queue=queue, durable=True)

@@ -1,4 +1,5 @@
 import os
+import urllib.parse
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -51,16 +52,31 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'api_project.wsgi.application'
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.getenv('DB_NAME', 'api_db'),
-        'USER': os.getenv('DB_USER', 'postgres'),
-        'PASSWORD': os.getenv('DB_PASSWORD', 'postgres'),
-        'HOST': os.getenv('DB_HOST', 'localhost'),
-        'PORT': os.getenv('DB_PORT', '5432'),
+_db_url = os.getenv('DATABASE_URL', '')
+if _db_url:
+    _r = urllib.parse.urlparse(_db_url)
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': _r.path[1:],
+            'USER': _r.username,
+            'PASSWORD': _r.password,
+            'HOST': _r.hostname,
+            'PORT': _r.port or 5432,
+            'OPTIONS': {'sslmode': 'require'},
+        }
     }
-}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': os.getenv('DB_NAME', 'api_db'),
+            'USER': os.getenv('DB_USER', 'postgres'),
+            'PASSWORD': os.getenv('DB_PASSWORD', 'postgres'),
+            'HOST': os.getenv('DB_HOST', 'localhost'),
+            'PORT': os.getenv('DB_PORT', '5432'),
+        }
+    }
 
 MEDIA_URL = '/uploads/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'uploads')
@@ -70,7 +86,8 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # Auth service (for token verification)
 AUTH_SERVICE_URL = os.getenv('AUTH_SERVICE_URL', 'http://localhost:8001')
 
-# RabbitMQ
+# RabbitMQ — supports RABBITMQ_URL (CloudAMQP) or individual vars
+RABBITMQ_URL = os.getenv('RABBITMQ_URL', '')
 RABBITMQ_HOST = os.getenv('RABBITMQ_HOST', 'localhost')
 RABBITMQ_PORT = int(os.getenv('RABBITMQ_PORT', '5672'))
 RABBITMQ_USER = os.getenv('RABBITMQ_USER', 'guest')

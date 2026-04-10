@@ -17,6 +17,12 @@ NODES = [
 ]
 
 PROVISION_DOCKER = <<-SHELL
+  # Disable IPv6 at OS level
+  sysctl -w net.ipv6.conf.all.disable_ipv6=1
+  sysctl -w net.ipv6.conf.default.disable_ipv6=1
+  echo "net.ipv6.conf.all.disable_ipv6 = 1" >> /etc/sysctl.conf
+  echo "net.ipv6.conf.default.disable_ipv6 = 1" >> /etc/sysctl.conf
+
   apt-get update -qq
   apt-get install -y -qq ca-certificates curl gnupg git
   install -m 0755 -d /etc/apt/keyrings
@@ -28,6 +34,10 @@ PROVISION_DOCKER = <<-SHELL
   apt-get update -qq
   apt-get install -y -qq docker-ce docker-ce-cli containerd.io docker-compose-plugin
   usermod -aG docker vagrant
+  mkdir -p /etc/docker
+  cat > /etc/docker/daemon.json <<'EOF'
+{"dns": ["8.8.8.8", "8.8.4.4"], "ipv6": false}
+EOF
   systemctl enable docker
   systemctl start docker
 SHELL
@@ -35,6 +45,7 @@ SHELL
 Vagrant.configure("2") do |config|
   config.vm.box = "ubuntu/jammy64"
   config.vm.box_check_update = false
+  config.vm.boot_timeout = 600
 
   NODES.each do |node|
     config.vm.define node[:name] do |vm_config|
@@ -46,6 +57,8 @@ Vagrant.configure("2") do |config|
         vb.memory = node[:memory]
         vb.cpus   = node[:cpus]
         vb.gui    = false
+        vb.customize ["modifyvm", :id, "--paravirtprovider", "hyperv"]
+        vb.customize ["modifyvm", :id, "--nested-hw-virt", "on"]
       end
 
       # Install Docker on every node

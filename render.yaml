@@ -1,0 +1,104 @@
+# Render Blueprint — Akri.dz microservices deployment
+# Docs: https://render.com/docs/blueprint-spec
+
+databases:
+  - name: akri-postgres
+    databaseName: akri_db
+    user: akri
+    plan: free
+
+services:
+
+  # ── Infrastructure ──────────────────────────────────────────
+  - type: redis
+    name: akri-redis
+    plan: free
+    ipAllowList: []
+
+  # ── Auth Service (Server 2) ──────────────────────────────────
+  - type: web
+    name: akri-auth
+    runtime: docker
+    dockerfilePath: ./auth-service/Dockerfile
+    dockerContext: ./auth-service
+    plan: free
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: akri-postgres
+          property: connectionString
+      - key: REDIS_URL
+        fromService:
+          type: redis
+          name: akri-redis
+          property: connectionString
+      - key: SECRET_KEY
+        generateValue: true
+      - key: JWT_SECRET
+        generateValue: true
+      - key: DEBUG
+        value: "False"
+      - key: CONSUL_HOST
+        value: ""
+
+  # ── API Service (Server 3) ───────────────────────────────────
+  - type: web
+    name: akri-api
+    runtime: docker
+    dockerfilePath: ./api-service/Dockerfile
+    dockerContext: ./api-service
+    plan: free
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: akri-postgres
+          property: connectionString
+      - key: AUTH_SERVICE_URL
+        fromService:
+          type: web
+          name: akri-auth
+          property: url
+      - key: RABBITMQ_URL
+        sync: false   # Fill in your CloudAMQP URL after creating free account at cloudamqp.com
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DEBUG
+        value: "False"
+      - key: CONSUL_HOST
+        value: ""
+
+  # ── Frontend Service (Server 4) ──────────────────────────────
+  - type: web
+    name: akri-frontend
+    runtime: docker
+    dockerfilePath: ./frontend-service/Dockerfile
+    dockerContext: ./frontend-service
+    plan: free
+    envVars:
+      - key: AUTH_SERVICE_URL
+        fromService:
+          type: web
+          name: akri-auth
+          property: url
+      - key: API_SERVICE_URL
+        fromService:
+          type: web
+          name: akri-api
+          property: url
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DEBUG
+        value: "False"
+
+  # ── Notification Worker (Server 5) ───────────────────────────
+  - type: worker
+    name: akri-worker
+    runtime: docker
+    dockerfilePath: ./notification-worker/Dockerfile
+    dockerContext: ./notification-worker
+    plan: free
+    envVars:
+      - key: RABBITMQ_URL
+        sync: false   # Same CloudAMQP URL as akri-api
+      - key: CONSUL_HOST
+        value: ""

@@ -3,6 +3,7 @@ import json
 import time
 import pika
 
+RABBITMQ_URL = os.getenv('RABBITMQ_URL', '')
 RABBITMQ_HOST = os.getenv('RABBITMQ_HOST', 'localhost')
 RABBITMQ_PORT = int(os.getenv('RABBITMQ_PORT', '5672'))
 RABBITMQ_USER = os.getenv('RABBITMQ_USER', 'guest')
@@ -71,14 +72,17 @@ def on_booking_cancelled(ch, method, properties, body):
 
 def connect_and_listen():
     """Se connecter à RabbitMQ et écouter les files d'attente."""
-    credentials = pika.PlainCredentials(RABBITMQ_USER, RABBITMQ_PASS)
-    params = pika.ConnectionParameters(
-        host=RABBITMQ_HOST,
-        port=RABBITMQ_PORT,
-        credentials=credentials,
-        heartbeat=600,
-        blocked_connection_timeout=300,
-    )
+    if RABBITMQ_URL:
+        params = pika.URLParameters(RABBITMQ_URL)
+    else:
+        credentials = pika.PlainCredentials(RABBITMQ_USER, RABBITMQ_PASS)
+        params = pika.ConnectionParameters(
+            host=RABBITMQ_HOST,
+            port=RABBITMQ_PORT,
+            credentials=credentials,
+            heartbeat=600,
+            blocked_connection_timeout=300,
+        )
     connection = pika.BlockingConnection(params)
     channel = connection.channel()
 
