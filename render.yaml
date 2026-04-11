@@ -91,7 +91,7 @@ services:
         value: "False"
 
   # ── Notification Worker (Server 5) ───────────────────────────
-  - type: worker
+  - type: web
     name: akri-worker
     runtime: docker
     dockerfilePath: ./notification-worker/Dockerfile

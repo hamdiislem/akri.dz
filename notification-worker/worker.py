@@ -1,7 +1,9 @@
 import os
 import json
 import time
+import threading
 import pika
+from http.server import HTTPServer, BaseHTTPRequestHandler
 
 RABBITMQ_URL = os.getenv('RABBITMQ_URL', '')
 RABBITMQ_HOST = os.getenv('RABBITMQ_HOST', 'localhost')
@@ -99,10 +101,17 @@ def connect_and_listen():
     channel.start_consuming()
 
 
-if __name__ == '__main__':
-    register_with_consul()
+class HealthHandler(BaseHTTPRequestHandler):
+    def do_GET(self):
+        self.send_response(200)
+        self.end_headers()
+        self.wfile.write(b'OK')
+    def log_message(self, format, *args):
+        pass  # Suppress HTTP logs
 
-    # Retry loop — RabbitMQ peut ne pas être prêt immédiatement
+
+def run_worker():
+    register_with_consul()
     while True:
         try:
             connect_and_listen()
@@ -110,5 +119,15 @@ if __name__ == '__main__':
             print('[Worker] RabbitMQ non disponible, nouvelle tentative dans 5s...')
             time.sleep(5)
         except KeyboardInterrupt:
-            print('[Worker] Arrêt.')
             break
+
+
+if __name__ == '__main__':
+    # Run RabbitMQ worker in background thread
+    t = threading.Thread(target=run_worker, daemon=True)
+    t.start()
+
+    # HTTP health check server (required for Render web service)
+    port = int(os.getenv('PORT', 8000))
+    print(f'[Worker] Health server on port {port}')
+    HTTPServer(('0.0.0.0', port), HealthHandler).serve_forever()
