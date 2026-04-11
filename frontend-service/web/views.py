@@ -12,14 +12,14 @@ def get_token(request):
 
 def api_get(url, token='', params=None):
     try:
-        return http.get(url, cookies={'token': token}, params=params, timeout=5)
+        return http.get(url, cookies={'token': token}, params=params, timeout=30)
     except Exception:
         return None
 
 
 def api_post(url, data, token=''):
     try:
-        return http.post(url, json=data, cookies={'token': token}, timeout=5)
+        return http.post(url, json=data, cookies={'token': token}, timeout=30)
     except Exception:
         return None
 
