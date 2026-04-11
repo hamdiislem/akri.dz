@@ -4,6 +4,7 @@ Creates test data by calling the live APIs.
 Usage: python seed.py
 """
 
+import time
 import requests
 
 # ── CONFIGURE YOUR RENDER URLS HERE ─────────────────────────────
@@ -44,6 +45,8 @@ for a in agencies:
     s2 = requests.Session()
     r = s2.post(f"{AUTH_URL}/api/auth/login/", json={"email": a['email'], "password": a['password'], "role": "agency"})
     ok(f"Login {a['agency_name']}", r)
+    token = r.cookies.get('token')
+    s2.headers.update({'Authorization': f'Bearer {token}'})
     agency_tokens.append(s2)
 
 # ============================================================
@@ -66,6 +69,8 @@ for c in clients:
 # 3. CREATE CARS (as each agency)
 # ============================================================
 print("\n── Voitures ─────────────────────────────────")
+print("  (attente 5s pour que les services soient prêts...)")
+time.sleep(5)
 
 cars_by_agency = [
     # Agency 0 — Auto Elite Alger
@@ -89,7 +94,7 @@ cars_by_agency = [
 
 for i, (agency_session, cars) in enumerate(zip(agency_tokens, cars_by_agency)):
     for car in cars:
-        ok(f"Car {car['brand']} {car['model']} (agence {i+1})",
+        ok(f"Car {car['make']} {car['model']} (agence {i+1})",
            agency_session.post(f"{API_URL}/api/cars/", json=car))
 
 # ============================================================
