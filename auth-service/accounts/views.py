@@ -198,6 +198,93 @@ def verify(request):
 
 
 # ============================================================
+# ADMIN HELPERS
+# ============================================================
+
+def require_admin_token(request):
+    token = get_token_from_request(request)
+    if not token:
+        return None, JsonResponse({'erreur': 'Non authentifié'}, status=401)
+    try:
+        payload = decode_token(token)
+        if payload.get('role') != 'admin':
+            return None, JsonResponse({'erreur': 'Accès refusé'}, status=403)
+        return payload, None
+    except Exception:
+        return None, JsonResponse({'erreur': 'Token invalide'}, status=401)
+
+
+# ============================================================
+# ADMIN — AGENCIES
+# ============================================================
+
+def admin_list_agencies(request):
+    _, err = require_admin_token(request)
+    if err:
+        return err
+    agencies = list(Agency.objects.order_by('-created_at').values(
+        'id', 'agency_name', 'owner_name', 'email', 'phone', 'wilaya', 'rc_number', 'status', 'created_at'
+    ))
+    return JsonResponse(agencies, safe=False)
+
+
+@csrf_exempt
+def admin_verify_agency(request, agency_id):
+    _, err = require_admin_token(request)
+    if err:
+        return err
+    try:
+        agency = Agency.objects.get(id=agency_id)
+        agency.status = 'VERIFIED'
+        agency.save(update_fields=['status'])
+        return JsonResponse({'message': 'Agence vérifiée'})
+    except Agency.DoesNotExist:
+        return JsonResponse({'erreur': 'Agence introuvable'}, status=404)
+
+
+@csrf_exempt
+def admin_ban_agency(request, agency_id):
+    _, err = require_admin_token(request)
+    if err:
+        return err
+    try:
+        agency = Agency.objects.get(id=agency_id)
+        agency.status = 'BANNED'
+        agency.save(update_fields=['status'])
+        return JsonResponse({'message': 'Agence bannie'})
+    except Agency.DoesNotExist:
+        return JsonResponse({'erreur': 'Agence introuvable'}, status=404)
+
+
+# ============================================================
+# ADMIN — CLIENTS
+# ============================================================
+
+def admin_list_clients(request):
+    _, err = require_admin_token(request)
+    if err:
+        return err
+    clients = list(Client.objects.order_by('-created_at').values(
+        'id', 'full_name', 'email', 'phone', 'wilaya', 'status', 'created_at'
+    ))
+    return JsonResponse(clients, safe=False)
+
+
+@csrf_exempt
+def admin_ban_client(request, client_id):
+    _, err = require_admin_token(request)
+    if err:
+        return err
+    try:
+        client = Client.objects.get(id=client_id)
+        client.status = 'BANNED'
+        client.save(update_fields=['status'])
+        return JsonResponse({'message': 'Client banni'})
+    except Client.DoesNotExist:
+        return JsonResponse({'erreur': 'Client introuvable'}, status=404)
+
+
+# ============================================================
 # ME — GET /api/auth/me/
 # ============================================================
 def me(request):

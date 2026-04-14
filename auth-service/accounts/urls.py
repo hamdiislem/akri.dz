@@ -8,4 +8,10 @@ urlpatterns = [
     path('logout/', views.logout, name='logout'),
     path('verify/', views.verify, name='verify'),
     path('me/', views.me, name='me'),
+    # Admin
+    path('admin/agencies/', views.admin_list_agencies, name='admin_list_agencies'),
+    path('admin/agencies/<int:agency_id>/verify/', views.admin_verify_agency, name='admin_verify_agency'),
+    path('admin/agencies/<int:agency_id>/ban/', views.admin_ban_agency, name='admin_ban_agency'),
+    path('admin/clients/', views.admin_list_clients, name='admin_list_clients'),
+    path('admin/clients/<int:client_id>/ban/', views.admin_ban_client, name='admin_ban_client'),
 ]

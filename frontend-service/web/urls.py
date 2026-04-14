@@ -14,4 +14,7 @@ urlpatterns = [
     path('dashboard/admin/', views.dashboard_admin, name='dashboard_admin'),
     path('bookings/<int:booking_id>/confirmer/', views.confirmer_booking, name='confirmer_booking'),
     path('bookings/<int:booking_id>/annuler/', views.annuler_booking, name='annuler_booking'),
+    path('admin/agences/<int:agency_id>/verifier/', views.admin_verifier_agence, name='admin_verifier_agence'),
+    path('admin/agences/<int:agency_id>/bannir/', views.admin_bannir_agence, name='admin_bannir_agence'),
+    path('admin/clients/<int:client_id>/bannir/', views.admin_bannir_client, name='admin_bannir_client'),
 ]

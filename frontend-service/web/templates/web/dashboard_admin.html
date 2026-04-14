@@ -27,6 +27,118 @@
   </div>
 </div>
 
+<!-- Agencies -->
+<h2 class="text-lg font-semibold text-gray-800 mb-4">Agences</h2>
+{% if agencies %}
+<div class="bg-white rounded-xl shadow-sm overflow-hidden mb-10">
+  <table class="w-full text-sm">
+    <thead class="bg-gray-50 text-gray-600 text-left">
+      <tr>
+        <th class="px-4 py-3">#</th>
+        <th class="px-4 py-3">Agence</th>
+        <th class="px-4 py-3">Propriétaire</th>
+        <th class="px-4 py-3">Email</th>
+        <th class="px-4 py-3">Wilaya</th>
+        <th class="px-4 py-3">Statut</th>
+        <th class="px-4 py-3">Actions</th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-gray-100">
+      {% for a in agencies %}
+      <tr class="hover:bg-gray-50">
+        <td class="px-4 py-3 font-medium">{{ a.id }}</td>
+        <td class="px-4 py-3 font-medium">{{ a.agency_name }}</td>
+        <td class="px-4 py-3 text-gray-600">{{ a.owner_name }}</td>
+        <td class="px-4 py-3 text-gray-500">{{ a.email }}</td>
+        <td class="px-4 py-3 text-gray-500">{{ a.wilaya }}</td>
+        <td class="px-4 py-3">
+          <span class="px-2 py-0.5 rounded-full text-xs font-medium
+            {% if a.status == 'VERIFIED' %}bg-green-100 text-green-700
+            {% elif a.status == 'PENDING' %}bg-yellow-100 text-yellow-700
+            {% elif a.status == 'BANNED' %}bg-red-100 text-red-700
+            {% else %}bg-gray-100 text-gray-600{% endif %}">
+            {{ a.status }}
+          </span>
+        </td>
+        <td class="px-4 py-3 flex gap-2">
+          {% if a.status == 'PENDING' %}
+          <form method="post" action="/admin/agences/{{ a.id }}/verifier/">
+            {% csrf_token %}
+            <button class="px-3 py-1 bg-green-600 text-white text-xs rounded-lg hover:bg-green-700">
+              Approuver
+            </button>
+          </form>
+          {% endif %}
+          {% if a.status != 'BANNED' %}
+          <form method="post" action="/admin/agences/{{ a.id }}/bannir/">
+            {% csrf_token %}
+            <button class="px-3 py-1 bg-red-600 text-white text-xs rounded-lg hover:bg-red-700"
+              onclick="return confirm('Bannir cette agence ?')">
+              Bannir
+            </button>
+          </form>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<p class="text-gray-400 mb-10">Aucune agence.</p>
+{% endif %}
+
+<!-- Clients -->
+<h2 class="text-lg font-semibold text-gray-800 mb-4">Clients</h2>
+{% if clients %}
+<div class="bg-white rounded-xl shadow-sm overflow-hidden mb-10">
+  <table class="w-full text-sm">
+    <thead class="bg-gray-50 text-gray-600 text-left">
+      <tr>
+        <th class="px-4 py-3">#</th>
+        <th class="px-4 py-3">Nom</th>
+        <th class="px-4 py-3">Email</th>
+        <th class="px-4 py-3">Wilaya</th>
+        <th class="px-4 py-3">Statut</th>
+        <th class="px-4 py-3">Actions</th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-gray-100">
+      {% for c in clients %}
+      <tr class="hover:bg-gray-50">
+        <td class="px-4 py-3 font-medium">{{ c.id }}</td>
+        <td class="px-4 py-3 font-medium">{{ c.full_name }}</td>
+        <td class="px-4 py-3 text-gray-500">{{ c.email }}</td>
+        <td class="px-4 py-3 text-gray-500">{{ c.wilaya }}</td>
+        <td class="px-4 py-3">
+          <span class="px-2 py-0.5 rounded-full text-xs font-medium
+            {% if c.status == 'VERIFIED' %}bg-green-100 text-green-700
+            {% elif c.status == 'PENDING' %}bg-yellow-100 text-yellow-700
+            {% elif c.status == 'BANNED' %}bg-red-100 text-red-700
+            {% else %}bg-gray-100 text-gray-600{% endif %}">
+            {{ c.status }}
+          </span>
+        </td>
+        <td class="px-4 py-3">
+          {% if c.status != 'BANNED' %}
+          <form method="post" action="/admin/clients/{{ c.id }}/bannir/">
+            {% csrf_token %}
+            <button class="px-3 py-1 bg-red-600 text-white text-xs rounded-lg hover:bg-red-700"
+              onclick="return confirm('Bannir ce client ?')">
+              Bannir
+            </button>
+          </form>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<p class="text-gray-400 mb-10">Aucun client.</p>
+{% endif %}
+
 <!-- All Bookings -->
 <h2 class="text-lg font-semibold text-gray-800 mb-4">Toutes les réservations</h2>
 {% if bookings %}

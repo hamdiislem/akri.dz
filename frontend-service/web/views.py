@@ -181,11 +181,40 @@ def dashboard_admin(request):
         return redirect('/login/')
     stats_resp = api_get(f"{API_URL}/api/admin/stats/", token)
     bookings_resp = api_get(f"{API_URL}/api/admin/bookings/", token)
+    agencies_resp = api_get(f"{AUTH_URL}/api/auth/admin/agencies/", token)
+    clients_resp = api_get(f"{AUTH_URL}/api/auth/admin/clients/", token)
     stats = stats_resp.json() if stats_resp and stats_resp.status_code == 200 else {}
     bookings = bookings_resp.json() if bookings_resp and bookings_resp.status_code == 200 else []
     if isinstance(bookings, dict):
         bookings = bookings.get('results', [])
-    return render(request, 'web/dashboard_admin.html', {'stats': stats, 'bookings': bookings})
+    agencies = agencies_resp.json() if agencies_resp and agencies_resp.status_code == 200 else []
+    clients = clients_resp.json() if clients_resp and clients_resp.status_code == 200 else []
+    return render(request, 'web/dashboard_admin.html', {
+        'stats': stats, 'bookings': bookings,
+        'agencies': agencies, 'clients': clients,
+    })
+
+
+# ─── ADMIN ACTIONS ─────────────────────────────────────────
+@csrf_exempt
+def admin_verifier_agence(request, agency_id):
+    if request.method == 'POST':
+        api_post(f"{AUTH_URL}/api/auth/admin/agencies/{agency_id}/verify/", {}, token=get_token(request))
+    return redirect('/dashboard/admin/')
+
+
+@csrf_exempt
+def admin_bannir_agence(request, agency_id):
+    if request.method == 'POST':
+        api_post(f"{AUTH_URL}/api/auth/admin/agencies/{agency_id}/ban/", {}, token=get_token(request))
+    return redirect('/dashboard/admin/')
+
+
+@csrf_exempt
+def admin_bannir_client(request, client_id):
+    if request.method == 'POST':
+        api_post(f"{AUTH_URL}/api/auth/admin/clients/{client_id}/ban/", {}, token=get_token(request))
+    return redirect('/dashboard/admin/')
 
 
 # ─── BOOKING ACTIONS ───────────────────────────────────────
