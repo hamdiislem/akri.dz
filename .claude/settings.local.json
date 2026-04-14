@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python3 -m py_compile frontend-service/web/views.py auth-service/accounts/views.py api-service/cars/views.py api-service/bookings/views.py)",
+      "Bash(python3 -m py_compile frontend-service/web/views.py)",
+      "Bash(rm -f docker-compose.yml Vagrantfile)",
+      "Bash(rm -rf .vagrant traefik deployment api-service/Dockerfile auth-service/Dockerfile frontend-service/Dockerfile notification-worker/Dockerfile)"
+    ]
+  }
+}

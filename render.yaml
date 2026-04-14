@@ -15,12 +15,13 @@ services:
     plan: free
     ipAllowList: []
 
-  # ── Auth Service (Server 2) ──────────────────────────────────
+  # ── Auth Service ─────────────────────────────────────────────
   - type: web
     name: akri-auth
-    runtime: docker
-    dockerfilePath: ./auth-service/Dockerfile
-    dockerContext: ./auth-service
+    runtime: python
+    rootDir: auth-service
+    buildCommand: pip install -r requirements.txt
+    startCommand: python manage.py migrate --no-input && gunicorn auth_project.wsgi:application --bind 0.0.0.0:$PORT
     plan: free
     envVars:
       - key: DATABASE_URL
@@ -41,12 +42,13 @@ services:
       - key: CONSUL_HOST
         value: ""
 
-  # ── API Service (Server 3) ───────────────────────────────────
+  # ── API Service ──────────────────────────────────────────────
   - type: web
     name: akri-api
-    runtime: docker
-    dockerfilePath: ./api-service/Dockerfile
-    dockerContext: ./api-service
+    runtime: python
+    rootDir: api-service
+    buildCommand: pip install -r requirements.txt
+    startCommand: python manage.py migrate --no-input && gunicorn api_project.wsgi:application --bind 0.0.0.0:$PORT
     plan: free
     envVars:
       - key: DATABASE_URL
@@ -67,12 +69,13 @@ services:
       - key: CONSUL_HOST
         value: ""
 
-  # ── Frontend Service (Server 4) ──────────────────────────────
+  # ── Frontend Service ─────────────────────────────────────────
   - type: web
     name: akri-frontend
-    runtime: docker
-    dockerfilePath: ./frontend-service/Dockerfile
-    dockerContext: ./frontend-service
+    runtime: python
+    rootDir: frontend-service
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn frontend_project.wsgi:application --bind 0.0.0.0:$PORT
     plan: free
     envVars:
       - key: AUTH_SERVICE_URL
@@ -90,12 +93,13 @@ services:
       - key: DEBUG
         value: "False"
 
-  # ── Notification Worker (Server 5) ───────────────────────────
+  # ── Notification Worker ──────────────────────────────────────
   - type: web
     name: akri-worker
-    runtime: docker
-    dockerfilePath: ./notification-worker/Dockerfile
-    dockerContext: ./notification-worker
+    runtime: python
+    rootDir: notification-worker
+    buildCommand: pip install -r requirements.txt
+    startCommand: python worker.py
     plan: free
     envVars:
       - key: RABBITMQ_URL

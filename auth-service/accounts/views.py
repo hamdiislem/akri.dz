@@ -117,6 +117,8 @@ def login(request):
                 user_id = user.id
                 if user.status == 'BANNED':
                     return JsonResponse({'erreur': 'Compte banni'}, status=403)
+                if user.status == 'PENDING':
+                    return JsonResponse({'erreur': 'Compte en attente de validation'}, status=403)
             except Agency.DoesNotExist:
                 return JsonResponse({'erreur': 'Identifiants incorrects'}, status=401)
 

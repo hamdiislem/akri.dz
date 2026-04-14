@@ -1,9 +1,12 @@
 import requests as http
 from django.shortcuts import render, redirect
+from django.views.decorators.csrf import csrf_exempt
 from django.conf import settings
 
 AUTH_URL = settings.AUTH_SERVICE_URL
 API_URL = settings.API_SERVICE_URL
+
+TIMEOUT = 60
 
 
 def get_token(request):
@@ -12,16 +15,28 @@ def get_token(request):
 
 def api_get(url, token='', params=None):
     try:
-        return http.get(url, cookies={'token': token}, params=params, timeout=30)
+        headers = {'Authorization': f'Bearer {token}'} if token else {}
+        return http.get(url, headers=headers, cookies={'token': token} if token else {}, params=params, timeout=TIMEOUT)
     except Exception:
         return None
 
 
 def api_post(url, data, token=''):
     try:
-        return http.post(url, json=data, cookies={'token': token}, timeout=30)
+        headers = {'Authorization': f'Bearer {token}'} if token else {}
+        return http.post(url, json=data, headers=headers, cookies={'token': token} if token else {}, timeout=TIMEOUT)
     except Exception:
         return None
+
+
+def parse_list(resp):
+    """Handle both list and paginated DRF responses."""
+    if not resp or resp.status_code != 200:
+        return []
+    data = resp.json()
+    if isinstance(data, list):
+        return data
+    return data.get('results', [])
 
 
 # ─── HOME ──────────────────────────────────────────────────
@@ -41,17 +56,23 @@ def login_view(request):
             data = resp.json()
             role = data.get('role', 'client')
             response = redirect(f"/dashboard/{role}/")
+            # Extract token from cookie set by auth-service
             token = resp.cookies.get('token', '')
             if token:
                 response.set_cookie('token', token, httponly=True, samesite='Lax', max_age=60*60*24*7)
             return response
-        error = resp.json().get('erreur', 'Erreur de connexion') if resp else 'Service indisponible'
+        error = 'Service indisponible'
+        if resp:
+            try:
+                error = resp.json().get('erreur', 'Erreur de connexion')
+            except Exception:
+                pass
         return render(request, 'web/login.html', {'error': error})
     return render(request, 'web/login.html')
 
 
 def logout_view(request):
-    resp = api_post(f"{AUTH_URL}/api/auth/logout/", {}, token=get_token(request))
+    api_post(f"{AUTH_URL}/api/auth/logout/", {}, token=get_token(request))
     response = redirect('/')
     response.delete_cookie('token')
     return response
@@ -68,7 +89,12 @@ def register_client(request):
         })
         if resp and resp.status_code == 201:
             return redirect('/login/')
-        error = resp.json().get('erreur', 'Erreur') if resp else 'Service indisponible'
+        error = 'Service indisponible'
+        if resp:
+            try:
+                error = resp.json().get('erreur', 'Erreur')
+            except Exception:
+                pass
         return render(request, 'web/register_client.html', {'error': error})
     return render(request, 'web/register_client.html')
 
@@ -86,7 +112,12 @@ def register_agency(request):
         })
         if resp and resp.status_code == 201:
             return redirect('/login/')
-        error = resp.json().get('erreur', 'Erreur') if resp else 'Service indisponible'
+        error = 'Service indisponible'
+        if resp:
+            try:
+                error = resp.json().get('erreur', 'Erreur')
+            except Exception:
+                pass
         return render(request, 'web/register_agency.html', {'error': error})
     return render(request, 'web/register_agency.html')
 
@@ -95,7 +126,7 @@ def register_agency(request):
 def cars_list(request):
     params = {k: v for k, v in request.GET.items() if v}
     resp = api_get(f"{API_URL}/api/cars/", params=params)
-    cars = resp.json().get('results', resp.json()) if resp and resp.status_code == 200 else []
+    cars = parse_list(resp)
     return render(request, 'web/cars.html', {'cars': cars, 'filters': request.GET})
 
 
@@ -115,7 +146,12 @@ def car_detail(request, car_id):
         }, token=token)
         if book_resp and book_resp.status_code == 201:
             return redirect('/dashboard/client/')
-        error = book_resp.json().get('erreur', 'Erreur') if book_resp else 'Service indisponible'
+        error = 'Service indisponible'
+        if book_resp:
+            try:
+                error = book_resp.json().get('erreur', 'Erreur')
+            except Exception:
+                pass
         return render(request, 'web/car_detail.html', {'car': car, 'error': error})
 
     return render(request, 'web/car_detail.html', {'car': car})
@@ -126,8 +162,7 @@ def dashboard_client(request):
     token = get_token(request)
     if not token:
         return redirect('/login/')
-    resp = api_get(f"{API_URL}/api/bookings/mes-reservations/", token)
-    bookings = resp.json() if resp and resp.status_code == 200 else []
+    bookings = parse_list(api_get(f"{API_URL}/api/bookings/mes-reservations/", token))
     return render(request, 'web/dashboard_client.html', {'bookings': bookings})
 
 
@@ -135,10 +170,8 @@ def dashboard_agency(request):
     token = get_token(request)
     if not token:
         return redirect('/login/')
-    cars_resp = api_get(f"{API_URL}/api/cars/mine/", token)
-    bookings_resp = api_get(f"{API_URL}/api/bookings/agence/", token)
-    cars = cars_resp.json() if cars_resp and cars_resp.status_code == 200 else []
-    bookings = bookings_resp.json() if bookings_resp and bookings_resp.status_code == 200 else []
+    cars = parse_list(api_get(f"{API_URL}/api/cars/mine/", token))
+    bookings = parse_list(api_get(f"{API_URL}/api/bookings/agence/", token))
     return render(request, 'web/dashboard_agency.html', {'cars': cars, 'bookings': bookings})
 
 
@@ -150,15 +183,20 @@ def dashboard_admin(request):
     bookings_resp = api_get(f"{API_URL}/api/admin/bookings/", token)
     stats = stats_resp.json() if stats_resp and stats_resp.status_code == 200 else {}
     bookings = bookings_resp.json() if bookings_resp and bookings_resp.status_code == 200 else []
+    if isinstance(bookings, dict):
+        bookings = bookings.get('results', [])
     return render(request, 'web/dashboard_admin.html', {'stats': stats, 'bookings': bookings})
 
 
+# ─── BOOKING ACTIONS ───────────────────────────────────────
+@csrf_exempt
 def confirmer_booking(request, booking_id):
     if request.method == 'POST':
         api_post(f"{API_URL}/api/bookings/{booking_id}/confirmer/", {}, token=get_token(request))
     return redirect('/dashboard/agency/')
 
 
+@csrf_exempt
 def annuler_booking(request, booking_id):
     if request.method == 'POST':
         api_post(f"{API_URL}/api/bookings/{booking_id}/annuler/", {}, token=get_token(request))

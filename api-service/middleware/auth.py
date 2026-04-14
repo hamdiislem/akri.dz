@@ -47,7 +47,7 @@ class AuthMiddleware:
                 resp = http_requests.get(
                     f"{auth_url}/api/auth/verify/",
                     cookies={'token': token},
-                    timeout=30,
+                    timeout=60,
                 )
                 if resp.status_code == 200:
                     request.user_info = resp.json()
