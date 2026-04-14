@@ -17,15 +17,19 @@ def api_get(url, token='', params=None):
     try:
         headers = {'Authorization': f'Bearer {token}'} if token else {}
         return http.get(url, headers=headers, cookies={'token': token} if token else {}, params=params, timeout=TIMEOUT)
-    except Exception:
+    except Exception as e:
+        print(f"[api_get] ERROR calling {url}: {type(e).__name__}: {e}")
         return None
 
 
 def api_post(url, data, token=''):
     try:
         headers = {'Authorization': f'Bearer {token}'} if token else {}
-        return http.post(url, json=data, headers=headers, cookies={'token': token} if token else {}, timeout=TIMEOUT)
-    except Exception:
+        resp = http.post(url, json=data, headers=headers, cookies={'token': token} if token else {}, timeout=TIMEOUT)
+        print(f"[api_post] {url} → {resp.status_code} | {resp.text[:300]}")
+        return resp
+    except Exception as e:
+        print(f"[api_post] ERROR calling {url}: {type(e).__name__}: {e}")
         return None
 
 
