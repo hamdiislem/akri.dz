@@ -49,7 +49,6 @@ def on_booking_confirmed(ch, method, properties, body):
         print(f"  Période     : {data.get('start_date')} → {data.get('end_date')}")
         print(f"  Total       : {data.get('total_price')} DZD")
         print('=' * 60)
-        # Dans un vrai projet : envoyer un email via smtplib
         ch.basic_ack(delivery_tag=method.delivery_tag)
     except Exception as e:
         print(f'[ERREUR] on_booking_confirmed: {e}')

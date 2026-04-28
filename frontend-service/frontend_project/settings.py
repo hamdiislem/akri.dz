@@ -12,6 +12,8 @@ INSTALLED_APPS = [
     'web',
 ]
 
+STATIC_URL = '/static/'
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -34,16 +36,6 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'frontend_project.wsgi.application'
-
-# No database — frontend calls api-service/auth-service via HTTP
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
-}
-
-STATIC_URL = '/static/'
 
 # Backend service URLs
 AUTH_SERVICE_URL = os.getenv('AUTH_SERVICE_URL', 'http://localhost:8001')

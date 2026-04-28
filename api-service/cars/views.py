@@ -4,14 +4,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from .models import Car
 from .serializers import CarSerializer
-
-
-def require_auth(request, *roles):
-    if not request.user_info:
-        return JsonResponse({'erreur': 'Non authentifié'}, status=401)
-    if roles and request.user_info.get('role') not in roles:
-        return JsonResponse({'erreur': 'Accès interdit'}, status=403)
-    return None
+from utils import require_auth
 
 
 class CarViewSet(viewsets.ModelViewSet):

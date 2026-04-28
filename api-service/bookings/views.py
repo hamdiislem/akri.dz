@@ -9,14 +9,7 @@ from rest_framework.response import Response
 from .models import Booking
 from .serializers import BookingSerializer
 from cars.models import Car
-
-
-def require_auth(request, *roles):
-    if not request.user_info:
-        return JsonResponse({'erreur': 'Non authentifié'}, status=401)
-    if roles and request.user_info.get('role') not in roles:
-        return JsonResponse({'erreur': 'Accès interdit'}, status=403)
-    return None
+from utils import require_auth
 
 
 def publish_to_rabbitmq(queue, message):

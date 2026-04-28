@@ -3,18 +3,13 @@ from django.views import View
 from cars.models import Car
 from bookings.models import Booking
 from reviews.models import Review
-
-
-def require_admin(request):
-    if not request.user_info or request.user_info.get('role') != 'admin':
-        return JsonResponse({'erreur': 'Admin uniquement'}, status=403)
-    return None
+from utils import require_auth
 
 
 class StatsView(View):
     """GET /api/admin/stats/ — statistiques globales"""
     def get(self, request):
-        err = require_admin(request)
+        err = require_auth(request, 'admin')
         if err:
             return err
         return JsonResponse({
@@ -29,7 +24,7 @@ class StatsView(View):
 class AllBookingsView(View):
     """GET /api/admin/bookings/ — toutes les réservations"""
     def get(self, request):
-        err = require_admin(request)
+        err = require_auth(request, 'admin')
         if err:
             return err
         bookings = Booking.objects.all().order_by('-created_at').values(
