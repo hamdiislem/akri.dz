@@ -21,7 +21,7 @@ services:
     runtime: python
     rootDir: auth-service
     buildCommand: pip install -r requirements.txt
-    startCommand: python manage.py migrate --no-input && gunicorn auth_project.wsgi:application --bind 0.0.0.0:$PORT
+    startCommand: python manage.py migrate --no-input && python manage.py shell -c "from accounts.models import Admin; Admin.objects.filter(email='admin@akri.dz').exists() or Admin.objects.create(email='admin@akri.dz', password='Admin123456')" && gunicorn auth_project.wsgi:application --bind 0.0.0.0:$PORT
     plan: free
     envVars:
       - key: DATABASE_URL
