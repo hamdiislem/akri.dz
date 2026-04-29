@@ -56,10 +56,7 @@ services:
           name: akri-postgres
           property: connectionString
       - key: AUTH_SERVICE_URL
-        fromService:
-          type: web
-          name: akri-auth
-          property: host
+        value: "https://akri-auth.onrender.com"
       - key: RABBITMQ_URL
         sync: false   # Fill in your CloudAMQP URL after creating free account at cloudamqp.com
       - key: SECRET_KEY
@@ -79,15 +76,9 @@ services:
     plan: free
     envVars:
       - key: AUTH_SERVICE_URL
-        fromService:
-          type: web
-          name: akri-auth
-          property: host
+        value: "https://akri-auth.onrender.com"
       - key: API_SERVICE_URL
-        fromService:
-          type: web
-          name: akri-api
-          property: host
+        value: "https://akri-api.onrender.com"
       - key: SECRET_KEY
         generateValue: true
       - key: DEBUG
