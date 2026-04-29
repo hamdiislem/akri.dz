@@ -40,11 +40,9 @@ class CarViewSet(viewsets.ModelViewSet):
         err = require_auth(request, 'agency')
         if err:
             return err
-        data = request.data.copy()
-        data['agency_id'] = request.user_info['id']
-        serializer = self.get_serializer(data=data)
+        serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        serializer.save()
+        serializer.save(agency_id=request.user_info['id'])
         return Response(serializer.data, status=201)
 
     def update(self, request, *args, **kwargs):
