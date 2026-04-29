@@ -27,7 +27,7 @@
   </div>
 </div>
 
-<!-- Agencies -->
+<!-- Agences -->
 <h2 class="text-lg font-semibold text-gray-800 mb-4">Agences</h2>
 {% if agencies %}
 <div class="bg-white rounded-xl shadow-sm overflow-hidden mb-10">
@@ -46,7 +46,7 @@
     <tbody class="divide-y divide-gray-100">
       {% for a in agencies %}
       <tr class="hover:bg-gray-50">
-        <td class="px-4 py-3 font-medium">{{ a.id }}</td>
+        <td class="px-4 py-3 text-gray-400">{{ a.id }}</td>
         <td class="px-4 py-3 font-medium">{{ a.agency_name }}</td>
         <td class="px-4 py-3 text-gray-600">{{ a.owner_name }}</td>
         <td class="px-4 py-3 text-gray-500">{{ a.email }}</td>
@@ -57,27 +57,28 @@
             {% elif a.status == 'PENDING' %}bg-yellow-100 text-yellow-700
             {% elif a.status == 'BANNED' %}bg-red-100 text-red-700
             {% else %}bg-gray-100 text-gray-600{% endif %}">
-            {{ a.status }}
+            {% if a.status == 'VERIFIED' %}Vérifiée
+            {% elif a.status == 'PENDING' %}En attente
+            {% elif a.status == 'BANNED' %}Bannie
+            {% else %}{{ a.status }}{% endif %}
           </span>
         </td>
-        <td class="px-4 py-3 flex gap-2">
-          {% if a.status == 'PENDING' %}
-          <form method="post" action="/admin/agences/{{ a.id }}/verifier/">
-            {% csrf_token %}
-            <button class="px-3 py-1 bg-green-600 text-white text-xs rounded-lg hover:bg-green-700">
-              Approuver
-            </button>
-          </form>
-          {% endif %}
-          {% if a.status != 'BANNED' %}
-          <form method="post" action="/admin/agences/{{ a.id }}/bannir/">
-            {% csrf_token %}
-            <button class="px-3 py-1 bg-red-600 text-white text-xs rounded-lg hover:bg-red-700"
-              onclick="return confirm('Bannir cette agence ?')">
-              Bannir
-            </button>
-          </form>
-          {% endif %}
+        <td class="px-4 py-3">
+          <div class="flex gap-2">
+            {% if a.status == 'PENDING' %}
+            <form method="post" action="/admin/agences/{{ a.id }}/verifier/">
+              {% csrf_token %}
+              <button class="px-3 py-1 bg-green-600 text-white text-xs rounded-lg hover:bg-green-700">Approuver</button>
+            </form>
+            {% endif %}
+            {% if a.status != 'BANNED' %}
+            <form method="post" action="/admin/agences/{{ a.id }}/bannir/">
+              {% csrf_token %}
+              <button class="px-3 py-1 bg-red-600 text-white text-xs rounded-lg hover:bg-red-700"
+                onclick="return confirm('Bannir cette agence ?')">Bannir</button>
+            </form>
+            {% endif %}
+          </div>
         </td>
       </tr>
       {% endfor %}
@@ -106,7 +107,7 @@
     <tbody class="divide-y divide-gray-100">
       {% for c in clients %}
       <tr class="hover:bg-gray-50">
-        <td class="px-4 py-3 font-medium">{{ c.id }}</td>
+        <td class="px-4 py-3 text-gray-400">{{ c.id }}</td>
         <td class="px-4 py-3 font-medium">{{ c.full_name }}</td>
         <td class="px-4 py-3 text-gray-500">{{ c.email }}</td>
         <td class="px-4 py-3 text-gray-500">{{ c.wilaya }}</td>
@@ -116,7 +117,10 @@
             {% elif c.status == 'PENDING' %}bg-yellow-100 text-yellow-700
             {% elif c.status == 'BANNED' %}bg-red-100 text-red-700
             {% else %}bg-gray-100 text-gray-600{% endif %}">
-            {{ c.status }}
+            {% if c.status == 'VERIFIED' %}Vérifié
+            {% elif c.status == 'PENDING' %}En attente
+            {% elif c.status == 'BANNED' %}Banni
+            {% else %}{{ c.status }}{% endif %}
           </span>
         </td>
         <td class="px-4 py-3">
@@ -124,9 +128,7 @@
           <form method="post" action="/admin/clients/{{ c.id }}/bannir/">
             {% csrf_token %}
             <button class="px-3 py-1 bg-red-600 text-white text-xs rounded-lg hover:bg-red-700"
-              onclick="return confirm('Bannir ce client ?')">
-              Bannir
-            </button>
+              onclick="return confirm('Bannir ce client ?')">Bannir</button>
           </form>
           {% endif %}
         </td>
@@ -139,7 +141,7 @@
 <p class="text-gray-400 mb-10">Aucun client.</p>
 {% endif %}
 
-<!-- All Bookings -->
+<!-- Toutes les réservations -->
 <h2 class="text-lg font-semibold text-gray-800 mb-4">Toutes les réservations</h2>
 {% if bookings %}
 <div class="bg-white rounded-xl shadow-sm overflow-hidden">
@@ -157,9 +159,9 @@
     <tbody class="divide-y divide-gray-100">
       {% for b in bookings %}
       <tr class="hover:bg-gray-50">
-        <td class="px-4 py-3 font-medium">{{ b.id }}</td>
-        <td class="px-4 py-3">Voiture #{{ b.car_id }}</td>
-        <td class="px-4 py-3">Client #{{ b.client_id }}</td>
+        <td class="px-4 py-3 text-gray-400">{{ b.id }}</td>
+        <td class="px-4 py-3">#{{ b.car_id }}</td>
+        <td class="px-4 py-3">#{{ b.client_id }}</td>
         <td class="px-4 py-3 text-gray-500">{{ b.start_date }} → {{ b.end_date }}</td>
         <td class="px-4 py-3 font-medium">{{ b.total_price }} DZD</td>
         <td class="px-4 py-3">
@@ -167,8 +169,13 @@
             {% if b.status == 'CONFIRMED' %}bg-green-100 text-green-700
             {% elif b.status == 'PENDING' %}bg-yellow-100 text-yellow-700
             {% elif b.status == 'CANCELLED' %}bg-red-100 text-red-700
+            {% elif b.status == 'COMPLETED' %}bg-blue-100 text-blue-700
             {% else %}bg-gray-100 text-gray-600{% endif %}">
-            {{ b.status }}
+            {% if b.status == 'PENDING' %}En attente
+            {% elif b.status == 'CONFIRMED' %}Confirmée
+            {% elif b.status == 'CANCELLED' %}Annulée
+            {% elif b.status == 'COMPLETED' %}Terminée
+            {% else %}{{ b.status }}{% endif %}
           </span>
         </td>
       </tr>

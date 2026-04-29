@@ -33,8 +33,16 @@ def api_post(url, data, token=''):
         return None
 
 
+def api_delete(url, token=''):
+    try:
+        headers = {'Authorization': f'Bearer {token}'} if token else {}
+        return http.delete(url, headers=headers, cookies={'token': token} if token else {}, timeout=TIMEOUT)
+    except Exception as e:
+        print(f"[api_delete] ERROR calling {url}: {type(e).__name__}: {e}")
+        return None
+
+
 def parse_list(resp):
-    """Handle both list and paginated DRF responses."""
     if not resp or resp.status_code != 200:
         return []
     data = resp.json()
@@ -60,10 +68,10 @@ def login_view(request):
             data = resp.json()
             role = data.get('role', 'client')
             response = redirect(f"/dashboard/{role}/")
-            # Extract token from cookie set by auth-service
             token = resp.cookies.get('token', '')
             if token:
                 response.set_cookie('token', token, httponly=True, samesite='Lax', max_age=60*60*24*7)
+            response.set_cookie('role', role, httponly=False, samesite='Lax', max_age=60*60*24*7)
             return response
         error = 'Service indisponible'
         if resp:
@@ -79,6 +87,7 @@ def logout_view(request):
     api_post(f"{AUTH_URL}/api/auth/logout/", {}, token=get_token(request))
     response = redirect('/')
     response.delete_cookie('token')
+    response.delete_cookie('role')
     return response
 
 
@@ -161,6 +170,37 @@ def car_detail(request, car_id):
     return render(request, 'web/car_detail.html', {'car': car})
 
 
+def add_car(request):
+    token = get_token(request)
+    if not token:
+        return redirect('/login/')
+    if request.method == 'POST':
+        image_url = request.POST.get('image_url', '').strip()
+        resp = api_post(f"{API_URL}/api/cars/", {
+            'make': request.POST.get('make'),
+            'model': request.POST.get('model'),
+            'year': int(request.POST.get('year', 2020)),
+            'price_per_day': request.POST.get('price_per_day'),
+            'transmission': request.POST.get('transmission'),
+            'fuel_type': request.POST.get('fuel_type'),
+            'wilaya': request.POST.get('wilaya'),
+            'seats': int(request.POST.get('seats', 5)),
+            'description': request.POST.get('description', ''),
+            'images': [image_url] if image_url else [],
+            'available': True,
+        }, token=token)
+        if resp and resp.status_code == 201:
+            return redirect('/dashboard/agency/')
+        error = 'Service indisponible'
+        if resp:
+            try:
+                error = resp.json().get('erreur', str(resp.json()))
+            except Exception:
+                pass
+        return render(request, 'web/add_car.html', {'error': error, 'form': request.POST})
+    return render(request, 'web/add_car.html')
+
+
 # ─── DASHBOARDS ────────────────────────────────────────────
 def dashboard_client(request):
     token = get_token(request)
@@ -234,3 +274,11 @@ def annuler_booking(request, booking_id):
     if request.method == 'POST':
         api_post(f"{API_URL}/api/bookings/{booking_id}/annuler/", {}, token=get_token(request))
     return redirect(request.POST.get('next', '/'))
+
+
+# ─── CAR ACTIONS ───────────────────────────────────────────
+@csrf_exempt
+def supprimer_voiture(request, car_id):
+    if request.method == 'POST':
+        api_delete(f"{API_URL}/api/cars/{car_id}/", token=get_token(request))
+    return redirect('/dashboard/agency/')

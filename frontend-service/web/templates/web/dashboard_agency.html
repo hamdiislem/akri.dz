@@ -1,52 +1,121 @@
 {% extends "web/base.html" %}
 {% block title %}Tableau de bord Agence — Akri.dz{% endblock %}
 {% block content %}
-<h1 class="text-2xl font-bold text-gray-900 mb-8">Tableau de bord Agence</h1>
 
-<!-- My Cars -->
+<div class="flex items-center justify-between mb-8">
+  <h1 class="text-2xl font-bold text-gray-900">Tableau de bord Agence</h1>
+  <a href="/cars/ajouter/" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 font-medium text-sm">
+    + Ajouter une voiture
+  </a>
+</div>
+
+<!-- Stats rapides -->
+<div class="grid grid-cols-3 gap-4 mb-10">
+  <div class="bg-white rounded-xl shadow-sm p-4 text-center">
+    <div class="text-2xl font-bold text-blue-600">{{ cars|length }}</div>
+    <div class="text-sm text-gray-500 mt-1">Voitures</div>
+  </div>
+  <div class="bg-white rounded-xl shadow-sm p-4 text-center">
+    <div class="text-2xl font-bold text-yellow-500">
+      {% with pending=0 %}
+        {% for b in bookings %}{% if b.status == 'PENDING' %}{{ forloop.counter }}{% endif %}{% endfor %}
+      {% endwith %}
+    </div>
+    <div class="text-sm text-gray-500 mt-1">En attente</div>
+  </div>
+  <div class="bg-white rounded-xl shadow-sm p-4 text-center">
+    <div class="text-2xl font-bold text-green-600">{{ bookings|length }}</div>
+    <div class="text-sm text-gray-500 mt-1">Réservations total</div>
+  </div>
+</div>
+
+<!-- Mes voitures -->
 <div class="mb-10">
   <h2 class="text-lg font-semibold text-gray-800 mb-4">Mes voitures</h2>
   {% if cars %}
   <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
     {% for car in cars %}
-    <div class="bg-white rounded-xl shadow-sm p-4">
-      <div class="font-semibold text-gray-900">{{ car.make }} {{ car.model }} ({{ car.year }})</div>
-      <div class="text-sm text-gray-500 mt-1">{{ car.wilaya }} · {{ car.price_per_day }} DZD/jour</div>
-      <span class="mt-2 inline-block px-2 py-0.5 rounded-full text-xs
-        {% if car.available %}bg-green-100 text-green-700{% else %}bg-red-100 text-red-700{% endif %}">
-        {% if car.available %}Disponible{% else %}Indisponible{% endif %}
-      </span>
+    <div class="bg-white rounded-xl shadow-sm p-4 flex flex-col justify-between">
+      <div>
+        <div class="font-semibold text-gray-900">{{ car.make }} {{ car.model }} ({{ car.year }})</div>
+        <div class="text-sm text-gray-500 mt-1">{{ car.wilaya }} · {{ car.price_per_day }} DZD/jour</div>
+        <div class="text-xs text-gray-400 mt-1">{{ car.seats }} places ·
+          {% if car.fuel_type == 'PETROL' %}Essence
+          {% elif car.fuel_type == 'DIESEL' %}Diesel
+          {% elif car.fuel_type == 'ELECTRIC' %}Électrique
+          {% else %}Hybride{% endif %}
+        </div>
+        <span class="mt-2 inline-block px-2 py-0.5 rounded-full text-xs font-medium
+          {% if car.available %}bg-green-100 text-green-700{% else %}bg-red-100 text-red-700{% endif %}">
+          {% if car.available %}Disponible{% else %}Indisponible{% endif %}
+        </span>
+      </div>
+      <div class="mt-4 flex gap-2">
+        <a href="/cars/{{ car.id }}/" class="text-xs text-blue-600 hover:underline border border-blue-200 px-3 py-1 rounded-lg">
+          Voir
+        </a>
+        <form method="post" action="/cars/{{ car.id }}/supprimer/" onsubmit="return confirm('Supprimer cette voiture ?')">
+          {% csrf_token %}
+          <button class="text-xs text-red-500 hover:text-red-700 border border-red-200 px-3 py-1 rounded-lg">
+            Supprimer
+          </button>
+        </form>
+      </div>
     </div>
     {% endfor %}
   </div>
   {% else %}
-  <p class="text-gray-400">Aucune voiture ajoutée.</p>
+  <div class="text-center py-10 bg-white rounded-xl shadow-sm">
+    <p class="text-gray-400 mb-3">Aucune voiture ajoutée.</p>
+    <a href="/cars/ajouter/" class="text-blue-600 hover:underline text-sm">Ajouter votre première voiture</a>
+  </div>
   {% endif %}
 </div>
 
-<!-- Bookings -->
+<!-- Réservations reçues -->
 <div>
   <h2 class="text-lg font-semibold text-gray-800 mb-4">Réservations reçues</h2>
   {% if bookings %}
   <div class="space-y-3">
     {% for b in bookings %}
-    <div class="bg-white rounded-xl shadow-sm p-5 flex items-center justify-between">
-      <div>
-        <div class="font-semibold text-gray-900">Réservation #{{ b.id }} — Voiture #{{ b.car }}</div>
-        <div class="text-sm text-gray-500 mt-1">{{ b.start_date }} → {{ b.end_date }} · {{ b.total_price }} DZD</div>
+    <div class="bg-white rounded-xl shadow-sm p-5 flex items-center justify-between gap-4">
+      <div class="flex-1 min-w-0">
+        <div class="font-semibold text-gray-900">Réservation #{{ b.id }}</div>
+        <div class="text-sm text-gray-500 mt-1">
+          Du {{ b.start_date }} au {{ b.end_date }} · <span class="font-medium text-gray-700">{{ b.total_price }} DZD</span>
+        </div>
+        {% if b.message %}
+        <div class="text-xs text-gray-400 mt-1 italic">"{{ b.message }}"</div>
+        {% endif %}
       </div>
-      <div class="flex items-center gap-3">
-        <span class="px-3 py-1 rounded-full text-xs font-medium
+      <div class="flex items-center gap-2 flex-shrink-0">
+        <span class="px-2 py-0.5 rounded-full text-xs font-medium
           {% if b.status == 'CONFIRMED' %}bg-green-100 text-green-700
           {% elif b.status == 'PENDING' %}bg-yellow-100 text-yellow-700
           {% elif b.status == 'CANCELLED' %}bg-red-100 text-red-700
+          {% elif b.status == 'COMPLETED' %}bg-blue-100 text-blue-700
           {% else %}bg-gray-100 text-gray-600{% endif %}">
-          {{ b.status }}
+          {% if b.status == 'PENDING' %}En attente
+          {% elif b.status == 'CONFIRMED' %}Confirmée
+          {% elif b.status == 'CANCELLED' %}Annulée
+          {% elif b.status == 'COMPLETED' %}Terminée
+          {% else %}{{ b.status }}{% endif %}
         </span>
         {% if b.status == 'PENDING' %}
         <form method="post" action="/bookings/{{ b.id }}/confirmer/">
           {% csrf_token %}
-          <button class="text-xs bg-green-600 text-white px-3 py-1 rounded-lg hover:bg-green-700">Confirmer</button>
+          <button class="text-xs bg-green-600 text-white px-3 py-1.5 rounded-lg hover:bg-green-700">Confirmer</button>
+        </form>
+        <form method="post" action="/bookings/{{ b.id }}/annuler/">
+          {% csrf_token %}
+          <input type="hidden" name="next" value="/dashboard/agency/">
+          <button class="text-xs bg-red-100 text-red-600 px-3 py-1.5 rounded-lg hover:bg-red-200">Refuser</button>
+        </form>
+        {% elif b.status == 'CONFIRMED' %}
+        <form method="post" action="/bookings/{{ b.id }}/annuler/">
+          {% csrf_token %}
+          <input type="hidden" name="next" value="/dashboard/agency/">
+          <button class="text-xs bg-red-100 text-red-600 px-3 py-1.5 rounded-lg hover:bg-red-200">Annuler</button>
         </form>
         {% endif %}
       </div>
@@ -54,7 +123,9 @@
     {% endfor %}
   </div>
   {% else %}
-  <p class="text-gray-400">Aucune réservation reçue.</p>
+  <div class="text-center py-10 bg-white rounded-xl shadow-sm text-gray-400">
+    Aucune réservation reçue.
+  </div>
   {% endif %}
 </div>
 {% endblock %}
