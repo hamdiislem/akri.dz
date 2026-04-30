@@ -1,70 +1,97 @@
 {% extends "web/base.html" %}
 {% block title %}Voitures disponibles — Akri.dz{% endblock %}
 {% block content %}
-<h1 class="text-2xl font-bold text-gray-900 mb-6">Voitures disponibles</h1>
 
-<form method="get" action="/cars/" class="bg-white rounded-xl shadow-sm p-4 mb-6 flex flex-wrap gap-3 items-end">
-  <div>
-    <label class="block text-xs font-medium text-gray-600 mb-1">Wilaya</label>
-    <select name="wilaya" class="border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-      <option value="">Toutes les wilayas</option>
-      {% include "web/wilaya_options.html" with selected=filters.wilaya %}
-    </select>
-  </div>
-  <div>
-    <label class="block text-xs font-medium text-gray-600 mb-1">Carburant</label>
-    <select name="fuel_type" class="border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-      <option value="">Tous</option>
-      <option value="PETROL" {% if filters.fuel_type == "PETROL" %}selected{% endif %}>Essence</option>
-      <option value="DIESEL" {% if filters.fuel_type == "DIESEL" %}selected{% endif %}>Diesel</option>
-      <option value="ELECTRIC" {% if filters.fuel_type == "ELECTRIC" %}selected{% endif %}>Électrique</option>
-      <option value="HYBRID" {% if filters.fuel_type == "HYBRID" %}selected{% endif %}>Hybride</option>
-    </select>
-  </div>
-  <div>
-    <label class="block text-xs font-medium text-gray-600 mb-1">Boîte</label>
-    <select name="transmission" class="border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-      <option value="">Toutes</option>
-      <option value="MANUAL" {% if filters.transmission == "MANUAL" %}selected{% endif %}>Manuelle</option>
-      <option value="AUTOMATIC" {% if filters.transmission == "AUTOMATIC" %}selected{% endif %}>Automatique</option>
-    </select>
-  </div>
-  <button type="submit" class="bg-blue-600 text-white px-4 py-1.5 rounded-lg text-sm hover:bg-blue-700">Filtrer</button>
-  <a href="/cars/" class="text-sm text-gray-500 hover:text-gray-700 py-1.5">Réinitialiser</a>
-</form>
+<div class="flex items-center justify-between mb-6">
+  <h1 class="text-3xl font-black text-gray-900">Voitures disponibles</h1>
+</div>
+
+<div class="bg-white rounded-2xl shadow-sm p-5 mb-8">
+  <form method="get" action="/cars/" class="flex flex-wrap gap-4 items-end">
+    <div class="flex-1 min-w-36">
+      <label class="block text-xs font-semibold text-gray-500 mb-1.5 uppercase tracking-wide">Wilaya</label>
+      <select name="wilaya" class="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50">
+        <option value="">Toutes les wilayas</option>
+        {% include "web/wilaya_options.html" with selected=filters.wilaya %}
+      </select>
+    </div>
+    <div>
+      <label class="block text-xs font-semibold text-gray-500 mb-1.5 uppercase tracking-wide">Carburant</label>
+      <select name="fuel_type" class="border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50">
+        <option value="">Tous</option>
+        <option value="PETROL" {% if filters.fuel_type == "PETROL" %}selected{% endif %}>Essence</option>
+        <option value="DIESEL" {% if filters.fuel_type == "DIESEL" %}selected{% endif %}>Diesel</option>
+        <option value="ELECTRIC" {% if filters.fuel_type == "ELECTRIC" %}selected{% endif %}>Électrique</option>
+        <option value="HYBRID" {% if filters.fuel_type == "HYBRID" %}selected{% endif %}>Hybride</option>
+      </select>
+    </div>
+    <div>
+      <label class="block text-xs font-semibold text-gray-500 mb-1.5 uppercase tracking-wide">Boîte</label>
+      <select name="transmission" class="border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50">
+        <option value="">Toutes</option>
+        <option value="MANUAL" {% if filters.transmission == "MANUAL" %}selected{% endif %}>Manuelle</option>
+        <option value="AUTOMATIC" {% if filters.transmission == "AUTOMATIC" %}selected{% endif %}>Automatique</option>
+      </select>
+    </div>
+    <div>
+      <label class="block text-xs font-semibold text-gray-500 mb-1.5 uppercase tracking-wide">Disponibilité</label>
+      <select name="available" class="border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50">
+        <option value="">Toutes</option>
+        <option value="true" {% if filters.available == "true" %}selected{% endif %}>Disponible</option>
+      </select>
+    </div>
+    <div class="flex gap-2">
+      <button type="submit" class="bg-blue-600 text-white px-5 py-2 rounded-xl text-sm font-bold hover:bg-blue-700 transition-colors">Filtrer</button>
+      <a href="/cars/" class="border border-gray-200 text-gray-600 px-4 py-2 rounded-xl text-sm hover:bg-gray-50 transition-colors">Réinitialiser</a>
+    </div>
+  </form>
+</div>
 
 {% if cars %}
 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
   {% for car in cars %}
-  <a href="/cars/{{ car.id }}/" class="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow overflow-hidden block">
-    <div class="h-40 bg-gray-100 flex items-center justify-center text-5xl">
+  <a href="/cars/{{ car.id }}/" class="bg-white rounded-2xl shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-200 overflow-hidden flex flex-col group">
+    <div class="h-44 bg-slate-100 overflow-hidden flex items-center justify-center">
       {% if car.images %}
-        <img src="{{ car.images.0 }}" class="h-40 w-full object-cover" alt="{{ car.make }} {{ car.model }}" onerror="this.parentElement.innerHTML='🚗'">
+        <img src="{{ car.images.0 }}" class="h-full w-full object-cover group-hover:scale-105 transition-transform duration-300" alt="{{ car.make }} {{ car.model }}" onerror="this.parentElement.innerHTML='<div class=text-5xl>🚗</div>'">
       {% else %}
-        🚗
+        <div class="text-5xl text-slate-300">🚗</div>
       {% endif %}
     </div>
-    <div class="p-4">
-      <h3 class="font-bold text-gray-900">{{ car.make }} {{ car.model }} ({{ car.year }})</h3>
-      <p class="text-sm text-gray-500 mt-1">{{ car.wilaya }} · {{ car.seats }} places ·
-        {% if car.transmission == 'MANUAL' %}Manuelle{% else %}Automatique{% endif %}
-      </p>
-      <div class="flex items-center justify-between mt-3">
-        <span class="text-blue-600 font-bold">{{ car.price_per_day }} DZD<span class="text-xs font-normal text-gray-400">/jour</span></span>
+    <div class="p-5 flex-1 flex flex-col">
+      <div class="flex items-start justify-between gap-2 mb-1">
+        <h3 class="font-bold text-gray-900 text-lg leading-tight">{{ car.make }} {{ car.model }}</h3>
         {% if car.available %}
-          <span class="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full">Disponible</span>
+          <span class="shrink-0 text-xs bg-emerald-100 text-emerald-700 font-semibold px-2.5 py-1 rounded-full">Disponible</span>
         {% else %}
-          <span class="text-xs bg-red-100 text-red-700 px-2 py-0.5 rounded-full">Indisponible</span>
+          <span class="shrink-0 text-xs bg-red-100 text-red-600 font-semibold px-2.5 py-1 rounded-full">Indisponible</span>
         {% endif %}
+      </div>
+      <p class="text-sm text-gray-400 mb-3">{{ car.wilaya }} &middot; {{ car.year }} &middot; {{ car.seats }} places</p>
+      <div class="flex items-center gap-2 text-xs mb-4">
+        <span class="bg-slate-100 text-gray-600 px-2 py-1 rounded-lg font-medium">
+          {% if car.transmission == 'MANUAL' %}Manuelle{% else %}Automatique{% endif %}
+        </span>
+        <span class="bg-slate-100 text-gray-600 px-2 py-1 rounded-lg font-medium">
+          {% if car.fuel_type == 'PETROL' %}Essence{% elif car.fuel_type == 'DIESEL' %}Diesel{% elif car.fuel_type == 'ELECTRIC' %}Électrique{% else %}Hybride{% endif %}
+        </span>
+      </div>
+      <div class="mt-auto flex items-center justify-between border-t border-gray-100 pt-4">
+        <div>
+          <span class="text-blue-600 font-black text-xl">{{ car.price_per_day }}</span>
+          <span class="text-gray-400 text-sm"> DZD/jour</span>
+        </div>
+        <span class="text-blue-600 text-sm font-semibold group-hover:translate-x-1 transition-transform inline-block">Voir →</span>
       </div>
     </div>
   </a>
   {% endfor %}
 </div>
 {% else %}
-<div class="text-center py-16 text-gray-400">
-  <div class="text-5xl mb-4">🔍</div>
-  <p>Aucune voiture trouvée pour ces critères.</p>
+<div class="text-center py-24 bg-white rounded-2xl shadow-sm">
+  <div class="text-6xl mb-4 opacity-20">🔍</div>
+  <p class="text-gray-400 text-lg mb-4">Aucune voiture trouvée pour ces critères.</p>
+  <a href="/cars/" class="inline-block text-blue-600 hover:underline text-sm">Réinitialiser les filtres</a>
 </div>
 {% endif %}
 {% endblock %}

@@ -1,30 +1,51 @@
 {% extends "web/base.html" %}
 {% block title %}Akri.dz — Location de voitures en Algérie{% endblock %}
 {% block content %}
-<div class="text-center py-16">
-  <h1 class="text-4xl font-bold text-gray-900 mb-4">Louez une voiture en Algérie</h1>
-  <p class="text-lg text-gray-500 mb-10">Parcourez des centaines de véhicules disponibles à travers les 58 wilayas.</p>
-  <div class="flex justify-center gap-4">
-    <a href="/cars/" class="bg-blue-600 text-white px-6 py-3 rounded-xl text-lg hover:bg-blue-700">Voir les voitures</a>
-    <a href="/register/agency/" class="border border-blue-600 text-blue-600 px-6 py-3 rounded-xl text-lg hover:bg-blue-50">Inscrire mon agence</a>
+
+<!-- Hero -->
+<div class="-mx-4 -mt-8 mb-12 bg-gradient-to-br from-slate-900 via-slate-800 to-blue-900 text-white px-4 py-24 text-center">
+  <h1 class="text-5xl font-black mb-4 tracking-tight leading-tight">
+    Louez une voiture<br><span class="text-blue-400">n'importe où en Algérie</span>
+  </h1>
+  <p class="text-lg text-slate-300 mb-10 max-w-xl mx-auto">
+    Des centaines de véhicules disponibles à travers les 58 wilayas. Simple, rapide, fiable.
+  </p>
+  <div class="flex justify-center gap-4 flex-wrap">
+    <a href="/cars/" class="bg-blue-600 text-white px-8 py-3.5 rounded-2xl text-lg font-bold hover:bg-blue-500 transition-colors shadow-lg">
+      Trouver une voiture
+    </a>
+    <a href="/register/agency/" class="border border-white/30 text-white px-8 py-3.5 rounded-2xl text-lg font-semibold hover:bg-white/10 transition-colors">
+      Inscrire mon agence
+    </a>
   </div>
 </div>
 
-<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
-  <div class="bg-white rounded-xl p-6 shadow-sm text-center">
-    <div class="text-3xl mb-3">🔍</div>
-    <h3 class="font-semibold text-gray-800 mb-2">Recherchez</h3>
-    <p class="text-gray-500 text-sm">Filtrez par wilaya, type de carburant, boîte de vitesses.</p>
+<!-- Features -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+  <div class="bg-white rounded-2xl p-7 shadow-sm text-center hover:shadow-md transition-all hover:-translate-y-0.5 duration-200">
+    <div class="w-14 h-14 bg-blue-100 rounded-2xl flex items-center justify-center mx-auto mb-4 text-3xl">🔍</div>
+    <h3 class="font-bold text-gray-900 text-lg mb-2">Recherchez</h3>
+    <p class="text-gray-500 text-sm leading-relaxed">Filtrez par wilaya, type de carburant et boîte de vitesses pour trouver le véhicule idéal.</p>
   </div>
-  <div class="bg-white rounded-xl p-6 shadow-sm text-center">
-    <div class="text-3xl mb-3">📅</div>
-    <h3 class="font-semibold text-gray-800 mb-2">Réservez</h3>
-    <p class="text-gray-500 text-sm">Choisissez vos dates et envoyez votre demande en un clic.</p>
+  <div class="bg-white rounded-2xl p-7 shadow-sm text-center hover:shadow-md transition-all hover:-translate-y-0.5 duration-200">
+    <div class="w-14 h-14 bg-blue-100 rounded-2xl flex items-center justify-center mx-auto mb-4 text-3xl">📅</div>
+    <h3 class="font-bold text-gray-900 text-lg mb-2">Réservez</h3>
+    <p class="text-gray-500 text-sm leading-relaxed">Choisissez vos dates sur le calendrier interactif et envoyez votre demande en un clic.</p>
   </div>
-  <div class="bg-white rounded-xl p-6 shadow-sm text-center">
-    <div class="text-3xl mb-3">🚗</div>
-    <h3 class="font-semibold text-gray-800 mb-2">Roulez</h3>
-    <p class="text-gray-500 text-sm">L'agence confirme et vous récupérez la voiture.</p>
+  <div class="bg-white rounded-2xl p-7 shadow-sm text-center hover:shadow-md transition-all hover:-translate-y-0.5 duration-200">
+    <div class="w-14 h-14 bg-blue-100 rounded-2xl flex items-center justify-center mx-auto mb-4 text-3xl">🚗</div>
+    <h3 class="font-bold text-gray-900 text-lg mb-2">Roulez</h3>
+    <p class="text-gray-500 text-sm leading-relaxed">L'agence confirme votre réservation et vous récupérez la voiture aux dates convenues.</p>
   </div>
 </div>
+
+<!-- CTA band -->
+<div class="bg-blue-600 rounded-2xl p-8 text-center text-white">
+  <h2 class="text-2xl font-bold mb-2">Vous êtes une agence de location ?</h2>
+  <p class="text-blue-100 mb-5">Inscrivez-vous gratuitement et publiez votre flotte en quelques minutes.</p>
+  <a href="/register/agency/" class="bg-white text-blue-600 px-7 py-3 rounded-xl font-bold hover:bg-blue-50 transition-colors inline-block">
+    Commencer maintenant
+  </a>
+</div>
+
 {% endblock %}

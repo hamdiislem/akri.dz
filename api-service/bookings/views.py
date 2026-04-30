@@ -172,3 +172,18 @@ class BookingViewSet(viewsets.ModelViewSet):
         })
 
         return JsonResponse({'message': 'Réservation annulée', 'status': 'CANCELLED'})
+
+    @action(detail=False, methods=['get'], url_path='disponibilite')
+    def disponibilite(self, request):
+        """GET /api/bookings/disponibilite/?car=<id> — booked date ranges (public)"""
+        car_id = request.query_params.get('car')
+        if not car_id:
+            return Response([])
+        bookings = Booking.objects.filter(
+            car_id=car_id,
+            status__in=['PENDING', 'CONFIRMED']
+        ).values('start_date', 'end_date')
+        return Response([
+            {'start': str(b['start_date']), 'end': str(b['end_date'])}
+            for b in bookings
+        ])

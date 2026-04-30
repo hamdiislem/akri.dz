@@ -1,80 +1,94 @@
 {% extends "web/base.html" %}
 {% block title %}Administration — Akri.dz{% endblock %}
 {% block content %}
-<h1 class="text-2xl font-bold text-gray-900 mb-8">Administration</h1>
+
+<div class="flex items-center justify-between mb-8">
+  <h1 class="text-3xl font-black text-gray-900">Administration</h1>
+</div>
 
 <!-- Stats -->
 <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-10">
-  <div class="bg-white rounded-xl shadow-sm p-5 text-center">
-    <div class="text-3xl font-bold text-blue-600">{{ stats.total_cars|default:"0" }}</div>
-    <div class="text-sm text-gray-500 mt-1">Voitures</div>
+  <div class="bg-white rounded-2xl shadow-sm p-5 text-center hover:shadow-md transition-shadow">
+    <div class="text-3xl font-black text-blue-600">{{ stats.total_cars|default:"0" }}</div>
+    <div class="text-xs text-gray-400 mt-1 uppercase tracking-wide font-semibold">Voitures</div>
   </div>
-  <div class="bg-white rounded-xl shadow-sm p-5 text-center">
-    <div class="text-3xl font-bold text-blue-600">{{ stats.total_bookings|default:"0" }}</div>
-    <div class="text-sm text-gray-500 mt-1">Réservations</div>
+  <div class="bg-white rounded-2xl shadow-sm p-5 text-center hover:shadow-md transition-shadow">
+    <div class="text-3xl font-black text-blue-600">{{ stats.total_bookings|default:"0" }}</div>
+    <div class="text-xs text-gray-400 mt-1 uppercase tracking-wide font-semibold">Réservations</div>
   </div>
-  <div class="bg-white rounded-xl shadow-sm p-5 text-center">
-    <div class="text-3xl font-bold text-yellow-500">{{ stats.pending_bookings|default:"0" }}</div>
-    <div class="text-sm text-gray-500 mt-1">En attente</div>
+  <div class="bg-white rounded-2xl shadow-sm p-5 text-center hover:shadow-md transition-shadow">
+    <div class="text-3xl font-black text-amber-500">{{ stats.pending_bookings|default:"0" }}</div>
+    <div class="text-xs text-gray-400 mt-1 uppercase tracking-wide font-semibold">En attente</div>
   </div>
-  <div class="bg-white rounded-xl shadow-sm p-5 text-center">
-    <div class="text-3xl font-bold text-green-600">{{ stats.confirmed_bookings|default:"0" }}</div>
-    <div class="text-sm text-gray-500 mt-1">Confirmées</div>
+  <div class="bg-white rounded-2xl shadow-sm p-5 text-center hover:shadow-md transition-shadow">
+    <div class="text-3xl font-black text-emerald-600">{{ stats.confirmed_bookings|default:"0" }}</div>
+    <div class="text-xs text-gray-400 mt-1 uppercase tracking-wide font-semibold">Confirmées</div>
   </div>
-  <div class="bg-white rounded-xl shadow-sm p-5 text-center">
-    <div class="text-3xl font-bold text-purple-600">{{ stats.total_reviews|default:"0" }}</div>
-    <div class="text-sm text-gray-500 mt-1">Avis</div>
+  <div class="bg-white rounded-2xl shadow-sm p-5 text-center hover:shadow-md transition-shadow">
+    <div class="text-3xl font-black text-purple-600">{{ stats.total_reviews|default:"0" }}</div>
+    <div class="text-xs text-gray-400 mt-1 uppercase tracking-wide font-semibold">Avis</div>
   </div>
 </div>
 
 <!-- Agences -->
-<h2 class="text-lg font-semibold text-gray-800 mb-4">Agences</h2>
+<div class="flex items-center justify-between mb-4 flex-wrap gap-3">
+  <h2 class="text-lg font-bold text-gray-800">Agences</h2>
+  <div class="flex gap-3">
+    <select onchange="filterTable('agencies-table','wilaya',this.value)" class="border border-gray-200 rounded-xl px-3 py-1.5 text-sm bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-500">
+      <option value="">Toutes les wilayas</option>
+      {% include "web/wilaya_options.html" %}
+    </select>
+    <select onchange="filterTable('agencies-table','status',this.value)" class="border border-gray-200 rounded-xl px-3 py-1.5 text-sm bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-500">
+      <option value="">Tous les statuts</option>
+      <option value="PENDING">En attente</option>
+      <option value="VERIFIED">Vérifiée</option>
+      <option value="BANNED">Bannie</option>
+    </select>
+  </div>
+</div>
 {% if agencies %}
-<div class="bg-white rounded-xl shadow-sm overflow-hidden mb-10">
-  <table class="w-full text-sm">
-    <thead class="bg-gray-50 text-gray-600 text-left">
+<div class="bg-white rounded-2xl shadow-sm overflow-hidden mb-10">
+  <table class="w-full text-sm" id="agencies-table">
+    <thead class="bg-slate-50 text-gray-500 text-left">
       <tr>
-        <th class="px-4 py-3">#</th>
-        <th class="px-4 py-3">Agence</th>
-        <th class="px-4 py-3">Propriétaire</th>
-        <th class="px-4 py-3">Email</th>
-        <th class="px-4 py-3">Wilaya</th>
-        <th class="px-4 py-3">Statut</th>
-        <th class="px-4 py-3">Actions</th>
+        <th class="px-5 py-3 font-semibold">#</th>
+        <th class="px-5 py-3 font-semibold">Agence</th>
+        <th class="px-5 py-3 font-semibold">Propriétaire</th>
+        <th class="px-5 py-3 font-semibold">Email</th>
+        <th class="px-5 py-3 font-semibold">Wilaya</th>
+        <th class="px-5 py-3 font-semibold">Statut</th>
+        <th class="px-5 py-3 font-semibold">Actions</th>
       </tr>
     </thead>
     <tbody class="divide-y divide-gray-100">
       {% for a in agencies %}
-      <tr class="hover:bg-gray-50">
-        <td class="px-4 py-3 text-gray-400">{{ a.id }}</td>
-        <td class="px-4 py-3 font-medium">{{ a.agency_name }}</td>
-        <td class="px-4 py-3 text-gray-600">{{ a.owner_name }}</td>
-        <td class="px-4 py-3 text-gray-500">{{ a.email }}</td>
-        <td class="px-4 py-3 text-gray-500">{{ a.wilaya }}</td>
-        <td class="px-4 py-3">
-          <span class="px-2 py-0.5 rounded-full text-xs font-medium
-            {% if a.status == 'VERIFIED' %}bg-green-100 text-green-700
-            {% elif a.status == 'PENDING' %}bg-yellow-100 text-yellow-700
-            {% elif a.status == 'BANNED' %}bg-red-100 text-red-700
+      <tr class="hover:bg-slate-50 transition-colors" data-wilaya="{{ a.wilaya }}" data-status="{{ a.status }}">
+        <td class="px-5 py-3 text-gray-400 font-mono text-xs">{{ a.id }}</td>
+        <td class="px-5 py-3 font-semibold text-gray-900">{{ a.agency_name }}</td>
+        <td class="px-5 py-3 text-gray-600">{{ a.owner_name }}</td>
+        <td class="px-5 py-3 text-gray-500">{{ a.email }}</td>
+        <td class="px-5 py-3 text-gray-500">{{ a.wilaya }}</td>
+        <td class="px-5 py-3">
+          <span class="px-2.5 py-1 rounded-full text-xs font-semibold
+            {% if a.status == 'VERIFIED' %}bg-emerald-100 text-emerald-700
+            {% elif a.status == 'PENDING' %}bg-amber-100 text-amber-700
+            {% elif a.status == 'BANNED' %}bg-red-100 text-red-600
             {% else %}bg-gray-100 text-gray-600{% endif %}">
-            {% if a.status == 'VERIFIED' %}Vérifiée
-            {% elif a.status == 'PENDING' %}En attente
-            {% elif a.status == 'BANNED' %}Bannie
-            {% else %}{{ a.status }}{% endif %}
+            {% if a.status == 'VERIFIED' %}Vérifiée{% elif a.status == 'PENDING' %}En attente{% elif a.status == 'BANNED' %}Bannie{% else %}{{ a.status }}{% endif %}
           </span>
         </td>
-        <td class="px-4 py-3">
+        <td class="px-5 py-3">
           <div class="flex gap-2">
             {% if a.status == 'PENDING' %}
             <form method="post" action="/admin/agences/{{ a.id }}/verifier/">
               {% csrf_token %}
-              <button class="px-3 py-1 bg-green-600 text-white text-xs rounded-lg hover:bg-green-700">Approuver</button>
+              <button class="px-3 py-1.5 bg-emerald-600 text-white text-xs font-semibold rounded-xl hover:bg-emerald-700 transition-colors">Approuver</button>
             </form>
             {% endif %}
             {% if a.status != 'BANNED' %}
             <form method="post" action="/admin/agences/{{ a.id }}/bannir/">
               {% csrf_token %}
-              <button class="px-3 py-1 bg-red-600 text-white text-xs rounded-lg hover:bg-red-700"
+              <button class="px-3 py-1.5 bg-red-100 text-red-600 text-xs font-semibold rounded-xl hover:bg-red-200 transition-colors"
                 onclick="return confirm('Bannir cette agence ?')">Bannir</button>
             </form>
             {% endif %}
@@ -86,48 +100,59 @@
   </table>
 </div>
 {% else %}
-<p class="text-gray-400 mb-10">Aucune agence.</p>
+<div class="bg-white rounded-2xl p-8 text-center text-gray-400 mb-10">Aucune agence.</div>
 {% endif %}
 
 <!-- Clients -->
-<h2 class="text-lg font-semibold text-gray-800 mb-4">Clients</h2>
+<div class="flex items-center justify-between mb-4 flex-wrap gap-3">
+  <h2 class="text-lg font-bold text-gray-800">Clients</h2>
+  <div class="flex gap-3">
+    <select onchange="filterTable('clients-table','wilaya',this.value)" class="border border-gray-200 rounded-xl px-3 py-1.5 text-sm bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-500">
+      <option value="">Toutes les wilayas</option>
+      {% include "web/wilaya_options.html" %}
+    </select>
+    <select onchange="filterTable('clients-table','status',this.value)" class="border border-gray-200 rounded-xl px-3 py-1.5 text-sm bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-500">
+      <option value="">Tous les statuts</option>
+      <option value="VERIFIED">Vérifié</option>
+      <option value="PENDING">En attente</option>
+      <option value="BANNED">Banni</option>
+    </select>
+  </div>
+</div>
 {% if clients %}
-<div class="bg-white rounded-xl shadow-sm overflow-hidden mb-10">
-  <table class="w-full text-sm">
-    <thead class="bg-gray-50 text-gray-600 text-left">
+<div class="bg-white rounded-2xl shadow-sm overflow-hidden mb-10">
+  <table class="w-full text-sm" id="clients-table">
+    <thead class="bg-slate-50 text-gray-500 text-left">
       <tr>
-        <th class="px-4 py-3">#</th>
-        <th class="px-4 py-3">Nom</th>
-        <th class="px-4 py-3">Email</th>
-        <th class="px-4 py-3">Wilaya</th>
-        <th class="px-4 py-3">Statut</th>
-        <th class="px-4 py-3">Actions</th>
+        <th class="px-5 py-3 font-semibold">#</th>
+        <th class="px-5 py-3 font-semibold">Nom</th>
+        <th class="px-5 py-3 font-semibold">Email</th>
+        <th class="px-5 py-3 font-semibold">Wilaya</th>
+        <th class="px-5 py-3 font-semibold">Statut</th>
+        <th class="px-5 py-3 font-semibold">Actions</th>
       </tr>
     </thead>
     <tbody class="divide-y divide-gray-100">
       {% for c in clients %}
-      <tr class="hover:bg-gray-50">
-        <td class="px-4 py-3 text-gray-400">{{ c.id }}</td>
-        <td class="px-4 py-3 font-medium">{{ c.full_name }}</td>
-        <td class="px-4 py-3 text-gray-500">{{ c.email }}</td>
-        <td class="px-4 py-3 text-gray-500">{{ c.wilaya }}</td>
-        <td class="px-4 py-3">
-          <span class="px-2 py-0.5 rounded-full text-xs font-medium
-            {% if c.status == 'VERIFIED' %}bg-green-100 text-green-700
-            {% elif c.status == 'PENDING' %}bg-yellow-100 text-yellow-700
-            {% elif c.status == 'BANNED' %}bg-red-100 text-red-700
+      <tr class="hover:bg-slate-50 transition-colors" data-wilaya="{{ c.wilaya }}" data-status="{{ c.status }}">
+        <td class="px-5 py-3 text-gray-400 font-mono text-xs">{{ c.id }}</td>
+        <td class="px-5 py-3 font-semibold text-gray-900">{{ c.full_name }}</td>
+        <td class="px-5 py-3 text-gray-500">{{ c.email }}</td>
+        <td class="px-5 py-3 text-gray-500">{{ c.wilaya }}</td>
+        <td class="px-5 py-3">
+          <span class="px-2.5 py-1 rounded-full text-xs font-semibold
+            {% if c.status == 'VERIFIED' %}bg-emerald-100 text-emerald-700
+            {% elif c.status == 'PENDING' %}bg-amber-100 text-amber-700
+            {% elif c.status == 'BANNED' %}bg-red-100 text-red-600
             {% else %}bg-gray-100 text-gray-600{% endif %}">
-            {% if c.status == 'VERIFIED' %}Vérifié
-            {% elif c.status == 'PENDING' %}En attente
-            {% elif c.status == 'BANNED' %}Banni
-            {% else %}{{ c.status }}{% endif %}
+            {% if c.status == 'VERIFIED' %}Vérifié{% elif c.status == 'PENDING' %}En attente{% elif c.status == 'BANNED' %}Banni{% else %}{{ c.status }}{% endif %}
           </span>
         </td>
-        <td class="px-4 py-3">
+        <td class="px-5 py-3">
           {% if c.status != 'BANNED' %}
           <form method="post" action="/admin/clients/{{ c.id }}/bannir/">
             {% csrf_token %}
-            <button class="px-3 py-1 bg-red-600 text-white text-xs rounded-lg hover:bg-red-700"
+            <button class="px-3 py-1.5 bg-red-100 text-red-600 text-xs font-semibold rounded-xl hover:bg-red-200 transition-colors"
               onclick="return confirm('Bannir ce client ?')">Bannir</button>
           </form>
           {% endif %}
@@ -138,44 +163,49 @@
   </table>
 </div>
 {% else %}
-<p class="text-gray-400 mb-10">Aucun client.</p>
+<div class="bg-white rounded-2xl p-8 text-center text-gray-400 mb-10">Aucun client.</div>
 {% endif %}
 
-<!-- Toutes les réservations -->
-<h2 class="text-lg font-semibold text-gray-800 mb-4">Toutes les réservations</h2>
+<!-- Réservations -->
+<div class="flex items-center justify-between mb-4 flex-wrap gap-3">
+  <h2 class="text-lg font-bold text-gray-800">Toutes les réservations</h2>
+  <select onchange="filterTable('bookings-table','status',this.value)" class="border border-gray-200 rounded-xl px-3 py-1.5 text-sm bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-500">
+    <option value="">Tous les statuts</option>
+    <option value="PENDING">En attente</option>
+    <option value="CONFIRMED">Confirmée</option>
+    <option value="CANCELLED">Annulée</option>
+    <option value="COMPLETED">Terminée</option>
+  </select>
+</div>
 {% if bookings %}
-<div class="bg-white rounded-xl shadow-sm overflow-hidden">
-  <table class="w-full text-sm">
-    <thead class="bg-gray-50 text-gray-600 text-left">
+<div class="bg-white rounded-2xl shadow-sm overflow-hidden">
+  <table class="w-full text-sm" id="bookings-table">
+    <thead class="bg-slate-50 text-gray-500 text-left">
       <tr>
-        <th class="px-4 py-3">#</th>
-        <th class="px-4 py-3">Voiture</th>
-        <th class="px-4 py-3">Client</th>
-        <th class="px-4 py-3">Période</th>
-        <th class="px-4 py-3">Total</th>
-        <th class="px-4 py-3">Statut</th>
+        <th class="px-5 py-3 font-semibold">#</th>
+        <th class="px-5 py-3 font-semibold">Voiture</th>
+        <th class="px-5 py-3 font-semibold">Client</th>
+        <th class="px-5 py-3 font-semibold">Période</th>
+        <th class="px-5 py-3 font-semibold">Total</th>
+        <th class="px-5 py-3 font-semibold">Statut</th>
       </tr>
     </thead>
     <tbody class="divide-y divide-gray-100">
       {% for b in bookings %}
-      <tr class="hover:bg-gray-50">
-        <td class="px-4 py-3 text-gray-400">{{ b.id }}</td>
-        <td class="px-4 py-3">#{{ b.car_id }}</td>
-        <td class="px-4 py-3">#{{ b.client_id }}</td>
-        <td class="px-4 py-3 text-gray-500">{{ b.start_date }} → {{ b.end_date }}</td>
-        <td class="px-4 py-3 font-medium">{{ b.total_price }} DZD</td>
-        <td class="px-4 py-3">
-          <span class="px-2 py-0.5 rounded-full text-xs font-medium
-            {% if b.status == 'CONFIRMED' %}bg-green-100 text-green-700
-            {% elif b.status == 'PENDING' %}bg-yellow-100 text-yellow-700
-            {% elif b.status == 'CANCELLED' %}bg-red-100 text-red-700
+      <tr class="hover:bg-slate-50 transition-colors" data-status="{{ b.status }}">
+        <td class="px-5 py-3 text-gray-400 font-mono text-xs">{{ b.id }}</td>
+        <td class="px-5 py-3 text-gray-700">#{{ b.car_id }}</td>
+        <td class="px-5 py-3 text-gray-700">#{{ b.client_id }}</td>
+        <td class="px-5 py-3 text-gray-500">{{ b.start_date }} → {{ b.end_date }}</td>
+        <td class="px-5 py-3 font-semibold text-gray-900">{{ b.total_price }} DZD</td>
+        <td class="px-5 py-3">
+          <span class="px-2.5 py-1 rounded-full text-xs font-semibold
+            {% if b.status == 'CONFIRMED' %}bg-emerald-100 text-emerald-700
+            {% elif b.status == 'PENDING' %}bg-amber-100 text-amber-700
+            {% elif b.status == 'CANCELLED' %}bg-red-100 text-red-600
             {% elif b.status == 'COMPLETED' %}bg-blue-100 text-blue-700
             {% else %}bg-gray-100 text-gray-600{% endif %}">
-            {% if b.status == 'PENDING' %}En attente
-            {% elif b.status == 'CONFIRMED' %}Confirmée
-            {% elif b.status == 'CANCELLED' %}Annulée
-            {% elif b.status == 'COMPLETED' %}Terminée
-            {% else %}{{ b.status }}{% endif %}
+            {% if b.status == 'PENDING' %}En attente{% elif b.status == 'CONFIRMED' %}Confirmée{% elif b.status == 'CANCELLED' %}Annulée{% elif b.status == 'COMPLETED' %}Terminée{% else %}{{ b.status }}{% endif %}
           </span>
         </td>
       </tr>
@@ -184,6 +214,14 @@
   </table>
 </div>
 {% else %}
-<p class="text-gray-400">Aucune réservation.</p>
+<div class="bg-white rounded-2xl p-8 text-center text-gray-400">Aucune réservation.</div>
 {% endif %}
+
+<script>
+  function filterTable(tableId, attr, value) {
+    document.querySelectorAll(`#${tableId} tbody tr`).forEach(row => {
+      row.style.display = (!value || row.dataset[attr] === value) ? '' : 'none';
+    });
+  }
+</script>
 {% endblock %}

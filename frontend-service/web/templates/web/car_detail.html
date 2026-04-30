@@ -1,82 +1,337 @@
 {% extends "web/base.html" %}
 {% block title %}{{ car.make }} {{ car.model }} — Akri.dz{% endblock %}
 {% block content %}
+
+<div class="mb-5">
+  <a href="/cars/" class="text-sm text-gray-400 hover:text-gray-600 transition-colors">← Retour aux voitures</a>
+</div>
+
 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
 
-  <!-- Car info -->
-  <div class="lg:col-span-2">
-    <div class="bg-white rounded-xl shadow-sm overflow-hidden">
-      <div class="h-56 bg-gray-100 flex items-center justify-center text-7xl">🚗</div>
-      <div class="p-6">
-        <h1 class="text-2xl font-bold text-gray-900">{{ car.make }} {{ car.model }} ({{ car.year }})</h1>
-        <p class="text-gray-500 mt-1">{{ car.wilaya }}</p>
+  <!-- Left: Car info + reviews -->
+  <div class="lg:col-span-2 space-y-6">
 
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
-          <div class="text-center bg-gray-50 rounded-lg p-3">
-            <div class="text-lg">🪑</div>
-            <div class="text-sm font-medium mt-1">{{ car.seats }} places</div>
+    <!-- Car card -->
+    <div class="bg-white rounded-2xl shadow-sm overflow-hidden">
+      {% if car.images %}
+        <img src="{{ car.images.0 }}" alt="{{ car.make }} {{ car.model }}" class="w-full h-64 object-cover" onerror="this.style.display='none'">
+      {% else %}
+        <div class="h-64 bg-slate-100 flex items-center justify-center text-7xl text-slate-300">🚗</div>
+      {% endif %}
+
+      <div class="p-6">
+        <div class="flex items-start justify-between gap-4 mb-1">
+          <h1 class="text-3xl font-black text-gray-900">{{ car.make }} {{ car.model }} <span class="text-gray-400 font-normal text-xl">({{ car.year }})</span></h1>
+          {% if car.available %}
+            <span class="shrink-0 bg-emerald-100 text-emerald-700 text-sm font-semibold px-3 py-1 rounded-full">Disponible</span>
+          {% else %}
+            <span class="shrink-0 bg-red-100 text-red-600 text-sm font-semibold px-3 py-1 rounded-full">Indisponible</span>
+          {% endif %}
+        </div>
+        <p class="text-gray-500 mb-4">📍 {{ car.wilaya }}</p>
+
+        {% if avg_rating %}
+        <div class="flex items-center gap-2 mb-5">
+          <div class="flex text-amber-400 text-lg leading-none">
+            {% for i in "12345" %}{% if forloop.counter <= avg_rating %}★{% else %}☆{% endif %}{% endfor %}
           </div>
-          <div class="text-center bg-gray-50 rounded-lg p-3">
-            <div class="text-lg">⚙️</div>
-            <div class="text-sm font-medium mt-1">{{ car.transmission }}</div>
+          <span class="font-bold text-gray-700">{{ avg_rating }}/5</span>
+          <span class="text-gray-400 text-sm">({{ reviews|length }} avis)</span>
+        </div>
+        {% endif %}
+
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <div class="text-center bg-slate-50 rounded-xl p-4">
+            <div class="text-2xl mb-1">🪑</div>
+            <div class="text-sm font-semibold text-gray-700">{{ car.seats }} places</div>
           </div>
-          <div class="text-center bg-gray-50 rounded-lg p-3">
-            <div class="text-lg">⛽</div>
-            <div class="text-sm font-medium mt-1">{{ car.fuel_type }}</div>
+          <div class="text-center bg-slate-50 rounded-xl p-4">
+            <div class="text-2xl mb-1">⚙️</div>
+            <div class="text-sm font-semibold text-gray-700">
+              {% if car.transmission == 'MANUAL' %}Manuelle{% elif car.transmission == 'AUTOMATIC' %}Automatique{% else %}{{ car.transmission }}{% endif %}
+            </div>
           </div>
-          <div class="text-center bg-gray-50 rounded-lg p-3">
-            <div class="text-lg">{% if car.available %}✅{% else %}❌{% endif %}</div>
-            <div class="text-sm font-medium mt-1">{% if car.available %}Disponible{% else %}Indisponible{% endif %}</div>
+          <div class="text-center bg-slate-50 rounded-xl p-4">
+            <div class="text-2xl mb-1">⛽</div>
+            <div class="text-sm font-semibold text-gray-700">
+              {% if car.fuel_type == 'PETROL' %}Essence{% elif car.fuel_type == 'DIESEL' %}Diesel{% elif car.fuel_type == 'ELECTRIC' %}Électrique{% elif car.fuel_type == 'HYBRID' %}Hybride{% else %}{{ car.fuel_type }}{% endif %}
+            </div>
+          </div>
+          <div class="text-center bg-slate-50 rounded-xl p-4">
+            <div class="text-2xl mb-1">💰</div>
+            <div class="text-sm font-semibold text-blue-600">{{ car.price_per_day }} DZD/j</div>
           </div>
         </div>
 
         {% if car.description %}
-        <div class="mt-6">
+        <div class="mt-5 pt-5 border-t border-gray-100">
           <h3 class="font-semibold text-gray-800 mb-2">Description</h3>
-          <p class="text-gray-600 text-sm">{{ car.description }}</p>
+          <p class="text-gray-600 text-sm leading-relaxed">{{ car.description }}</p>
         </div>
         {% endif %}
       </div>
     </div>
+
+    <!-- Reviews -->
+    {% if reviews %}
+    <div class="bg-white rounded-2xl shadow-sm p-6">
+      <h2 class="text-lg font-bold text-gray-900 mb-4">Avis clients ({{ reviews|length }})</h2>
+      <div class="space-y-4">
+        {% for r in reviews %}
+        <div class="border-b border-gray-100 pb-4 last:border-0 last:pb-0">
+          <div class="flex items-center gap-2 mb-1">
+            <div class="flex text-amber-400 text-base leading-none">
+              {% for i in "12345" %}{% if forloop.counter <= r.rating %}★{% else %}☆{% endif %}{% endfor %}
+            </div>
+            <span class="text-sm font-semibold text-gray-600">{{ r.rating }}/5</span>
+          </div>
+          {% if r.comment %}
+          <p class="text-sm text-gray-500 italic">"{{ r.comment }}"</p>
+          {% endif %}
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- Leave a review (client with completed booking) -->
+    {% if can_review %}
+    <div class="bg-white rounded-2xl shadow-sm p-6 border-l-4 border-blue-500">
+      <h2 class="text-lg font-bold text-gray-900 mb-4">Laisser un avis</h2>
+      <form method="post" action="/bookings/{{ review_booking_id }}/avis/">
+        {% csrf_token %}
+        <input type="hidden" name="car_id" value="{{ car.id }}">
+        <div class="mb-4">
+          <label class="block text-sm font-semibold text-gray-700 mb-2">Votre note</label>
+          <div class="flex gap-1 text-4xl cursor-pointer" id="star-rating">
+            <span data-val="1" class="star text-gray-200 hover:text-amber-400 transition-colors select-none">★</span>
+            <span data-val="2" class="star text-gray-200 hover:text-amber-400 transition-colors select-none">★</span>
+            <span data-val="3" class="star text-gray-200 hover:text-amber-400 transition-colors select-none">★</span>
+            <span data-val="4" class="star text-gray-200 hover:text-amber-400 transition-colors select-none">★</span>
+            <span data-val="5" class="star text-gray-200 hover:text-amber-400 transition-colors select-none">★</span>
+          </div>
+          <input type="hidden" name="rating" id="rating-val">
+        </div>
+        <div class="mb-4">
+          <label class="block text-sm font-semibold text-gray-700 mb-1">Commentaire (optionnel)</label>
+          <textarea name="comment" rows="3" placeholder="Partagez votre expérience..."
+            class="w-full border border-gray-200 rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm resize-none"></textarea>
+        </div>
+        <button type="submit" class="bg-blue-600 text-white px-6 py-2.5 rounded-xl hover:bg-blue-700 font-bold text-sm transition-colors">
+          Publier mon avis
+        </button>
+      </form>
+      <script>
+        const stars = document.querySelectorAll('.star');
+        const ratingInput = document.getElementById('rating-val');
+        stars.forEach(star => {
+          star.addEventListener('mouseover', () => {
+            const val = parseInt(star.dataset.val);
+            stars.forEach(s => s.classList.toggle('text-amber-300', parseInt(s.dataset.val) <= val));
+          });
+          star.addEventListener('mouseout', () => {
+            const selected = parseInt(ratingInput.value) || 0;
+            stars.forEach(s => {
+              s.classList.toggle('text-amber-400', parseInt(s.dataset.val) <= selected);
+              s.classList.toggle('text-amber-300', false);
+              s.classList.toggle('text-gray-200', parseInt(s.dataset.val) > selected);
+            });
+          });
+          star.addEventListener('click', () => {
+            const val = parseInt(star.dataset.val);
+            ratingInput.value = val;
+            stars.forEach(s => {
+              s.classList.toggle('text-amber-400', parseInt(s.dataset.val) <= val);
+              s.classList.toggle('text-gray-200', parseInt(s.dataset.val) > val);
+            });
+          });
+        });
+      </script>
+    </div>
+    {% endif %}
+
   </div>
 
-  <!-- Booking form -->
+  <!-- Right: Booking panel -->
   <div class="lg:col-span-1">
-    <div class="bg-white rounded-xl shadow-sm p-6 sticky top-6">
-      <div class="text-2xl font-bold text-blue-600 mb-1">{{ car.price_per_day }} DZD<span class="text-base font-normal text-gray-400">/jour</span></div>
+    <div class="bg-white rounded-2xl shadow-sm p-6 sticky top-6">
+      <div class="mb-1">
+        <span class="text-3xl font-black text-blue-600">{{ car.price_per_day }}</span>
+        <span class="text-gray-400 text-base"> DZD/jour</span>
+      </div>
 
-      {% if car.available %}
-        <form method="post" action="/cars/{{ car.id }}/" class="mt-4 space-y-4">
+      <!-- Availability calendar -->
+      <div class="mt-5 mb-4">
+        <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Disponibilité</p>
+        <div class="flex items-center gap-3 text-xs text-gray-500 mb-3">
+          <span class="flex items-center gap-1"><span class="w-3 h-3 rounded bg-red-200 inline-block"></span>Réservé</span>
+          <span class="flex items-center gap-1"><span class="w-3 h-3 rounded bg-blue-600 inline-block"></span>Sélectionné</span>
+          <span class="flex items-center gap-1"><span class="w-3 h-3 rounded bg-blue-100 inline-block"></span>Plage choisie</span>
+        </div>
+        <div id="calendar" class="text-sm"></div>
+      </div>
+
+      {% if request.COOKIES.role == 'agency' or request.COOKIES.role == 'admin' %}
+        <div class="bg-slate-50 text-gray-500 rounded-xl p-4 text-sm text-center mt-4">
+          La réservation est réservée aux clients.
+        </div>
+
+      {% elif not request.COOKIES.role %}
+        <div class="bg-blue-50 text-blue-700 rounded-xl p-4 text-sm text-center mt-4">
+          <a href="/login/" class="font-bold hover:underline">Connectez-vous</a> pour réserver.
+        </div>
+
+      {% elif car.available %}
+        <form method="post" action="/cars/{{ car.id }}/" class="space-y-3 mt-2">
           {% csrf_token %}
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Date de début</label>
-            <input type="date" name="start_date" required
-              class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <label class="block text-xs font-semibold text-gray-500 mb-1 uppercase tracking-wide">Date de début</label>
+            <input type="date" name="start_date" required id="start_date"
+              class="w-full border border-gray-200 rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm">
           </div>
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Date de fin</label>
-            <input type="date" name="end_date" required
-              class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <label class="block text-xs font-semibold text-gray-500 mb-1 uppercase tracking-wide">Date de fin</label>
+            <input type="date" name="end_date" required id="end_date"
+              class="w-full border border-gray-200 rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm">
           </div>
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Message (optionnel)</label>
-            <textarea name="message" rows="2"
-              class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+            <label class="block text-xs font-semibold text-gray-500 mb-1 uppercase tracking-wide">Message (optionnel)</label>
+            <textarea name="message" rows="2" class="w-full border border-gray-200 rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm resize-none"></textarea>
           </div>
-          <button type="submit"
-            class="w-full bg-blue-600 text-white py-2.5 rounded-lg hover:bg-blue-700 font-medium">
-            Réserver
+          <div id="price-estimate" class="hidden bg-blue-50 text-blue-700 rounded-xl p-3 text-sm font-bold text-center"></div>
+          <button type="submit" class="w-full bg-blue-600 text-white py-3 rounded-xl hover:bg-blue-700 font-bold transition-colors text-base">
+            Réserver maintenant
           </button>
         </form>
+
       {% else %}
-        <div class="mt-4 bg-red-50 text-red-600 rounded-lg p-4 text-sm text-center">
+        <div class="bg-red-50 text-red-600 rounded-xl p-4 text-sm text-center mt-4">
           Cette voiture n'est pas disponible actuellement.
         </div>
       {% endif %}
 
-      <a href="/cars/" class="block text-center text-sm text-gray-400 hover:text-gray-600 mt-4">← Retour aux voitures</a>
     </div>
   </div>
 
 </div>
+
+<script>
+const bookedRanges = {{ booked_dates_json|safe }};
+const pricePerDay = parseFloat('{{ car.price_per_day }}');
+const startInput = document.getElementById('start_date');
+const endInput = document.getElementById('end_date');
+const priceDiv = document.getElementById('price-estimate');
+const calEl = document.getElementById('calendar');
+
+let calYear, calMonth;
+
+function pad(n) { return String(n).padStart(2, '0'); }
+function toStr(y, m, d) { return `${y}-${pad(m+1)}-${pad(d)}`; }
+
+function isBooked(dateStr) {
+  return bookedRanges.some(r => dateStr >= r.start && dateStr < r.end);
+}
+
+function renderCalendar() {
+  const today = new Date().toISOString().split('T')[0];
+  const firstDay = new Date(calYear, calMonth, 1);
+  const lastDay = new Date(calYear, calMonth + 1, 0);
+  const startDow = (firstDay.getDay() + 6) % 7;
+  const months = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
+
+  const selStart = startInput ? startInput.value : '';
+  const selEnd = endInput ? endInput.value : '';
+
+  let html = `
+    <div class="flex items-center justify-between mb-2">
+      <button type="button" onclick="shiftMonth(-1)" class="text-gray-400 hover:text-gray-700 w-7 h-7 flex items-center justify-center rounded-lg hover:bg-gray-100 transition-colors text-lg">‹</button>
+      <span class="text-sm font-semibold text-gray-700">${months[calMonth]} ${calYear}</span>
+      <button type="button" onclick="shiftMonth(1)" class="text-gray-400 hover:text-gray-700 w-7 h-7 flex items-center justify-center rounded-lg hover:bg-gray-100 transition-colors text-lg">›</button>
+    </div>
+    <div class="grid grid-cols-7 gap-0.5 text-center">
+  `;
+  ['L','M','M','J','V','S','D'].forEach(d => {
+    html += `<div class="text-xs text-gray-400 py-1 font-semibold">${d}</div>`;
+  });
+
+  for (let i = 0; i < startDow; i++) html += '<div></div>';
+
+  for (let d = 1; d <= lastDay.getDate(); d++) {
+    const dateStr = toStr(calYear, calMonth, d);
+    const past = dateStr < today;
+    const booked = isBooked(dateStr);
+    const isStart = dateStr === selStart;
+    const isEnd = dateStr === selEnd;
+    const inRange = selStart && selEnd && dateStr > selStart && dateStr < selEnd;
+    const isToday = dateStr === today;
+
+    let cls = 'text-xs py-1.5 rounded-lg transition-colors ';
+    if (booked) {
+      cls += 'bg-red-100 text-red-400 line-through cursor-not-allowed';
+    } else if (past) {
+      cls += 'text-gray-200 cursor-not-allowed';
+    } else if (isStart || isEnd) {
+      cls += 'bg-blue-600 text-white font-bold cursor-pointer';
+    } else if (inRange) {
+      cls += 'bg-blue-100 text-blue-700 cursor-pointer';
+    } else {
+      cls += `hover:bg-blue-50 text-gray-700 cursor-pointer${isToday ? ' ring-1 ring-blue-400' : ''}`;
+    }
+
+    const clickable = !past && !booked;
+    html += `<div class="${cls}" ${clickable ? `onclick="pickDate('${dateStr}')"` : ''}>${d}</div>`;
+  }
+  html += '</div>';
+  if (calEl) calEl.innerHTML = html;
+}
+
+function shiftMonth(delta) {
+  calMonth += delta;
+  if (calMonth > 11) { calMonth = 0; calYear++; }
+  if (calMonth < 0) { calMonth = 11; calYear--; }
+  renderCalendar();
+}
+
+function pickDate(dateStr) {
+  if (!startInput) return;
+  if (!startInput.value || (startInput.value && endInput.value)) {
+    startInput.value = dateStr;
+    endInput.value = '';
+    if (priceDiv) priceDiv.classList.add('hidden');
+  } else if (dateStr > startInput.value) {
+    endInput.value = dateStr;
+    updatePrice();
+  } else {
+    startInput.value = dateStr;
+    endInput.value = '';
+    if (priceDiv) priceDiv.classList.add('hidden');
+  }
+  renderCalendar();
+}
+
+function updatePrice() {
+  if (!startInput || !endInput || !startInput.value || !endInput.value || !priceDiv) return;
+  const days = Math.round((new Date(endInput.value) - new Date(startInput.value)) / 86400000);
+  if (days > 0) {
+    const total = (days * pricePerDay).toLocaleString('fr-DZ');
+    priceDiv.textContent = `${days} jour${days > 1 ? 's' : ''} × ${pricePerDay} DZD = ${total} DZD`;
+    priceDiv.classList.remove('hidden');
+  }
+}
+
+// Init
+const now = new Date();
+calYear = now.getFullYear();
+calMonth = now.getMonth();
+renderCalendar();
+
+if (startInput) {
+  const today = now.toISOString().split('T')[0];
+  startInput.min = today;
+  endInput.min = today;
+  startInput.addEventListener('change', () => { endInput.min = startInput.value; renderCalendar(); updatePrice(); });
+  endInput.addEventListener('change', () => { renderCalendar(); updatePrice(); });
+}
+</script>
+
 {% endblock %}

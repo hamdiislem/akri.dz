@@ -19,4 +19,5 @@ urlpatterns = [
     path('admin/agences/<int:agency_id>/verifier/', views.admin_verifier_agence, name='admin_verifier_agence'),
     path('admin/agences/<int:agency_id>/bannir/', views.admin_bannir_agence, name='admin_bannir_agence'),
     path('admin/clients/<int:client_id>/bannir/', views.admin_bannir_client, name='admin_bannir_client'),
+    path('bookings/<int:booking_id>/avis/', views.submit_review, name='submit_review'),
 ]

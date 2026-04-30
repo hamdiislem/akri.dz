@@ -1,3 +1,4 @@
+import json
 import requests as http
 from django.shortcuts import render, redirect
 from django.views.decorators.csrf import csrf_exempt
@@ -167,7 +168,48 @@ def car_detail(request, car_id):
                 pass
         return render(request, 'web/car_detail.html', {'car': car, 'error': error})
 
-    return render(request, 'web/car_detail.html', {'car': car})
+    reviews = parse_list(api_get(f"{API_URL}/api/reviews/?car={car_id}"))
+    avg_rating = round(sum(r['rating'] for r in reviews) / len(reviews), 1) if reviews else None
+
+    dates_resp = api_get(f"{API_URL}/api/bookings/disponibilite/?car={car_id}")
+    booked_dates = dates_resp.json() if dates_resp and dates_resp.status_code == 200 else []
+    booked_dates_json = json.dumps(booked_dates)
+
+    can_review = False
+    review_booking_id = None
+    if token and request.COOKIES.get('role') == 'client':
+        reviewed_booking_ids = {r['booking'] for r in reviews}
+        my_bookings = parse_list(api_get(f"{API_URL}/api/bookings/mes-reservations/", token))
+        for b in my_bookings:
+            if b.get('car') == car_id and b.get('status') == 'COMPLETED' and b['id'] not in reviewed_booking_ids:
+                can_review = True
+                review_booking_id = b['id']
+                break
+
+    return render(request, 'web/car_detail.html', {
+        'car': car,
+        'reviews': reviews,
+        'avg_rating': avg_rating,
+        'booked_dates_json': booked_dates_json,
+        'can_review': can_review,
+        'review_booking_id': review_booking_id,
+    })
+
+
+@csrf_exempt
+def submit_review(request, booking_id):
+    if request.method != 'POST':
+        return redirect('/')
+    token = get_token(request)
+    if not token:
+        return redirect('/login/')
+    api_post(f"{API_URL}/api/reviews/", {
+        'booking': booking_id,
+        'rating': int(request.POST.get('rating', 0)),
+        'comment': request.POST.get('comment', ''),
+    }, token=token)
+    car_id = request.POST.get('car_id')
+    return redirect(f'/cars/{car_id}/' if car_id else '/dashboard/client/')
 
 
 def add_car(request):
@@ -216,7 +258,8 @@ def dashboard_agency(request):
         return redirect('/login/')
     cars = parse_list(api_get(f"{API_URL}/api/cars/mine/", token))
     bookings = parse_list(api_get(f"{API_URL}/api/bookings/agence/", token))
-    return render(request, 'web/dashboard_agency.html', {'cars': cars, 'bookings': bookings})
+    pending_count = sum(1 for b in bookings if b.get('status') == 'PENDING')
+    return render(request, 'web/dashboard_agency.html', {'cars': cars, 'bookings': bookings, 'pending_count': pending_count})
 
 
 def dashboard_admin(request):
