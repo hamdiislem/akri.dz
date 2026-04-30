@@ -1,0 +1,102 @@
+{% extends "web/base.html" %}
+{% block title %}Profil Agence — Akri.dz{% endblock %}
+{% block content %}
+<div class="max-w-2xl mx-auto">
+
+  <div class="flex items-center gap-3 mb-6">
+    <a href="/dashboard/agency/" class="text-gray-400 hover:text-gray-600 text-sm transition-colors">← Tableau de bord</a>
+    <span class="text-gray-300">/</span>
+    <h1 class="text-2xl font-black text-gray-900">Profil de l'agence</h1>
+  </div>
+
+  <!-- Banner -->
+  <div class="bg-gradient-to-r from-slate-900 to-blue-900 rounded-2xl p-6 mb-6 flex items-center gap-5">
+    <div class="w-16 h-16 rounded-full bg-blue-600 flex items-center justify-center text-white text-2xl font-black shrink-0">
+      {{ profile.agency_name|first|upper }}
+    </div>
+    <div class="flex-1 min-w-0">
+      <h2 class="text-xl font-black text-white truncate">{{ profile.agency_name }}</h2>
+      <p class="text-slate-400 text-sm mt-0.5">{{ profile.email }}</p>
+      <span class="mt-2 inline-block px-2.5 py-0.5 rounded-full text-xs font-semibold
+        {% if profile.status == 'VERIFIED' %}bg-emerald-500 text-white
+        {% elif profile.status == 'BANNED' %}bg-red-500 text-white
+        {% else %}bg-amber-500 text-white{% endif %}">
+        {% if profile.status == 'VERIFIED' %}Vérifiée{% elif profile.status == 'BANNED' %}Bannie{% else %}En attente de validation{% endif %}
+      </span>
+    </div>
+    <div class="text-right text-slate-400 text-xs shrink-0">
+      <p>Membre depuis</p>
+      <p class="text-white font-semibold mt-0.5">{{ profile.member_since }}</p>
+    </div>
+  </div>
+
+  {% if profile.status == 'PENDING' %}
+  <div class="bg-amber-50 border border-amber-200 rounded-2xl p-4 mb-6 flex items-start gap-3">
+    <span class="text-amber-500 font-bold text-lg shrink-0">!</span>
+    <div>
+      <p class="text-sm font-semibold text-amber-800">Compte en attente de validation</p>
+      <p class="text-xs text-amber-700 mt-0.5">Un administrateur examinera votre dossier. Vous pourrez publier des voitures une fois votre agence approuvée.</p>
+    </div>
+  </div>
+  {% endif %}
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+    <!-- Infos agence -->
+    <div class="bg-white rounded-2xl shadow-sm p-5">
+      <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-4">Informations de l'agence</h3>
+      <div class="space-y-3">
+        <div class="flex justify-between items-start py-2 border-b border-gray-50 gap-3">
+          <span class="text-sm text-gray-500 shrink-0">Nom de l'agence</span>
+          <span class="text-sm font-semibold text-gray-900 text-right">{{ profile.agency_name }}</span>
+        </div>
+        <div class="flex justify-between items-start py-2 border-b border-gray-50 gap-3">
+          <span class="text-sm text-gray-500 shrink-0">Gérant</span>
+          <span class="text-sm font-semibold text-gray-900 text-right">{{ profile.owner_name }}</span>
+        </div>
+        <div class="flex justify-between items-start py-2 border-b border-gray-50 gap-3">
+          <span class="text-sm text-gray-500 shrink-0">Téléphone</span>
+          <span class="text-sm font-semibold text-gray-900">{{ profile.phone|default:"—" }}</span>
+        </div>
+        <div class="flex justify-between items-start py-2 border-b border-gray-50 gap-3">
+          <span class="text-sm text-gray-500 shrink-0">N° RC</span>
+          <span class="text-sm font-semibold text-gray-900 font-mono">{{ profile.rc_number|default:"—" }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Localisation -->
+    <div class="bg-white rounded-2xl shadow-sm p-5">
+      <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-4">Localisation</h3>
+      <div class="space-y-3">
+        <div class="flex justify-between items-start py-2 border-b border-gray-50 gap-3">
+          <span class="text-sm text-gray-500 shrink-0">Wilaya</span>
+          <span class="text-sm font-semibold text-gray-900">{{ profile.wilaya|default:"—" }}</span>
+        </div>
+        <div class="flex justify-between items-start py-2 border-b border-gray-50 gap-3">
+          <span class="text-sm text-gray-500 shrink-0">Adresse</span>
+          <span class="text-sm font-semibold text-gray-900 text-right">{{ profile.address|default:"—" }}</span>
+        </div>
+      </div>
+
+      {% if profile.description %}
+      <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3 mt-5">À propos</h3>
+      <p class="text-sm text-gray-600 leading-relaxed">{{ profile.description }}</p>
+      {% endif %}
+
+      <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3 mt-5">Actions rapides</h3>
+      <div class="space-y-2">
+        <a href="/cars/ajouter/" class="flex items-center justify-between p-3 rounded-xl bg-blue-50 hover:bg-blue-100 transition-colors group">
+          <span class="text-sm font-semibold text-blue-700">+ Ajouter une voiture</span>
+          <span class="text-blue-400 group-hover:translate-x-1 transition-transform">→</span>
+        </a>
+        <a href="/dashboard/agency/" class="flex items-center justify-between p-3 rounded-xl bg-slate-50 hover:bg-slate-100 transition-colors group">
+          <span class="text-sm font-semibold text-gray-700">Tableau de bord</span>
+          <span class="text-gray-400 group-hover:translate-x-1 transition-transform">→</span>
+        </a>
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

@@ -47,12 +47,19 @@ def register_client(request):
         data = json.loads(request.body)
         if Client.objects.filter(email=data.get('email')).exists():
             return JsonResponse({'erreur': 'Email déjà utilisé'}, status=409)
+        age_raw = data.get('age')
+        family_size_raw = data.get('family_size')
         client = Client.objects.create(
             full_name=data.get('full_name', ''),
             email=data.get('email', ''),
             password=data.get('password', ''),
             phone=data.get('phone', ''),
             wilaya=data.get('wilaya', ''),
+            driver_license=data.get('driver_license', ''),
+            age=int(age_raw) if age_raw else None,
+            gender=data.get('gender', ''),
+            marital_status=data.get('marital_status', ''),
+            family_size=int(family_size_raw) if family_size_raw else None,
         )
         return JsonResponse({'message': 'Client créé avec succès', 'id': client.id}, status=201)
     except Exception as e:
@@ -79,6 +86,8 @@ def register_agency(request):
             password=data.get('password', ''),
             phone=data.get('phone', ''),
             wilaya=data.get('wilaya', ''),
+            address=data.get('address', ''),
+            description=data.get('description', ''),
             rc_number=data.get('rc_number', ''),
         )
         return JsonResponse({'message': 'Agence créée avec succès', 'id': agency.id}, status=201)
@@ -304,7 +313,14 @@ def me(request):
             return JsonResponse({
                 'id': user.id, 'role': role,
                 'full_name': user.full_name, 'email': user.email,
-                'phone': user.phone, 'wilaya': user.wilaya, 'status': user.status,
+                'phone': user.phone, 'wilaya': user.wilaya,
+                'driver_license': user.driver_license,
+                'age': user.age,
+                'gender': user.gender,
+                'marital_status': user.marital_status,
+                'family_size': user.family_size,
+                'status': user.status,
+                'member_since': user.created_at.strftime('%d/%m/%Y'),
             })
         elif role == 'agency':
             user = Agency.objects.get(id=user_id)
@@ -312,7 +328,10 @@ def me(request):
                 'id': user.id, 'role': role,
                 'agency_name': user.agency_name, 'owner_name': user.owner_name,
                 'email': user.email, 'phone': user.phone,
-                'wilaya': user.wilaya, 'status': user.status,
+                'wilaya': user.wilaya, 'address': user.address,
+                'description': user.description, 'rc_number': user.rc_number,
+                'status': user.status,
+                'member_since': user.created_at.strftime('%d/%m/%Y'),
             })
         elif role == 'admin':
             user = Admin.objects.get(id=user_id)

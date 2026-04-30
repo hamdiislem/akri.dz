@@ -9,12 +9,21 @@ STATUS_CHOICES = [
 ]
 
 
+GENDER_CHOICES = [('M', 'Homme'), ('F', 'Femme')]
+MARITAL_CHOICES = [('single', 'Célibataire'), ('married', 'Marié(e)'), ('divorced', 'Divorcé(e)'), ('widowed', 'Veuf/Veuve')]
+
+
 class Client(models.Model):
     full_name = models.CharField(max_length=255)
     email = models.EmailField(unique=True)
     password = models.CharField(max_length=255)
     phone = models.CharField(max_length=20)
     wilaya = models.CharField(max_length=100)
+    driver_license = models.CharField(max_length=100, blank=True)
+    age = models.IntegerField(null=True, blank=True)
+    gender = models.CharField(max_length=10, choices=GENDER_CHOICES, blank=True)
+    marital_status = models.CharField(max_length=20, choices=MARITAL_CHOICES, blank=True)
+    family_size = models.IntegerField(null=True, blank=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='VERIFIED')
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -35,6 +44,8 @@ class Agency(models.Model):
     password = models.CharField(max_length=255)
     phone = models.CharField(max_length=20)
     wilaya = models.CharField(max_length=100)
+    address = models.CharField(max_length=255, blank=True)
+    description = models.TextField(blank=True)
     rc_number = models.CharField(max_length=100, unique=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='PENDING')
     created_at = models.DateTimeField(auto_now_add=True)

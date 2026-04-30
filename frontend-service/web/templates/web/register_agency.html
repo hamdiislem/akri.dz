@@ -10,6 +10,7 @@
     <div class="p-8">
       <form method="post" action="/register/agency/" class="space-y-4">
         {% csrf_token %}
+
         <div class="grid grid-cols-2 gap-4">
           <div>
             <label class="block text-xs font-semibold text-gray-500 mb-1.5 uppercase tracking-wide">Nom de l'agence</label>
@@ -22,17 +23,20 @@
               class="w-full border border-gray-200 rounded-xl px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50 text-sm">
           </div>
         </div>
+
         <div>
           <label class="block text-xs font-semibold text-gray-500 mb-1.5 uppercase tracking-wide">Email professionnel</label>
           <input type="email" name="email" required
             class="w-full border border-gray-200 rounded-xl px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50 text-sm">
         </div>
+
         <div>
           <label class="block text-xs font-semibold text-gray-500 mb-1.5 uppercase tracking-wide">Mot de passe</label>
           <input type="password" name="password" required minlength="8"
             class="w-full border border-gray-200 rounded-xl px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50 text-sm"
             placeholder="Minimum 8 caractères">
         </div>
+
         <div class="grid grid-cols-2 gap-4">
           <div>
             <label class="block text-xs font-semibold text-gray-500 mb-1.5 uppercase tracking-wide">Téléphone</label>
@@ -48,6 +52,13 @@
             </select>
           </div>
         </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-gray-500 mb-1.5 uppercase tracking-wide">Adresse complète <span class="font-normal text-gray-400">(optionnel)</span></label>
+          <input type="text" name="address" placeholder="Rue, quartier..."
+            class="w-full border border-gray-200 rounded-xl px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50 text-sm">
+        </div>
+
         <div>
           <label class="block text-xs font-semibold text-gray-500 mb-1.5 uppercase tracking-wide">Numéro RC (Registre de Commerce)</label>
           <input type="text" name="rc_number" required minlength="6"
@@ -55,10 +66,18 @@
             class="w-full border border-gray-200 rounded-xl px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50 text-sm">
           <p class="text-xs text-gray-400 mt-1">Numéro figurant sur votre registre de commerce (min. 6 caractères)</p>
         </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-gray-500 mb-1.5 uppercase tracking-wide">Description de l'agence <span class="font-normal text-gray-400">(optionnel)</span></label>
+          <textarea name="description" rows="2" placeholder="Présentez votre agence en quelques mots..."
+            class="w-full border border-gray-200 rounded-xl px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50 text-sm resize-none"></textarea>
+        </div>
+
         <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 text-sm text-amber-800 flex items-start gap-2">
           <span class="text-amber-500 font-bold shrink-0 mt-0.5">!</span>
-          Votre compte sera examiné par un administrateur avant activation. Vous recevrez une confirmation.
+          Votre compte sera examiné par un administrateur avant activation.
         </div>
+
         <button type="submit"
           class="w-full bg-blue-600 text-white py-3 rounded-xl hover:bg-blue-700 font-bold transition-colors mt-2">
           Inscrire mon agence

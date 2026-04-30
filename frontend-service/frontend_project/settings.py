@@ -45,3 +45,5 @@ if AUTH_SERVICE_URL and not AUTH_SERVICE_URL.startswith('http'):
     AUTH_SERVICE_URL = f'https://{AUTH_SERVICE_URL}'
 if API_SERVICE_URL and not API_SERVICE_URL.startswith('http'):
     API_SERVICE_URL = f'https://{API_SERVICE_URL}'
+
+DATA_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024  # 10 MB

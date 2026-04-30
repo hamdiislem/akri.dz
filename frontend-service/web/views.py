@@ -243,6 +243,27 @@ def add_car(request):
     return render(request, 'web/add_car.html')
 
 
+# ─── PROFILES ──────────────────────────────────────────────
+def profile_client(request):
+    token = get_token(request)
+    if not token:
+        return redirect('/login/')
+    resp = api_get(f"{AUTH_URL}/api/auth/me/", token)
+    if not resp or resp.status_code != 200:
+        return redirect('/dashboard/client/')
+    return render(request, 'web/profile_client.html', {'profile': resp.json()})
+
+
+def profile_agency(request):
+    token = get_token(request)
+    if not token:
+        return redirect('/login/')
+    resp = api_get(f"{AUTH_URL}/api/auth/me/", token)
+    if not resp or resp.status_code != 200:
+        return redirect('/dashboard/agency/')
+    return render(request, 'web/profile_agency.html', {'profile': resp.json()})
+
+
 # ─── DASHBOARDS ────────────────────────────────────────────
 def dashboard_client(request):
     token = get_token(request)
