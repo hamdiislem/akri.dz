@@ -54,6 +54,10 @@ class CarViewSet(viewsets.ModelViewSet):
             return JsonResponse({'erreur': 'Accès interdit'}, status=403)
         return super().update(request, *args, **kwargs)
 
+    def partial_update(self, request, *args, **kwargs):
+        from rest_framework.exceptions import MethodNotAllowed
+        raise MethodNotAllowed('PATCH')
+
     def destroy(self, request, *args, **kwargs):
         err = require_auth(request, 'agency')
         if err:

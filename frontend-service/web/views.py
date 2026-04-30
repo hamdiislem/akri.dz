@@ -43,6 +43,17 @@ def api_delete(url, token=''):
         return None
 
 
+def api_put(url, data, token=''):
+    try:
+        headers = {'Authorization': f'Bearer {token}'} if token else {}
+        resp = http.put(url, json=data, headers=headers, cookies={'token': token} if token else {}, timeout=TIMEOUT)
+        print(f"[api_put] {url} → {resp.status_code} | {resp.text[:300]}")
+        return resp
+    except Exception as e:
+        print(f"[api_put] ERROR calling {url}: {type(e).__name__}: {e}")
+        return None
+
+
 def parse_list(resp):
     if not resp or resp.status_code != 200:
         return []
@@ -346,3 +357,97 @@ def supprimer_voiture(request, car_id):
     if request.method == 'POST':
         api_delete(f"{API_URL}/api/cars/{car_id}/", token=get_token(request))
     return redirect('/dashboard/agency/')
+
+
+def modifier_voiture(request, car_id):
+    token = get_token(request)
+    if not token:
+        return redirect('/login/')
+    resp = api_get(f"{API_URL}/api/cars/{car_id}/", token)
+    if not resp or resp.status_code != 200:
+        return redirect('/dashboard/agency/')
+    car = resp.json()
+    if request.method == 'POST':
+        image_url = request.POST.get('image_url', '').strip()
+        if not image_url and car.get('images'):
+            image_url = car['images'][0]
+        update_resp = api_put(f"{API_URL}/api/cars/{car_id}/", {
+            'make': request.POST.get('make'),
+            'model': request.POST.get('model'),
+            'year': int(request.POST.get('year', car.get('year', 2020))),
+            'price_per_day': request.POST.get('price_per_day'),
+            'transmission': request.POST.get('transmission'),
+            'fuel_type': request.POST.get('fuel_type'),
+            'wilaya': request.POST.get('wilaya'),
+            'seats': int(request.POST.get('seats', car.get('seats', 5))),
+            'description': request.POST.get('description', ''),
+            'images': [image_url] if image_url else car.get('images', []),
+            'available': car.get('available', True),
+        }, token=token)
+        if update_resp and update_resp.status_code == 200:
+            return redirect('/dashboard/agency/')
+        error = 'Service indisponible'
+        if update_resp:
+            try:
+                error = update_resp.json().get('erreur', str(update_resp.json()))
+            except Exception:
+                pass
+        return render(request, 'web/edit_car.html', {'car': car, 'error': error})
+    return render(request, 'web/edit_car.html', {'car': car})
+
+
+@csrf_exempt
+def toggle_disponibilite(request, car_id):
+    if request.method == 'POST':
+        token = get_token(request)
+        resp = api_get(f"{API_URL}/api/cars/{car_id}/", token)
+        if resp and resp.status_code == 200:
+            car = resp.json()
+            api_put(f"{API_URL}/api/cars/{car_id}/", {
+                'make': car.get('make'),
+                'model': car.get('model'),
+                'year': car.get('year'),
+                'price_per_day': car.get('price_per_day'),
+                'transmission': car.get('transmission'),
+                'fuel_type': car.get('fuel_type'),
+                'wilaya': car.get('wilaya'),
+                'seats': car.get('seats'),
+                'description': car.get('description', ''),
+                'images': car.get('images', []),
+                'available': not car.get('available', True),
+            }, token=token)
+    return redirect('/dashboard/agency/')
+
+
+# ─── BOOKING COMPLETE ──────────────────────────────────────
+@csrf_exempt
+def completer_booking(request, booking_id):
+    if request.method == 'POST':
+        api_post(f"{API_URL}/api/bookings/{booking_id}/completer/", {}, token=get_token(request))
+    return redirect('/dashboard/agency/')
+
+
+# ─── ADMIN UNBAN ACTIONS ───────────────────────────────────
+@csrf_exempt
+def admin_debannir_agence(request, agency_id):
+    if request.method == 'POST':
+        api_post(f"{AUTH_URL}/api/auth/admin/agencies/{agency_id}/unban/", {}, token=get_token(request))
+    return redirect('/dashboard/admin/')
+
+
+@csrf_exempt
+def admin_debannir_client(request, client_id):
+    if request.method == 'POST':
+        api_post(f"{AUTH_URL}/api/auth/admin/clients/{client_id}/unban/", {}, token=get_token(request))
+    return redirect('/dashboard/admin/')
+
+
+# ─── ADMIN PROFILE ─────────────────────────────────────────
+def profile_admin(request):
+    token = get_token(request)
+    if not token:
+        return redirect('/login/')
+    resp = api_get(f"{AUTH_URL}/api/auth/me/", token)
+    if not resp or resp.status_code != 200:
+        return redirect('/dashboard/admin/')
+    return render(request, 'web/profile_admin.html', {'profile': resp.json()})

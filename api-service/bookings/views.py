@@ -3,7 +3,7 @@ import pika
 import decimal
 from django.http import JsonResponse
 from django.conf import settings
-from rest_framework import viewsets
+from rest_framework import viewsets, mixins
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from .models import Booking
@@ -39,15 +39,14 @@ def publish_to_rabbitmq(queue, message):
         print(f'[RabbitMQ] Erreur: {e}')
 
 
-class BookingViewSet(viewsets.ModelViewSet):
+class BookingViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
     """
-    TP4 pattern: ModelViewSet + actions personnalisées
     POST   /api/bookings/              — créer une réservation (client)
-    GET    /api/bookings/              — liste (admin)
     GET    /api/bookings/mes-reservations/ — mes réservations (client)
     GET    /api/bookings/agence/       — réservations de l'agence
     POST   /api/bookings/<id>/confirmer/ — confirmer (agency) → RabbitMQ
     POST   /api/bookings/<id>/annuler/  — annuler → RabbitMQ
+    POST   /api/bookings/<id>/completer/ — terminer (agency)
     """
     queryset = Booking.objects.all()
     serializer_class = BookingSerializer
@@ -172,6 +171,21 @@ class BookingViewSet(viewsets.ModelViewSet):
         })
 
         return JsonResponse({'message': 'Réservation annulée', 'status': 'CANCELLED'})
+
+    @action(detail=True, methods=['post'], url_path='completer')
+    def completer(self, request, pk=None):
+        """POST /api/bookings/<id>/completer/ — agence marque comme terminée"""
+        err = require_auth(request, 'agency')
+        if err:
+            return err
+        booking = self.get_object()
+        if booking.agency_id != request.user_info['id']:
+            return JsonResponse({'erreur': 'Accès interdit'}, status=403)
+        if booking.status != 'CONFIRMED':
+            return JsonResponse({'erreur': 'Seules les réservations confirmées peuvent être terminées'}, status=400)
+        booking.status = 'COMPLETED'
+        booking.save()
+        return JsonResponse({'message': 'Réservation terminée', 'status': 'COMPLETED'})
 
     @action(detail=False, methods=['get'], url_path='disponibilite')
     def disponibilite(self, request):

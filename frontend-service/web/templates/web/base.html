@@ -33,6 +33,7 @@
 
         {% elif request.COOKIES.role == 'admin' %}
           <a href="/dashboard/admin/" class="text-slate-300 hover:text-white transition-colors">Administration</a>
+          <a href="/profile/admin/" class="text-slate-300 hover:text-white transition-colors">Mon profil</a>
           <form method="post" action="/logout/" class="inline">{% csrf_token %}
             <button class="text-red-400 hover:text-red-300 transition-colors">Déconnexion</button>
           </form>
