@@ -265,6 +265,20 @@ def admin_ban_agency(request, agency_id):
         return JsonResponse({'erreur': 'Agence introuvable'}, status=404)
 
 
+@csrf_exempt
+def admin_unban_agency(request, agency_id):
+    _, err = require_admin_token(request)
+    if err:
+        return err
+    try:
+        agency = Agency.objects.get(id=agency_id)
+        agency.status = 'VERIFIED'
+        agency.save(update_fields=['status'])
+        return JsonResponse({'message': 'Agence réactivée'})
+    except Agency.DoesNotExist:
+        return JsonResponse({'erreur': 'Agence introuvable'}, status=404)
+
+
 # ============================================================
 # ADMIN — CLIENTS
 # ============================================================
@@ -289,6 +303,20 @@ def admin_ban_client(request, client_id):
         client.status = 'BANNED'
         client.save(update_fields=['status'])
         return JsonResponse({'message': 'Client banni'})
+    except Client.DoesNotExist:
+        return JsonResponse({'erreur': 'Client introuvable'}, status=404)
+
+
+@csrf_exempt
+def admin_unban_client(request, client_id):
+    _, err = require_admin_token(request)
+    if err:
+        return err
+    try:
+        client = Client.objects.get(id=client_id)
+        client.status = 'VERIFIED'
+        client.save(update_fields=['status'])
+        return JsonResponse({'message': 'Client réactivé'})
     except Client.DoesNotExist:
         return JsonResponse({'erreur': 'Client introuvable'}, status=404)
 

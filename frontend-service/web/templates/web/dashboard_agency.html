@@ -54,10 +54,22 @@
             {% if car.available %}Disponible{% else %}Indisponible{% endif %}
           </span>
         </div>
-        <div class="mt-4 flex gap-2">
+        <div class="mt-4 flex gap-2 flex-wrap">
           <a href="/cars/{{ car.id }}/" class="flex-1 text-center text-xs text-blue-600 hover:text-blue-700 border border-blue-200 px-3 py-1.5 rounded-xl transition-colors font-semibold">
             Voir
           </a>
+          <a href="/cars/{{ car.id }}/modifier/" class="flex-1 text-center text-xs text-amber-600 hover:text-amber-700 border border-amber-200 px-3 py-1.5 rounded-xl transition-colors font-semibold">
+            Modifier
+          </a>
+        </div>
+        <div class="mt-2 flex gap-2">
+          <form method="post" action="/cars/{{ car.id }}/disponibilite/" class="flex-1">
+            {% csrf_token %}
+            <button class="w-full text-xs font-semibold px-3 py-1.5 rounded-xl transition-colors border
+              {% if car.available %}text-emerald-700 border-emerald-200 hover:bg-emerald-50{% else %}text-gray-600 border-gray-200 hover:bg-gray-50{% endif %}">
+              {% if car.available %}Marquer indisponible{% else %}Marquer disponible{% endif %}
+            </button>
+          </form>
           <form method="post" action="/cars/{{ car.id }}/supprimer/" onsubmit="return confirm('Supprimer cette voiture ?')" class="flex-1">
             {% csrf_token %}
             <button class="w-full text-xs text-red-500 hover:text-red-700 border border-red-200 px-3 py-1.5 rounded-xl transition-colors font-semibold">
@@ -115,6 +127,10 @@
           <button class="text-xs bg-red-100 text-red-600 px-3 py-1.5 rounded-xl hover:bg-red-200 transition-colors font-semibold">Refuser</button>
         </form>
         {% elif b.status == 'CONFIRMED' %}
+        <form method="post" action="/bookings/{{ b.id }}/completer/">
+          {% csrf_token %}
+          <button class="text-xs bg-blue-600 text-white px-3 py-1.5 rounded-xl hover:bg-blue-700 transition-colors font-semibold">Terminer</button>
+        </form>
         <form method="post" action="/bookings/{{ b.id }}/annuler/">
           {% csrf_token %}
           <input type="hidden" name="next" value="/dashboard/agency/">

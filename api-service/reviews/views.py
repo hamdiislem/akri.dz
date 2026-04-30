@@ -1,5 +1,5 @@
 from django.http import JsonResponse
-from rest_framework import viewsets
+from rest_framework import viewsets, mixins
 from rest_framework.response import Response
 from .models import Review
 from .serializers import ReviewSerializer
@@ -7,9 +7,8 @@ from bookings.models import Booking
 from utils import require_auth
 
 
-class ReviewViewSet(viewsets.ModelViewSet):
+class ReviewViewSet(mixins.ListModelMixin, mixins.CreateModelMixin, viewsets.GenericViewSet):
     """
-    TP4 ModelViewSet pattern
     GET  /api/reviews/?car=<id>  — avis d'une voiture (public)
     POST /api/reviews/           — laisser un avis (client, après réservation complétée)
     """

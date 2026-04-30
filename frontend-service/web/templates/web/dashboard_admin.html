@@ -85,7 +85,13 @@
               <button class="px-3 py-1.5 bg-emerald-600 text-white text-xs font-semibold rounded-xl hover:bg-emerald-700 transition-colors">Approuver</button>
             </form>
             {% endif %}
-            {% if a.status != 'BANNED' %}
+            {% if a.status == 'BANNED' %}
+            <form method="post" action="/admin/agences/{{ a.id }}/debannir/">
+              {% csrf_token %}
+              <button class="px-3 py-1.5 bg-emerald-100 text-emerald-700 text-xs font-semibold rounded-xl hover:bg-emerald-200 transition-colors"
+                onclick="return confirm('Réactiver cette agence ?')">Réactiver</button>
+            </form>
+            {% else %}
             <form method="post" action="/admin/agences/{{ a.id }}/bannir/">
               {% csrf_token %}
               <button class="px-3 py-1.5 bg-red-100 text-red-600 text-xs font-semibold rounded-xl hover:bg-red-200 transition-colors"
@@ -149,7 +155,13 @@
           </span>
         </td>
         <td class="px-5 py-3">
-          {% if c.status != 'BANNED' %}
+          {% if c.status == 'BANNED' %}
+          <form method="post" action="/admin/clients/{{ c.id }}/debannir/">
+            {% csrf_token %}
+            <button class="px-3 py-1.5 bg-emerald-100 text-emerald-700 text-xs font-semibold rounded-xl hover:bg-emerald-200 transition-colors"
+              onclick="return confirm('Réactiver ce client ?')">Réactiver</button>
+          </form>
+          {% else %}
           <form method="post" action="/admin/clients/{{ c.id }}/bannir/">
             {% csrf_token %}
             <button class="px-3 py-1.5 bg-red-100 text-red-600 text-xs font-semibold rounded-xl hover:bg-red-200 transition-colors"
