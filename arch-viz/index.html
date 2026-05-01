@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Akri.dz — Architecture</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#0f1117;color:#e2e8f0;font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh;padding:28px 20px 60px}
+h1{text-align:center;font-size:2rem;font-weight:900;background:linear-gradient(135deg,#818cf8,#f472b6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:-.02em}
+.subtitle{text-align:center;color:#6b7280;font-size:.85rem;margin-top:6px;margin-bottom:28px}
+.tabs{display:flex;gap:8px;justify-content:center;margin-bottom:28px;flex-wrap:wrap}
+.tab{background:transparent;border:1.5px solid #2d3148;color:#6b7280;border-radius:10px;padding:8px 20px;cursor:pointer;font-size:.9rem;transition:all .15s}
+.tab.active{background:#1e1b4b;border-color:#818cf8;color:#818cf8;font-weight:700}
+.panel{display:none;animation:fadeIn .3s ease}
+.panel.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* SERVICE CARDS */
+.service-grid{display:flex;gap:16px;flex-wrap:wrap;justify-content:center;margin-bottom:24px}
+.scard{border-radius:16px;padding:20px 18px;min-width:160px;border:2px solid #2d3148;background:#1a1d27;cursor:pointer;transition:all .2s;max-width:200px}
+.scard:hover,.scard.selected{transform:translateY(-4px)}
+.scard .icon{font-size:2rem;margin-bottom:8px}
+.scard .name{font-weight:700;font-size:.95rem}
+.scard .port{font-size:.75rem;color:#6b7280;margin-top:3px}
+.scard .role-tag{margin-top:10px;font-size:.75rem;background:#0f1117;border-radius:8px;padding:4px 8px;border-left:3px solid currentColor;color:#94a3b8}
+
+/* DETAIL PANEL */
+.detail{max-width:760px;margin:0 auto;border-radius:20px;padding:28px;border:2px solid #2d3148;background:#1a1d27;animation:slideIn .3s ease}
+@keyframes slideIn{from{opacity:0;transform:translateX(16px)}to{opacity:1;transform:translateX(0)}}
+.detail-header{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.detail-icon{font-size:2.2rem}
+.detail-title{font-size:1.25rem;font-weight:800}
+.detail-sub{font-size:.8rem;color:#6b7280}
+.detail-close{margin-left:auto;background:#2d3148;border:none;color:#94a3b8;width:30px;height:30px;border-radius:8px;cursor:pointer;font-size:1rem}
+.detail-desc{font-size:.875rem;color:#94a3b8;line-height:1.6;margin-bottom:20px;border-left:3px solid currentColor;padding-left:12px}
+.files-label{font-size:.75rem;font-weight:700;color:#4b5563;text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px}
+.file-row{background:#0f1117;border-radius:10px;padding:10px 14px;border:1px solid #2d3148;display:flex;gap:12px;align-items:flex-start;margin-bottom:7px}
+.file-name{color:inherit;font-size:.75rem;font-weight:700;white-space:nowrap;margin-top:2px;font-family:monospace}
+.file-desc{font-size:.8rem;color:#94a3b8;line-height:1.5}
+.hint{text-align:center;color:#374151;font-size:.85rem;margin-top:8px}
+
+/* EXTERNALS */
+.ext-label{font-size:.75rem;font-weight:700;color:#4b5563;text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;max-width:760px;margin-left:auto;margin-right:auto;display:block;margin-top:28px}
+.ext-grid{display:flex;gap:10px;flex-wrap:wrap;max-width:760px;margin:0 auto}
+.ext-card{border-radius:12px;padding:12px 16px;display:flex;align-items:center;gap:10px;flex:1 1 160px;border:1.5px solid transparent}
+.ext-card .eicon{font-size:1.4rem}
+.ext-card .ename{font-weight:700;font-size:.85rem}
+.ext-card .esub{font-size:.7rem;color:#6b7280}
+
+/* FLOWS */
+.flow-box{background:#1a1d27;border-radius:20px;padding:28px;border:1px solid #2d3148;margin-bottom:20px;max-width:760px;margin-left:auto;margin-right:auto}
+.flow-title{font-size:.95rem;font-weight:700;margin-bottom:16px}
+.flow-row{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;cursor:pointer;border:1px solid transparent;transition:all .15s;margin-bottom:4px}
+.flow-row:hover{background:#1a1d27}
+.flow-row.active{background:#1a1d27;border-color:var(--c)}
+.flow-from,.flow-to{font-size:.8rem;color:#6b7280;min-width:95px}
+.flow-to{text-align:right}
+.flow-line{flex:1;position:relative;height:2px;background:#2d3148;border-radius:2px}
+.flow-fill{position:absolute;top:0;left:0;height:2px;border-radius:2px;width:30%;transition:width .4s ease}
+.flow-row.active .flow-fill{width:100%}
+.flow-lbl{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:#0f1117;padding:2px 8px;border-radius:6px;font-size:.7rem;font-weight:600;white-space:nowrap}
+.flow-arrow{font-size:.6rem;position:absolute;right:-5px;top:50%;transform:translateY(-50%)}
+
+.scenario-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;max-width:760px;margin:0 auto}
+.scenario{background:#1a1d27;border-radius:14px;padding:18px;border:1px solid transparent}
+.scenario-title{font-weight:700;font-size:.82rem;margin-bottom:10px}
+.scenario-step{display:flex;gap:8px;margin-bottom:6px;align-items:flex-start}
+.step-num{min-width:20px;height:20px;border-radius:50%;font-size:.7rem;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.step-txt{font-size:.78rem;color:#94a3b8;line-height:1.5}
+
+/* DATA */
+.data-section{max-width:760px;margin:0 auto}
+.status-flow{background:#1a1d27;border-radius:18px;padding:22px;border:1px solid #2d3148;margin-bottom:14px}
+.status-steps{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.status-step{border-radius:8px;padding:7px 14px;text-align:center;border:1.5px solid transparent}
+.status-name{font-size:.7rem;font-weight:800}
+.status-desc{font-size:.65rem;color:#6b7280;margin-top:2px}
+.status-arrow{color:#4b5563;font-size:1rem}
+.status-note{font-size:.75rem;color:#6b7280;border-top:1px solid #2d3148;padding-top:10px;margin-top:4px}
+
+.model-card{background:#1a1d27;border-radius:14px;padding:18px;border:1px solid transparent;margin-bottom:12px}
+.model-title{font-weight:700;font-size:.9rem;margin-bottom:10px}
+.model-fields{display:flex;flex-wrap:wrap;gap:6px}
+.field-tag{background:#0f1117;border:1px solid #2d3148;border-radius:6px;padding:3px 9px;font-size:.72rem;color:#94a3b8;font-family:monospace}
+
+.roles-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.role-card{background:#0f1117;border-radius:12px;padding:14px;border:1.5px solid transparent}
+.role-icon{font-size:1.4rem;margin-bottom:5px}
+.role-name{font-weight:700;font-size:.85rem;margin-bottom:8px}
+.role-item{font-size:.75rem;color:#6b7280;margin-bottom:4px;display:flex;gap:5px}
+.role-check{font-size:.75rem}
+
+.footer{text-align:center;margin-top:40px;color:#374151;font-size:.75rem}
+@media(max-width:600px){.scenario-grid{grid-template-columns:1fr}.roles-grid{grid-template-columns:1fr}.flow-from,.flow-to{min-width:70px;font-size:.7rem}}
+</style>
+</head>
+<body>
+
+<h1>Akri.dz — Architecture</h1>
+<p class="subtitle">Plateforme de location de voitures · Microservices Django · WAMS 2024–2025</p>
+
+<div class="tabs">
+  <button class="tab active" onclick="showTab('services')">⚙️ Services</button>
+  <button class="tab" onclick="showTab('flows')">🔄 Flux de communication</button>
+  <button class="tab" onclick="showTab('data')">📦 Données &amp; Statuts</button>
+</div>
+
+<!-- SERVICES TAB -->
+<div id="tab-services" class="panel active">
+  <div class="service-grid" id="service-grid"></div>
+  <div id="detail-wrapper"></div>
+  <p class="hint" id="hint-text">Clique sur un service pour voir ses fichiers</p>
+
+  <span class="ext-label">Services externes</span>
+  <div class="ext-grid">
+    <div class="ext-card" style="background:#1e3a5f;border-color:#60a5fa40">
+      <span class="eicon">🗄️</span><div><div class="ename" style="color:#60a5fa">PostgreSQL</div><div class="esub">Base de données</div></div>
+    </div>
+    <div class="ext-card" style="background:#450a0a;border-color:#f8717140">
+      <span class="eicon">⚡</span><div><div class="ename" style="color:#f87171">Redis</div><div class="esub">Blacklist JWT</div></div>
+    </div>
+    <div class="ext-card" style="background:#2e1065;border-color:#a78bfa40">
+      <span class="eicon">☁️</span><div><div class="ename" style="color:#a78bfa">Cloudinary</div><div class="esub">Images voitures</div></div>
+    </div>
+    <div class="ext-card" style="background:#1c1007;border-color:#fdba7440">
+      <span class="eicon">🐰</span><div><div class="ename" style="color:#fdba74">CloudAMQP</div><div class="esub">RabbitMQ broker</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- FLOWS TAB -->
+<div id="tab-flows" class="panel">
+  <div class="flow-box">
+    <div class="flow-title" style="color:#e2e8f0">Communication entre services</div>
+    <div id="flow-rows"></div>
+  </div>
+  <div class="scenario-grid" id="scenario-grid"></div>
+</div>
+
+<!-- DATA TAB -->
+<div id="tab-data" class="panel">
+  <div class="data-section">
+    <div class="status-flow">
+      <div class="flow-title" style="color:#e2e8f0;margin-bottom:14px">🔄 Cycle de vie d'une réservation</div>
+      <div class="status-steps">
+        <div class="status-step" style="background:#fbbf2420;border-color:#fbbf24">
+          <div class="status-name" style="color:#fbbf24">PENDING</div>
+          <div class="status-desc">Client réserve</div>
+        </div>
+        <span class="status-arrow">→</span>
+        <div class="status-step" style="background:#34d39920;border-color:#34d399">
+          <div class="status-name" style="color:#34d399">CONFIRMED</div>
+          <div class="status-desc">Agence confirme</div>
+        </div>
+        <span class="status-arrow">→</span>
+        <div class="status-step" style="background:#818cf820;border-color:#818cf8">
+          <div class="status-name" style="color:#818cf8">COMPLETED ✨</div>
+          <div class="status-desc">Agence termine</div>
+        </div>
+        <span class="status-arrow" style="margin-left:16px;color:#f87171">⤵</span>
+        <div class="status-step" style="background:#f8717120;border-color:#f87171">
+          <div class="status-name" style="color:#f87171">CANCELLED</div>
+          <div class="status-desc">Annulé</div>
+        </div>
+      </div>
+      <div class="status-note">
+        ✨ <strong style="color:#818cf8">COMPLETED</strong> est requis pour laisser un avis —
+        ajouté via <code style="color:#fb923c;font-size:.75rem">POST /bookings/&lt;id&gt;/completer/</code>
+      </div>
+    </div>
+
+    <div id="models-grid"></div>
+
+    <div class="model-card" style="border-color:#2d3148">
+      <div class="model-title" style="color:#e2e8f0">🎭 Rôles et accès</div>
+      <div class="roles-grid" id="roles-grid"></div>
+    </div>
+  </div>
+</div>
+
+<p class="footer">Hamdi Islem · Master 1 GL/I2A · UMBB · WAMS 2024–2025</p>
+
+<script>
+const SERVICES = [
+  {
+    id:'frontend', label:'frontend-service', port:'Django :8002', icon:'🖥️',
+    color:'#818cf8', bg:'#1e1b4b', border:'#4338ca',
+    role:"Ce que l'utilisateur voit",
+    desc:"Reçoit les requêtes HTTP du navigateur, appelle auth-service et api-service via requests Python, retourne du HTML rendu avec Tailwind CSS.",
+    files:[
+      {name:'views.py', desc:'20+ fonctions → une page web chacune (home, login, dashboard_client, dashboard_agency, dashboard_admin…)'},
+      {name:'urls.py', desc:'Table de routage URL → vue  ex: /cars/<id>/modifier/ → modifier_voiture'},
+      {name:'templates/base.html', desc:'Layout commun avec navbar intelligente qui change selon le rôle connecté'},
+      {name:'templates/home.html', desc:'Grille de voitures + filtres wilaya / prix'},
+      {name:'templates/car_detail.html', desc:'Fiche voiture + calendrier interactif + formulaire réservation'},
+      {name:'templates/dashboard_agency.html', desc:'Liste voitures + réservations + boutons Modifier / Terminer / Toggle dispo'},
+      {name:'templates/dashboard_admin.html', desc:'Gestion agences/clients + ban/unban toggle'},
+      {name:'templates/edit_car.html', desc:'✨ Formulaire édition voiture pré-rempli avec compression image JS'},
+      {name:'templates/profile_admin.html', desc:'✨ Page profil pour l\'admin (email, ID, rôle)'},
+    ]
+  },
+  {
+    id:'auth', label:'auth-service', port:'Django :8000', icon:'🔐',
+    color:'#34d399', bg:'#064e3b', border:'#059669',
+    role:'Qui es-tu ?',
+    desc:'Gère les comptes, authentification JWT, rôles et permissions. Blackliste les tokens révoqués dans Redis pour sécuriser le logout.',
+    files:[
+      {name:'models.py', desc:'User (email, role, wilaya, status) + UserProfile agence (nom, adresse, RC)'},
+      {name:'views.py', desc:'register/client, register/agency, login, logout, /me/, admin/verify, admin/ban, ✨admin/unban'},
+      {name:'serializers.py', desc:'Valide email unique, formate les données JSON entrantes'},
+      {name:'middleware.py', desc:'Lit cookie JWT → vérifie signature → cherche Redis blacklist → injecte request.user_info'},
+      {name:'urls.py', desc:'Routage: /login/, /logout/, /me/, /admin/agencies/<id>/verify|ban|unban/'},
+    ]
+  },
+  {
+    id:'api', label:'api-service', port:'Django :8001', icon:'🚗',
+    color:'#fb923c', bg:'#431407', border:'#ea580c',
+    role:'La logique métier',
+    desc:'Gère les voitures, réservations et avis. Publie des messages RabbitMQ à chaque changement de statut de réservation.',
+    files:[
+      {name:'cars/models.py', desc:'Car: marque, modèle, prix/jour, wilaya, places, boîte, carburant, image_url, agency_id'},
+      {name:'cars/views.py', desc:'GET/POST /cars/, GET/PUT/DELETE /cars/<id>/ — vérif propriété agence avant modif'},
+      {name:'bookings/models.py', desc:'Booking: car, client_id, agency_id, dates, prix_total, status, message client'},
+      {name:'bookings/views.py', desc:'POST /bookings/, confirmer, ✨completer, annuler — publie vers RabbitMQ'},
+      {name:'bookings/serializers.py', desc:'Vérifie conflits de dates, calcule prix_total = prix × jours automatiquement'},
+      {name:'reviews/models.py', desc:'Review: booking, note 1-5, commentaire — contrainte: 1 avis par booking COMPLETED'},
+      {name:'reviews/views.py', desc:'GET /reviews/?car=<id>, POST /reviews/ — vérifie que booking est COMPLETED'},
+    ]
+  },
+  {
+    id:'worker', label:'notification-worker', port:'Python/pika', icon:'📨',
+    color:'#f472b6', bg:'#4a044e', border:'#a21caf',
+    role:'Traitement asynchrone',
+    desc:'Se connecte à CloudAMQP (RabbitMQ hébergé), écoute la queue "notifications" et traite les événements de réservation.',
+    files:[
+      {name:'worker.py', desc:'Connexion CloudAMQP → écoute queue "notifications" → traite booking.confirmed / booking.cancelled'},
+      {name:'requirements.txt', desc:'pika (client Python officiel pour RabbitMQ)'},
+    ]
+  },
+];
+
+const FLOWS = [
+  {from:'🌐 Navigateur', to:'🖥️ Frontend', label:'HTTP + cookie JWT', color:'#818cf8'},
+  {from:'🖥️ Frontend', to:'🔐 Auth', label:'register / login / me', color:'#34d399'},
+  {from:'🖥️ Frontend', to:'🚗 API', label:'cars / bookings / reviews', color:'#fb923c'},
+  {from:'🚗 API', to:'📨 Worker', label:'booking.confirmed / .cancelled', color:'#f472b6'},
+  {from:'🔐 Auth', to:'⚡ Redis', label:'blacklist token JWT', color:'#f87171'},
+  {from:'🚗 API', to:'☁️ Cloudinary', label:'upload photo voiture', color:'#a78bfa'},
+  {from:'📨 Worker', to:'🐰 CloudAMQP', label:'consume queue', color:'#fdba74'},
+];
+
+const SCENARIOS = [
+  {title:'🧑‍💻 Client réserve une voiture', color:'#818cf8', steps:['Navigateur → Frontend (POST form)','Frontend → API (POST /bookings/)','API vérifie JWT + conflits de dates','API → RabbitMQ (booking.confirmed)','Worker reçoit et log la notification']},
+  {title:'🔐 Connexion utilisateur', color:'#34d399', steps:['Navigateur → Frontend (POST login)','Frontend → Auth (POST /auth/login/)','Auth vérifie email + mot de passe','Auth génère token JWT signé','Frontend set cookie httponly sécurisé']},
+  {title:'🚪 Déconnexion', color:'#f87171', steps:['Navigateur → Frontend (POST logout)','Frontend → Auth (POST /auth/logout/)','Auth lit le cookie JWT actuel','Auth blackliste dans Redis (TTL=expiry)','Frontend supprime le cookie']},
+  {title:'📸 Upload photo voiture', color:'#a78bfa', steps:['Navigateur compresse image (JS natif)','Frontend → API (POST /cars/ + image)','API reçoit le fichier binaire','API → Cloudinary (upload direct)','Cloudinary retourne URL → stockée en DB']},
+];
+
+const MODELS = [
+  {title:'🚗 Car', color:'#fb923c', border:'#fb923c30', fields:['marque, modele','prix_par_jour','wilaya','places','boite (Manuel/Auto)','carburant','image_url (Cloudinary)','available (bool)','agency_id (FK → User)']},
+  {title:'📅 Booking', color:'#818cf8', border:'#818cf830', fields:['car (FK)','client_id','agency_id','start_date, end_date','prix_total (auto)','status PENDING/CONFIRMED/COMPLETED/CANCELLED','message du client']},
+  {title:'⭐ Review', color:'#fbbf24', border:'#fbbf2430', fields:['booking (FK unique)','note (1–5)','commentaire','created_at','⚠️ booking doit être COMPLETED']},
+  {title:'👤 User + UserProfile', color:'#34d399', border:'#34d39930', fields:['email, password','role (client/agency/admin)','wilaya','status (PENDING/VERIFIED/BANNED)','Profile agence: nom, adresse, RC']},
+];
+
+const ROLES = [
+  {icon:'🧑‍💻', name:'Client', color:'#60a5fa', can:['Voir les voitures','Réserver une voiture','Annuler sa réservation','Laisser un avis (si COMPLETED)','Voir son profil']},
+  {icon:'🏢', name:'Agence', color:'#fb923c', can:['Créer / modifier / supprimer ses voitures','Confirmer / terminer / annuler réservations','Toggle disponibilité voiture','Voir son tableau de bord']},
+  {icon:'🛡️', name:'Admin', color:'#f472b6', can:['Vérifier les agences (PENDING→VERIFIED)','Bannir / réactiver agences et clients','Voir tous les utilisateurs','Voir son profil']},
+];
+
+// ─── Render service cards ────────────────────────────────────────────
+let selectedId = null;
+
+function renderServices() {
+  const grid = document.getElementById('service-grid');
+  grid.innerHTML = SERVICES.map(s => `
+    <div class="scard" id="scard-${s.id}" onclick="selectService('${s.id}')"
+      style="border-color:#2d3148">
+      <div class="icon">${s.icon}</div>
+      <div class="name" style="color:${s.color}">${s.label}</div>
+      <div class="port">${s.port}</div>
+      <div class="role-tag" style="border-left-color:${s.color}">${s.role}</div>
+    </div>
+  `).join('');
+}
+
+function selectService(id) {
+  if (selectedId === id) { clearDetail(); return; }
+  selectedId = id;
+  const s = SERVICES.find(x => x.id === id);
+
+  SERVICES.forEach(x => {
+    const el = document.getElementById('scard-'+x.id);
+    el.style.borderColor = x.id === id ? x.color : '#2d3148';
+    el.style.background = x.id === id ? x.bg : '#1a1d27';
+    el.style.boxShadow = x.id === id ? `0 0 24px ${x.color}40` : '';
+  });
+
+  document.getElementById('hint-text').style.display = 'none';
+  document.getElementById('detail-wrapper').innerHTML = `
+    <div class="detail" style="border-color:${s.border};box-shadow:0 0 40px ${s.color}20">
+      <div class="detail-header">
+        <span class="detail-icon">${s.icon}</span>
+        <div>
+          <div class="detail-title" style="color:${s.color}">${s.label}</div>
+          <div class="detail-sub">${s.port}</div>
+        </div>
+        <button class="detail-close" onclick="clearDetail()">✕</button>
+      </div>
+      <p class="detail-desc" style="border-left-color:${s.color}">${s.desc}</p>
+      <div class="files-label">Fichiers clés</div>
+      ${s.files.map(f => `
+        <div class="file-row">
+          <code class="file-name" style="color:${s.color}">${f.name}</code>
+          <span class="file-desc">${f.desc}</span>
+        </div>
+      `).join('')}
+    </div>
+  `;
+}
+
+function clearDetail() {
+  selectedId = null;
+  document.getElementById('detail-wrapper').innerHTML = '';
+  document.getElementById('hint-text').style.display = 'block';
+  SERVICES.forEach(x => {
+    const el = document.getElementById('scard-'+x.id);
+    el.style.borderColor = '#2d3148';
+    el.style.background = '#1a1d27';
+    el.style.boxShadow = '';
+  });
+}
+
+// ─── Render flows ────────────────────────────────────────────────────
+let activeFlowIdx = null;
+
+function renderFlows() {
+  document.getElementById('flow-rows').innerHTML = FLOWS.map((f,i) => `
+    <div class="flow-row" id="flow-${i}" onclick="toggleFlow(${i})" style="--c:${f.color}">
+      <span class="flow-from">${f.from}</span>
+      <div class="flow-line">
+        <div class="flow-fill" id="fill-${i}" style="background:${f.color};box-shadow:0 0 8px ${f.color}"></div>
+        <span class="flow-lbl" style="color:${f.color}">${f.label}</span>
+        <span class="flow-arrow" style="color:${f.color}">▶</span>
+      </div>
+      <span class="flow-to">${f.to}</span>
+    </div>
+  `).join('');
+
+  document.getElementById('scenario-grid').innerHTML = SCENARIOS.map(s => `
+    <div class="scenario" style="border-color:${s.color}30">
+      <div class="scenario-title" style="color:${s.color}">${s.title}</div>
+      ${s.steps.map((step,i) => `
+        <div class="scenario-step">
+          <span class="step-num" style="background:${s.color}20;color:${s.color}">${i+1}</span>
+          <span class="step-txt">${step}</span>
+        </div>
+      `).join('')}
+    </div>
+  `).join('');
+}
+
+function toggleFlow(i) {
+  const rows = document.querySelectorAll('.flow-row');
+  if (activeFlowIdx === i) {
+    activeFlowIdx = null;
+    rows.forEach(r => r.classList.remove('active'));
+  } else {
+    activeFlowIdx = i;
+    rows.forEach((r,j) => r.classList.toggle('active', j===i));
+  }
+}
+
+// ─── Render data ─────────────────────────────────────────────────────
+function renderData() {
+  document.getElementById('models-grid').innerHTML = MODELS.map(m => `
+    <div class="model-card" style="border-color:${m.border}">
+      <div class="model-title" style="color:${m.color}">${m.title}</div>
+      <div class="model-fields">
+        ${m.fields.map(f => `<span class="field-tag">${f}</span>`).join('')}
+      </div>
+    </div>
+  `).join('');
+
+  document.getElementById('roles-grid').innerHTML = ROLES.map(r => `
+    <div class="role-card" style="border-color:${r.color}30">
+      <div class="role-icon">${r.icon}</div>
+      <div class="role-name" style="color:${r.color}">${r.name}</div>
+      ${r.can.map(c => `
+        <div class="role-item">
+          <span class="role-check" style="color:${r.color}">✓</span>
+          <span>${c}</span>
+        </div>
+      `).join('')}
+    </div>
+  `).join('');
+}
+
+// ─── Tab switching ────────────────────────────────────────────────────
+function showTab(id) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-'+id).classList.add('active');
+  event.target.classList.add('active');
+}
+
+// ─── Init ─────────────────────────────────────────────────────────────
+renderServices();
+renderFlows();
+renderData();
+</script>
+</body>
+</html>

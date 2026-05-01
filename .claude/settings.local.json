@@ -7,7 +7,16 @@
       "Bash(rm -rf .vagrant traefik deployment api-service/Dockerfile auth-service/Dockerfile frontend-service/Dockerfile notification-worker/Dockerfile)",
       "Bash(git add *)",
       "Bash(git commit *)",
-      "Bash(git push *)"
+      "Bash(git push *)",
+      "Bash(xargs grep *)",
+      "Bash(dir \"C:\\\\Users\\\\User\\\\AppData\\\\Roaming\\\\Claude\\\\local-agent-mode-sessions\\\\skills-plugin\\\\afcf6789-403f-4bb0-8a97-6b7cee55414f\\\\af8ea20e-2c6b-46e1-a4ba-f817a94fc90d\\\\skills\\\\docx\\\\scripts\\\\office\")",
+      "Bash(npm list *)",
+      "Read(//c/Users/User/AppData/Roaming/Claude/local-agent-mode-sessions/skills-plugin/afcf6789-403f-4bb0-8a97-6b7cee55414f/af8ea20e-2c6b-46e1-a4ba-f817a94fc90d/skills/docx/**)",
+      "Bash(npm install *)",
+      "Bash(node rapport_akri.js)",
+      "Bash(python \"C:\\\\Users\\\\User\\\\AppData\\\\Roaming\\\\Claude\\\\local-agent-mode-sessions\\\\skills-plugin\\\\afcf6789-403f-4bb0-8a97-6b7cee55414f\\\\af8ea20e-2c6b-46e1-a4ba-f817a94fc90d\\\\skills\\\\docx\\\\scripts\\\\office\\\\validate.py\" \"C:\\\\Users\\\\User\\\\OneDrive\\\\Bureau\\\\akri.dz\\\\Rapport_Akri_WAMS.docx\")",
+      "mcp__Claude_Preview__preview_start",
+      "Bash(python -c \"import http.server; print\\('python ok'\\)\")"
     ]
   }
 }

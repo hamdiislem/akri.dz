@@ -13,7 +13,6 @@ from utils import require_auth
 
 
 def publish_to_rabbitmq(queue, message):
-    """Publish a message to a RabbitMQ queue (asynchronous communication)."""
     try:
         if settings.RABBITMQ_URL:
             params = pika.URLParameters(settings.RABBITMQ_URL)
@@ -40,14 +39,6 @@ def publish_to_rabbitmq(queue, message):
 
 
 class BookingViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
-    """
-    POST   /api/bookings/              — créer une réservation (client)
-    GET    /api/bookings/mes-reservations/ — mes réservations (client)
-    GET    /api/bookings/agence/       — réservations de l'agence
-    POST   /api/bookings/<id>/confirmer/ — confirmer (agency) → RabbitMQ
-    POST   /api/bookings/<id>/annuler/  — annuler → RabbitMQ
-    POST   /api/bookings/<id>/completer/ — terminer (agency)
-    """
     queryset = Booking.objects.all()
     serializer_class = BookingSerializer
 
@@ -67,7 +58,6 @@ class BookingViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
             if end <= start:
                 return JsonResponse({'erreur': 'Dates invalides'}, status=400)
 
-            # Check for conflicting bookings
             conflict = Booking.objects.filter(
                 car=car,
                 status__in=['PENDING', 'CONFIRMED'],
@@ -98,7 +88,6 @@ class BookingViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
 
     @action(detail=False, methods=['get'], url_path='mes-reservations')
     def mes_reservations(self, request):
-        """GET /api/bookings/mes-reservations/ — réservations du client connecté"""
         err = require_auth(request, 'client')
         if err:
             return err
@@ -108,7 +97,6 @@ class BookingViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
 
     @action(detail=False, methods=['get'], url_path='agence')
     def agence(self, request):
-        """GET /api/bookings/agence/ — réservations de l'agence connectée"""
         err = require_auth(request, 'agency')
         if err:
             return err
@@ -118,7 +106,6 @@ class BookingViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
 
     @action(detail=True, methods=['post'], url_path='confirmer')
     def confirmer(self, request, pk=None):
-        """POST /api/bookings/<id>/confirmer/ — agence confirme → RabbitMQ"""
         err = require_auth(request, 'agency')
         if err:
             return err
@@ -131,7 +118,6 @@ class BookingViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
         booking.status = 'CONFIRMED'
         booking.save()
 
-        # Asynchronous notification via RabbitMQ
         publish_to_rabbitmq('booking.confirmed', {
             'booking_id': booking.id,
             'car': str(booking.car),
@@ -146,7 +132,6 @@ class BookingViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
 
     @action(detail=True, methods=['post'], url_path='annuler')
     def annuler(self, request, pk=None):
-        """POST /api/bookings/<id>/annuler/ — annuler une réservation → RabbitMQ"""
         err = require_auth(request, 'client', 'agency', 'admin')
         if err:
             return err
@@ -174,7 +159,6 @@ class BookingViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
 
     @action(detail=True, methods=['post'], url_path='completer')
     def completer(self, request, pk=None):
-        """POST /api/bookings/<id>/completer/ — agence marque comme terminée"""
         err = require_auth(request, 'agency')
         if err:
             return err
@@ -189,7 +173,6 @@ class BookingViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
 
     @action(detail=False, methods=['get'], url_path='disponibilite')
     def disponibilite(self, request):
-        """GET /api/bookings/disponibilite/?car=<id> — booked date ranges (public)"""
         car_id = request.query_params.get('car')
         if not car_id:
             return Response([])

@@ -8,10 +8,6 @@ from utils import require_auth
 
 
 class ReviewViewSet(mixins.ListModelMixin, mixins.CreateModelMixin, viewsets.GenericViewSet):
-    """
-    GET  /api/reviews/?car=<id>  — avis d'une voiture (public)
-    POST /api/reviews/           — laisser un avis (client, après réservation complétée)
-    """
     queryset = Review.objects.all()
     serializer_class = ReviewSerializer
 

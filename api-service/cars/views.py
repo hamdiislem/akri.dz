@@ -8,15 +8,6 @@ from utils import require_auth
 
 
 class CarViewSet(viewsets.ModelViewSet):
-    """
-    TP4 pattern: ModelViewSet gère automatiquement CRUD
-    GET    /api/cars/        — liste (public)
-    POST   /api/cars/        — créer (agency)
-    GET    /api/cars/<id>/   — détail (public)
-    PUT    /api/cars/<id>/   — modifier (agency)
-    DELETE /api/cars/<id>/  — supprimer (agency)
-    GET    /api/cars/mine/  — voitures de l'agence connectée
-    """
     queryset = Car.objects.all()
     serializer_class = CarSerializer
 
@@ -69,7 +60,6 @@ class CarViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=['get'], url_path='mine')
     def mine(self, request):
-        """GET /api/cars/mine/ — voitures de l'agence connectée"""
         err = require_auth(request, 'agency')
         if err:
             return err

@@ -36,9 +36,6 @@ def get_token_from_request(request):
     return token
 
 
-# ============================================================
-# REGISTER CLIENT — POST /api/auth/register/client/
-# ============================================================
 @csrf_exempt
 def register_client(request):
     if request.method != 'POST':
@@ -66,9 +63,6 @@ def register_client(request):
         return JsonResponse({'erreur': str(e)}, status=400)
 
 
-# ============================================================
-# REGISTER AGENCY — POST /api/auth/register/agency/
-# ============================================================
 @csrf_exempt
 def register_agency(request):
     if request.method != 'POST':
@@ -95,9 +89,6 @@ def register_agency(request):
         return JsonResponse({'erreur': str(e)}, status=400)
 
 
-# ============================================================
-# LOGIN — POST /api/auth/login/
-# ============================================================
 @csrf_exempt
 def login(request):
     if request.method != 'POST':
@@ -159,9 +150,6 @@ def login(request):
         return JsonResponse({'erreur': str(e)}, status=400)
 
 
-# ============================================================
-# LOGOUT — POST /api/auth/logout/
-# ============================================================
 @csrf_exempt
 def logout(request):
     if request.method != 'POST':
@@ -182,10 +170,6 @@ def logout(request):
     return response
 
 
-# ============================================================
-# VERIFY — GET /api/auth/verify/
-# Called by api-service middleware to validate a token
-# ============================================================
 def verify(request):
     token = get_token_from_request(request)
     if not token:
@@ -206,10 +190,6 @@ def verify(request):
         return JsonResponse({'erreur': 'Token invalide'}, status=401)
 
 
-# ============================================================
-# ADMIN HELPERS
-# ============================================================
-
 def require_admin_token(request):
     token = get_token_from_request(request)
     if not token:
@@ -222,10 +202,6 @@ def require_admin_token(request):
     except Exception:
         return None, JsonResponse({'erreur': 'Token invalide'}, status=401)
 
-
-# ============================================================
-# ADMIN — AGENCIES
-# ============================================================
 
 def admin_list_agencies(request):
     _, err = require_admin_token(request)
@@ -279,10 +255,6 @@ def admin_unban_agency(request, agency_id):
         return JsonResponse({'erreur': 'Agence introuvable'}, status=404)
 
 
-# ============================================================
-# ADMIN — CLIENTS
-# ============================================================
-
 def admin_list_clients(request):
     _, err = require_admin_token(request)
     if err:
@@ -321,9 +293,6 @@ def admin_unban_client(request, client_id):
         return JsonResponse({'erreur': 'Client introuvable'}, status=404)
 
 
-# ============================================================
-# ME — GET /api/auth/me/
-# ============================================================
 def me(request):
     token = get_token_from_request(request)
     if not token:
