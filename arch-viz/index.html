@@ -16,7 +16,6 @@ h1{text-align:center;font-size:2rem;font-weight:900;background:linear-gradient(1
 .panel.active{display:block}
 @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 
-/* SERVICE CARDS */
 .service-grid{display:flex;gap:16px;flex-wrap:wrap;justify-content:center;margin-bottom:24px}
 .scard{border-radius:16px;padding:20px 18px;min-width:160px;border:2px solid #2d3148;background:#1a1d27;cursor:pointer;transition:all .2s;max-width:200px}
 .scard:hover,.scard.selected{transform:translateY(-4px)}
@@ -25,7 +24,6 @@ h1{text-align:center;font-size:2rem;font-weight:900;background:linear-gradient(1
 .scard .port{font-size:.75rem;color:#6b7280;margin-top:3px}
 .scard .role-tag{margin-top:10px;font-size:.75rem;background:#0f1117;border-radius:8px;padding:4px 8px;border-left:3px solid currentColor;color:#94a3b8}
 
-/* DETAIL PANEL */
 .detail{max-width:760px;margin:0 auto;border-radius:20px;padding:28px;border:2px solid #2d3148;background:#1a1d27;animation:slideIn .3s ease}
 @keyframes slideIn{from{opacity:0;transform:translateX(16px)}to{opacity:1;transform:translateX(0)}}
 .detail-header{display:flex;align-items:center;gap:12px;margin-bottom:16px}
@@ -40,7 +38,6 @@ h1{text-align:center;font-size:2rem;font-weight:900;background:linear-gradient(1
 .file-desc{font-size:.8rem;color:#94a3b8;line-height:1.5}
 .hint{text-align:center;color:#374151;font-size:.85rem;margin-top:8px}
 
-/* EXTERNALS */
 .ext-label{font-size:.75rem;font-weight:700;color:#4b5563;text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;max-width:760px;margin-left:auto;margin-right:auto;display:block;margin-top:28px}
 .ext-grid{display:flex;gap:10px;flex-wrap:wrap;max-width:760px;margin:0 auto}
 .ext-card{border-radius:12px;padding:12px 16px;display:flex;align-items:center;gap:10px;flex:1 1 160px;border:1.5px solid transparent}
@@ -48,7 +45,6 @@ h1{text-align:center;font-size:2rem;font-weight:900;background:linear-gradient(1
 .ext-card .ename{font-weight:700;font-size:.85rem}
 .ext-card .esub{font-size:.7rem;color:#6b7280}
 
-/* FLOWS */
 .flow-box{background:#1a1d27;border-radius:20px;padding:28px;border:1px solid #2d3148;margin-bottom:20px;max-width:760px;margin-left:auto;margin-right:auto}
 .flow-title{font-size:.95rem;font-weight:700;margin-bottom:16px}
 .flow-row{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;cursor:pointer;border:1px solid transparent;transition:all .15s;margin-bottom:4px}
@@ -69,7 +65,6 @@ h1{text-align:center;font-size:2rem;font-weight:900;background:linear-gradient(1
 .step-num{min-width:20px;height:20px;border-radius:50%;font-size:.7rem;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .step-txt{font-size:.78rem;color:#94a3b8;line-height:1.5}
 
-/* DATA */
 .data-section{max-width:760px;margin:0 auto}
 .status-flow{background:#1a1d27;border-radius:18px;padding:22px;border:1px solid #2d3148;margin-bottom:14px}
 .status-steps{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:12px}
@@ -112,19 +107,22 @@ h1{text-align:center;font-size:2rem;font-weight:900;background:linear-gradient(1
   <div id="detail-wrapper"></div>
   <p class="hint" id="hint-text">Clique sur un service pour voir ses fichiers</p>
 
-  <span class="ext-label">Services externes</span>
+  <span class="ext-label">Infrastructure externe</span>
   <div class="ext-grid">
     <div class="ext-card" style="background:#1e3a5f;border-color:#60a5fa40">
-      <span class="eicon">🗄️</span><div><div class="ename" style="color:#60a5fa">PostgreSQL</div><div class="esub">Base de données</div></div>
+      <span class="eicon">🗄️</span><div><div class="ename" style="color:#60a5fa">PostgreSQL</div><div class="esub">Base de données partagée · Render managed</div></div>
     </div>
     <div class="ext-card" style="background:#450a0a;border-color:#f8717140">
-      <span class="eicon">⚡</span><div><div class="ename" style="color:#f87171">Redis</div><div class="esub">Blacklist JWT</div></div>
+      <span class="eicon">⚡</span><div><div class="ename" style="color:#f87171">Redis</div><div class="esub">Blacklist tokens JWT · Render managed</div></div>
     </div>
     <div class="ext-card" style="background:#2e1065;border-color:#a78bfa40">
-      <span class="eicon">☁️</span><div><div class="ename" style="color:#a78bfa">Cloudinary</div><div class="esub">Images voitures</div></div>
+      <span class="eicon">☁️</span><div><div class="ename" style="color:#a78bfa">Cloudinary</div><div class="esub">CDN images voitures</div></div>
     </div>
     <div class="ext-card" style="background:#1c1007;border-color:#fdba7440">
-      <span class="eicon">🐰</span><div><div class="ename" style="color:#fdba74">CloudAMQP</div><div class="esub">RabbitMQ broker</div></div>
+      <span class="eicon">🐰</span><div><div class="ename" style="color:#fdba74">CloudAMQP</div><div class="esub">RabbitMQ broker · AMQPS</div></div>
+    </div>
+    <div class="ext-card" style="background:#1a2010;border-color:#86efac40">
+      <span class="eicon">📖</span><div><div class="ename" style="color:#86efac">Consul</div><div class="esub">Service discovery · fallback gracieux sur Render</div></div>
     </div>
   </div>
 </div>
@@ -165,8 +163,9 @@ h1{text-align:center;font-size:2rem;font-weight:900;background:linear-gradient(1
         </div>
       </div>
       <div class="status-note">
-        ✨ <strong style="color:#818cf8">COMPLETED</strong> est requis pour laisser un avis —
-        ajouté via <code style="color:#fb923c;font-size:.75rem">POST /bookings/&lt;id&gt;/completer/</code>
+        ✨ <strong style="color:#818cf8">COMPLETED</strong> requis pour laisser un avis ·
+        Transitions PENDING/CONFIRMED → CANCELLED publient un événement RabbitMQ ·
+        Confirmations publient <code style="color:#fb923c;font-size:.75rem">booking.confirmed</code>
       </div>
     </div>
 
@@ -179,98 +178,102 @@ h1{text-align:center;font-size:2rem;font-weight:900;background:linear-gradient(1
   </div>
 </div>
 
-<p class="footer">Hamdi Islem · Master 1 GL/I2A · UMBB · WAMS 2024–2025</p>
+<p class="footer">Hamdi Mohamed Islem · Aya Ghernout · Meriem Foudi · Sidi Yasmine · M1 GL — UMBB · WAMS 2024–2025</p>
 
 <script>
 const SERVICES = [
   {
-    id:'frontend', label:'frontend-service', port:'Django :8002', icon:'🖥️',
+    id:'frontend', label:'frontend-service', port:'Django :8002 · akri-frontend.onrender.com', icon:'🖥️',
     color:'#818cf8', bg:'#1e1b4b', border:'#4338ca',
     role:"Ce que l'utilisateur voit",
-    desc:"Reçoit les requêtes HTTP du navigateur, appelle auth-service et api-service via requests Python, retourne du HTML rendu avec Tailwind CSS.",
+    desc:"Point d'entrée unique. Reçoit les requêtes HTTP du navigateur, appelle auth-service et api-service via requests Python, et retourne du HTML rendu avec Tailwind CSS. Le JWT est stocké dans un cookie httpOnly.",
     files:[
-      {name:'views.py', desc:'20+ fonctions → une page web chacune (home, login, dashboard_client, dashboard_agency, dashboard_admin…)'},
-      {name:'urls.py', desc:'Table de routage URL → vue  ex: /cars/<id>/modifier/ → modifier_voiture'},
-      {name:'templates/base.html', desc:'Layout commun avec navbar intelligente qui change selon le rôle connecté'},
-      {name:'templates/home.html', desc:'Grille de voitures + filtres wilaya / prix'},
-      {name:'templates/car_detail.html', desc:'Fiche voiture + calendrier interactif + formulaire réservation'},
-      {name:'templates/dashboard_agency.html', desc:'Liste voitures + réservations + boutons Modifier / Terminer / Toggle dispo'},
-      {name:'templates/dashboard_admin.html', desc:'Gestion agences/clients + ban/unban toggle'},
-      {name:'templates/edit_car.html', desc:'✨ Formulaire édition voiture pré-rempli avec compression image JS'},
-      {name:'templates/profile_admin.html', desc:'✨ Page profil pour l\'admin (email, ID, rôle)'},
+      {name:'web/views.py', desc:'30+ fonctions vue : home, login, dashboard_client, dashboard_agency, dashboard_admin, profile_client, profile_agency, edit_profile_client, edit_profile_agency, delete_account, enrich_bookings_with_agency…'},
+      {name:'web/urls.py', desc:'Table de routage — 35+ patterns : /cars/, /bookings/<id>/confirmer/, /profile/client/edit/, /account/delete/…'},
+      {name:'templates/base.html', desc:'Layout commun avec navbar adaptée au rôle connecté (client / agence / admin / visiteur)'},
+      {name:'templates/home.html', desc:'Hero + grille de fonctionnalités + CTA agence (masqué si déjà connecté)'},
+      {name:'templates/car_detail.html', desc:'Fiche voiture + galerie images + calendrier interactif + formulaire réservation + avis'},
+      {name:'templates/dashboard_agency.html', desc:'Stats (voitures, en attente, réservations, revenus DZD) + grille voitures + réservations reçues'},
+      {name:'templates/dashboard_client.html', desc:'Liste réservations avec nom + téléphone de l\'agence, statut, annulation, laisser un avis'},
+      {name:'templates/edit_profile_client.html', desc:'Formulaire édition profil client (nom, téléphone, wilaya, permis, âge, genre, situation familiale)'},
+      {name:'templates/edit_profile_agency.html', desc:'Formulaire édition profil agence (gérant, téléphone, wilaya, adresse, description)'},
+      {name:'templates/dashboard_admin.html', desc:'Gestion agences/clients + ban/unban + statistiques plateforme'},
     ]
   },
   {
-    id:'auth', label:'auth-service', port:'Django :8000', icon:'🔐',
+    id:'auth', label:'auth-service', port:'Django :8000 · akri-auth.onrender.com', icon:'🔐',
     color:'#34d399', bg:'#064e3b', border:'#059669',
     role:'Qui es-tu ?',
-    desc:'Gère les comptes, authentification JWT, rôles et permissions. Blackliste les tokens révoqués dans Redis pour sécuriser le logout.',
+    desc:'Gère les comptes, authentification JWT (PyJWT HS256, 7 jours), rôles et permissions. Blackliste les tokens révoqués dans Redis pour sécuriser le logout. S\'enregistre dans Consul au démarrage (fallback sur AUTH_SERVICE_URL si absent).',
     files:[
-      {name:'models.py', desc:'User (email, role, wilaya, status) + UserProfile agence (nom, adresse, RC)'},
-      {name:'views.py', desc:'register/client, register/agency, login, logout, /me/, admin/verify, admin/ban, ✨admin/unban'},
-      {name:'serializers.py', desc:'Valide email unique, formate les données JSON entrantes'},
-      {name:'middleware.py', desc:'Lit cookie JWT → vérifie signature → cherche Redis blacklist → injecte request.user_info'},
-      {name:'urls.py', desc:'Routage: /login/, /logout/, /me/, /admin/agencies/<id>/verify|ban|unban/'},
+      {name:'accounts/models.py', desc:'3 modèles séparés : Client (full_name, phone, wilaya, driver_license, age, gender…), Agency (agency_name, owner_name, rc_number, address…), Admin (email, password)'},
+      {name:'accounts/views.py', desc:'register_client, register_agency, login, logout, verify, me, update_me (PATCH), delete_me (DELETE), agency_public_info (GET public), admin/list|verify|ban|unban agences & clients'},
+      {name:'accounts/urls.py', desc:'Routage: /login/, /logout/, /me/, /me/update/, /me/delete/, /agencies/<id>/info/, /admin/agencies/<id>/verify|ban|unban/, /admin/clients/<id>/ban|unban/'},
     ]
   },
   {
-    id:'api', label:'api-service', port:'Django :8001', icon:'🚗',
+    id:'api', label:'api-service', port:'Django :8001 · akri-api.onrender.com', icon:'🚗',
     color:'#fb923c', bg:'#431407', border:'#ea580c',
     role:'La logique métier',
-    desc:'Gère les voitures, réservations et avis. Publie des messages RabbitMQ à chaque changement de statut de réservation.',
+    desc:'Gère les voitures, réservations et avis. Publie des messages RabbitMQ (AMQPS) à chaque transition de statut de réservation. Vérifie chaque token JWT via l\'auth-service (middleware Consul-aware avec fallback sur AUTH_SERVICE_URL).',
     files:[
-      {name:'cars/models.py', desc:'Car: marque, modèle, prix/jour, wilaya, places, boîte, carburant, image_url, agency_id'},
-      {name:'cars/views.py', desc:'GET/POST /cars/, GET/PUT/DELETE /cars/<id>/ — vérif propriété agence avant modif'},
-      {name:'bookings/models.py', desc:'Booking: car, client_id, agency_id, dates, prix_total, status, message client'},
-      {name:'bookings/views.py', desc:'POST /bookings/, confirmer, ✨completer, annuler — publie vers RabbitMQ'},
-      {name:'bookings/serializers.py', desc:'Vérifie conflits de dates, calcule prix_total = prix × jours automatiquement'},
-      {name:'reviews/models.py', desc:'Review: booking, note 1-5, commentaire — contrainte: 1 avis par booking COMPLETED'},
-      {name:'reviews/views.py', desc:'GET /reviews/?car=<id>, POST /reviews/ — vérifie que booking est COMPLETED'},
+      {name:'cars/models.py', desc:'Car : make, model, year, price_per_day, seats, transmission (MANUAL/AUTOMATIC), fuel_type (PETROL/DIESEL/ELECTRIC/HYBRID), wilaya, description, images (JSONField), available, agency_id'},
+      {name:'cars/views.py', desc:'CarViewSet — GET/POST /cars/, GET/PUT/DELETE /cars/<id>/, GET /cars/mine/ — vérif propriété agence avant modification'},
+      {name:'bookings/models.py', desc:'Booking : car (FK), client_id, agency_id, start_date, end_date, total_price (auto-calculé), status, message'},
+      {name:'bookings/views.py', desc:'BookingViewSet — créer, mes-reservations, agence, disponibilite, confirmer, annuler, completer — publie vers RabbitMQ à chaque transition'},
+      {name:'reviews/models.py', desc:'Review : booking (FK unique), note 1–5, commentaire — contrainte : booking doit être COMPLETED'},
+      {name:'reviews/views.py', desc:'GET /reviews/?car=<id>, POST /reviews/ — vérifie que le booking est COMPLETED et appartient au client'},
+      {name:'middleware/auth.py', desc:'Lit le token JWT → appel REST vers auth-service (via Consul ou AUTH_SERVICE_URL) → injecte request.user_info'},
+      {name:'utils.py', desc:'publish_to_rabbitmq() — connexion AMQPS à CloudAMQP, publie sur booking.confirmed ou booking.cancelled'},
     ]
   },
   {
-    id:'worker', label:'notification-worker', port:'Python/pika', icon:'📨',
+    id:'worker', label:'notification-worker', port:'Python/pika · akri-worker.onrender.com', icon:'📨',
     color:'#f472b6', bg:'#4a044e', border:'#a21caf',
     role:'Traitement asynchrone',
-    desc:'Se connecte à CloudAMQP (RabbitMQ hébergé), écoute la queue "notifications" et traite les événements de réservation.',
+    desc:'Processus Python autonome (pas de port HTTP). Se connecte à CloudAMQP via AMQPS, déclare et écoute deux queues durables. Traite les événements de réservation de manière découplée de la logique métier.',
     files:[
-      {name:'worker.py', desc:'Connexion CloudAMQP → écoute queue "notifications" → traite booking.confirmed / booking.cancelled'},
-      {name:'requirements.txt', desc:'pika (client Python officiel pour RabbitMQ)'},
+      {name:'worker.py', desc:'Connexion AMQPS (pika) → déclare booking.confirmed + booking.cancelled (durable) → on_booking_confirmed() / on_booking_cancelled() → log événement (extensible email/SMS)'},
+      {name:'requirements.txt', desc:'pika — client Python officiel pour RabbitMQ / AMQPS'},
     ]
   },
 ];
 
 const FLOWS = [
-  {from:'🌐 Navigateur', to:'🖥️ Frontend', label:'HTTP + cookie JWT', color:'#818cf8'},
-  {from:'🖥️ Frontend', to:'🔐 Auth', label:'register / login / me', color:'#34d399'},
-  {from:'🖥️ Frontend', to:'🚗 API', label:'cars / bookings / reviews', color:'#fb923c'},
-  {from:'🚗 API', to:'📨 Worker', label:'booking.confirmed / .cancelled', color:'#f472b6'},
-  {from:'🔐 Auth', to:'⚡ Redis', label:'blacklist token JWT', color:'#f87171'},
-  {from:'🚗 API', to:'☁️ Cloudinary', label:'upload photo voiture', color:'#a78bfa'},
-  {from:'📨 Worker', to:'🐰 CloudAMQP', label:'consume queue', color:'#fdba74'},
+  {from:'🌐 Navigateur', to:'🖥️ Frontend', label:'HTTP + cookie JWT (httpOnly)', color:'#818cf8'},
+  {from:'🖥️ Frontend', to:'🔐 Auth', label:'REST /api/auth/ — register, login, me', color:'#34d399'},
+  {from:'🖥️ Frontend', to:'🚗 API', label:'REST /api/ — cars, bookings, reviews', color:'#fb923c'},
+  {from:'🚗 API', to:'🔐 Auth', label:'verify token (middleware Consul-aware)', color:'#34d399', dashed:true},
+  {from:'🔐 Auth', to:'⚡ Redis', label:'blacklist token au logout', color:'#f87171'},
+  {from:'🚗 API', to:'🐰 CloudAMQP', label:'AMQPS publish — booking.confirmed/.cancelled', color:'#fdba74'},
+  {from:'📨 Worker', to:'🐰 CloudAMQP', label:'AMQPS consume — booking.confirmed/.cancelled', color:'#f472b6'},
+  {from:'🚗 API', to:'☁️ Cloudinary', label:'upload images voitures', color:'#a78bfa'},
+  {from:'🔐 Auth + 🚗 API', to:'📖 Consul', label:'register au démarrage (optionnel)', color:'#86efac', dashed:true},
 ];
 
 const SCENARIOS = [
-  {title:'🧑‍💻 Client réserve une voiture', color:'#818cf8', steps:['Navigateur → Frontend (POST form)','Frontend → API (POST /bookings/)','API vérifie JWT + conflits de dates','API → RabbitMQ (booking.confirmed)','Worker reçoit et log la notification']},
-  {title:'🔐 Connexion utilisateur', color:'#34d399', steps:['Navigateur → Frontend (POST login)','Frontend → Auth (POST /auth/login/)','Auth vérifie email + mot de passe','Auth génère token JWT signé','Frontend set cookie httponly sécurisé']},
-  {title:'🚪 Déconnexion', color:'#f87171', steps:['Navigateur → Frontend (POST logout)','Frontend → Auth (POST /auth/logout/)','Auth lit le cookie JWT actuel','Auth blackliste dans Redis (TTL=expiry)','Frontend supprime le cookie']},
-  {title:'📸 Upload photo voiture', color:'#a78bfa', steps:['Navigateur compresse image (JS natif)','Frontend → API (POST /cars/ + image)','API reçoit le fichier binaire','API → Cloudinary (upload direct)','Cloudinary retourne URL → stockée en DB']},
+  {title:'🧑‍💻 Client réserve une voiture', color:'#818cf8', steps:['Navigateur → Frontend (POST form)','Frontend → API POST /api/bookings/','API vérifie JWT via Auth + conflits de dates','Booking créé en PENDING','API publie booking.confirmed sur RabbitMQ','Worker reçoit et log l\'événement']},
+  {title:'🔐 Connexion utilisateur', color:'#34d399', steps:['Navigateur → Frontend (POST /login/)','Frontend → Auth POST /api/auth/login/','Auth vérifie email + password (pbkdf2)','Auth génère token JWT HS256 signé','Frontend set cookie httpOnly + cookie role']},
+  {title:'🚪 Déconnexion', color:'#f87171', steps:['Navigateur → Frontend (POST /logout/)','Frontend → Auth POST /api/auth/logout/','Auth lit le token du cookie','Auth blackliste dans Redis (TTL = expiry)','Frontend supprime les deux cookies']},
+  {title:'📞 Client contacte l\'agence', color:'#fb923c', steps:['Client va sur /dashboard/client/','Frontend appelle /api/bookings/mes-reservations/','Pour chaque agency_id : appel /api/auth/agencies/<id>/info/','Résultat mis en cache par agency_id','Téléphone de l\'agence affiché cliquable (tel:)']},
 ];
 
 const MODELS = [
-  {title:'🚗 Car', color:'#fb923c', border:'#fb923c30', fields:['marque, modele','prix_par_jour','wilaya','places','boite (Manuel/Auto)','carburant','image_url (Cloudinary)','available (bool)','agency_id (FK → User)']},
-  {title:'📅 Booking', color:'#818cf8', border:'#818cf830', fields:['car (FK)','client_id','agency_id','start_date, end_date','prix_total (auto)','status PENDING/CONFIRMED/COMPLETED/CANCELLED','message du client']},
-  {title:'⭐ Review', color:'#fbbf24', border:'#fbbf2430', fields:['booking (FK unique)','note (1–5)','commentaire','created_at','⚠️ booking doit être COMPLETED']},
-  {title:'👤 User + UserProfile', color:'#34d399', border:'#34d39930', fields:['email, password','role (client/agency/admin)','wilaya','status (PENDING/VERIFIED/BANNED)','Profile agence: nom, adresse, RC']},
+  {title:'🚗 Car (api-service)', color:'#fb923c', border:'#fb923c30', fields:['make, model, year','price_per_day','seats','transmission (MANUAL/AUTO)','fuel_type (PETROL/DIESEL/ELECTRIC/HYBRID)','wilaya','description','images (JSONField — array URLs Cloudinary)','available (bool)','agency_id (→ Agency auth-service)']},
+  {title:'📅 Booking (api-service)', color:'#818cf8', border:'#818cf830', fields:['car (FK → Car)','client_id (→ Client auth-service)','agency_id (→ Agency auth-service)','start_date, end_date','total_price (calculé auto)','status PENDING/CONFIRMED/COMPLETED/CANCELLED','message (optionnel)']},
+  {title:'⭐ Review (api-service)', color:'#fbbf24', border:'#fbbf2430', fields:['booking (FK unique)','note (1–5)','commentaire','created_at','⚠️ booking.status doit être COMPLETED']},
+  {title:'👤 Client (auth-service)', color:'#34d399', border:'#34d39930', fields:['full_name, email, password (pbkdf2)','phone, wilaya','driver_license','age, gender (M/F)','marital_status (single/married/divorced/widowed)','family_size','status (VERIFIED/BANNED)']},
+  {title:'🏢 Agency (auth-service)', color:'#60a5fa', border:'#60a5fa30', fields:['agency_name, owner_name','email, password (pbkdf2)','phone, wilaya, address','description','rc_number (unique)','status (PENDING/VERIFIED/BANNED)']},
+  {title:'🛡️ Admin (auth-service)', color:'#f472b6', border:'#f472b630', fields:['email','password (pbkdf2)','created_at']},
 ];
 
 const ROLES = [
-  {icon:'🧑‍💻', name:'Client', color:'#60a5fa', can:['Voir les voitures','Réserver une voiture','Annuler sa réservation','Laisser un avis (si COMPLETED)','Voir son profil']},
-  {icon:'🏢', name:'Agence', color:'#fb923c', can:['Créer / modifier / supprimer ses voitures','Confirmer / terminer / annuler réservations','Toggle disponibilité voiture','Voir son tableau de bord']},
-  {icon:'🛡️', name:'Admin', color:'#f472b6', can:['Vérifier les agences (PENDING→VERIFIED)','Bannir / réactiver agences et clients','Voir tous les utilisateurs','Voir son profil']},
+  {icon:'🧑‍💻', name:'Client', color:'#60a5fa', can:['Parcourir les voitures (sans compte)','Réserver une voiture','Annuler sa réservation (PENDING/CONFIRMED)','Laisser un avis (booking COMPLETED)','Voir/modifier/supprimer son profil','Contacter l\'agence (téléphone affiché)']},
+  {icon:'🏢', name:'Agence', color:'#fb923c', can:['Créer / modifier / supprimer ses voitures','Upload images Cloudinary','Confirmer / terminer / annuler réservations','Toggle disponibilité voiture','Voir revenus + statistiques dashboard','Modifier son profil (nom, téléphone, adresse…)']},
+  {icon:'🛡️', name:'Admin', color:'#f472b6', can:['Voir toutes les agences et clients','Vérifier une agence (PENDING → VERIFIED)','Bannir / réactiver agences et clients','Voir toutes les réservations + stats','Voir son profil (email, ID, rôle)']},
 ];
 
-// ─── Render service cards ────────────────────────────────────────────
+// ─── Render service cards ───────────────────────────────────────────────
 let selectedId = null;
 
 function renderServices() {
@@ -333,14 +336,14 @@ function clearDetail() {
   });
 }
 
-// ─── Render flows ────────────────────────────────────────────────────
+// ─── Render flows ───────────────────────────────────────────────────────
 let activeFlowIdx = null;
 
 function renderFlows() {
   document.getElementById('flow-rows').innerHTML = FLOWS.map((f,i) => `
     <div class="flow-row" id="flow-${i}" onclick="toggleFlow(${i})" style="--c:${f.color}">
       <span class="flow-from">${f.from}</span>
-      <div class="flow-line">
+      <div class="flow-line" style="${f.dashed ? 'background:repeating-linear-gradient(90deg,#2d3148 0,#2d3148 6px,transparent 6px,transparent 12px)' : ''}">
         <div class="flow-fill" id="fill-${i}" style="background:${f.color};box-shadow:0 0 8px ${f.color}"></div>
         <span class="flow-lbl" style="color:${f.color}">${f.label}</span>
         <span class="flow-arrow" style="color:${f.color}">▶</span>
@@ -373,7 +376,7 @@ function toggleFlow(i) {
   }
 }
 
-// ─── Render data ─────────────────────────────────────────────────────
+// ─── Render data ────────────────────────────────────────────────────────
 function renderData() {
   document.getElementById('models-grid').innerHTML = MODELS.map(m => `
     <div class="model-card" style="border-color:${m.border}">
@@ -398,7 +401,7 @@ function renderData() {
   `).join('');
 }
 
-// ─── Tab switching ────────────────────────────────────────────────────
+// ─── Tab switching ──────────────────────────────────────────────────────
 function showTab(id) {
   document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
@@ -406,7 +409,7 @@ function showTab(id) {
   event.target.classList.add('active');
 }
 
-// ─── Init ─────────────────────────────────────────────────────────────
+// ─── Init ───────────────────────────────────────────────────────────────
 renderServices();
 renderFlows();
 renderData();
