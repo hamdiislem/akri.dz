@@ -8,6 +8,8 @@ urlpatterns = [
     path('logout/', views.logout, name='logout'),
     path('verify/', views.verify, name='verify'),
     path('me/', views.me, name='me'),
+    path('me/update/', views.update_me, name='update_me'),
+    path('me/delete/', views.delete_me, name='delete_me'),
     # Admin
     path('admin/agencies/', views.admin_list_agencies, name='admin_list_agencies'),
     path('admin/agencies/<int:agency_id>/verify/', views.admin_verify_agency, name='admin_verify_agency'),

@@ -54,6 +54,16 @@ def api_put(url, data, token=''):
         return None
 
 
+def api_patch(url, data, token=''):
+    try:
+        headers = {'Authorization': f'Bearer {token}'} if token else {}
+        resp = http.patch(url, json=data, headers=headers, cookies={'token': token} if token else {}, timeout=TIMEOUT)
+        return resp
+    except Exception as e:
+        print(f"[api_patch] ERROR calling {url}: {type(e).__name__}: {e}")
+        return None
+
+
 def parse_list(resp):
     if not resp or resp.status_code != 200:
         return []
@@ -262,7 +272,8 @@ def profile_client(request):
     resp = api_get(f"{AUTH_URL}/api/auth/me/", token)
     if not resp or resp.status_code != 200:
         return redirect('/dashboard/client/')
-    return render(request, 'web/profile_client.html', {'profile': resp.json()})
+    bookings = parse_list(api_get(f"{API_URL}/api/bookings/mes-reservations/", token))
+    return render(request, 'web/profile_client.html', {'profile': resp.json(), 'bookings': bookings})
 
 
 def profile_agency(request):
@@ -291,7 +302,11 @@ def dashboard_agency(request):
     cars = parse_list(api_get(f"{API_URL}/api/cars/mine/", token))
     bookings = parse_list(api_get(f"{API_URL}/api/bookings/agence/", token))
     pending_count = sum(1 for b in bookings if b.get('status') == 'PENDING')
-    return render(request, 'web/dashboard_agency.html', {'cars': cars, 'bookings': bookings, 'pending_count': pending_count})
+    revenue = sum(float(b.get('total_price', 0) or 0) for b in bookings if b.get('status') == 'COMPLETED')
+    return render(request, 'web/dashboard_agency.html', {
+        'cars': cars, 'bookings': bookings,
+        'pending_count': pending_count, 'revenue': revenue,
+    })
 
 
 def dashboard_admin(request):
@@ -443,6 +458,79 @@ def admin_debannir_client(request, client_id):
 
 
 # ─── ADMIN PROFILE ─────────────────────────────────────────
+def edit_profile_client(request):
+    token = get_token(request)
+    if not token:
+        return redirect('/login/')
+    resp = api_get(f"{AUTH_URL}/api/auth/me/", token)
+    if not resp or resp.status_code != 200:
+        return redirect('/profile/client/')
+    profile = resp.json()
+    if request.method == 'POST':
+        patch_resp = api_patch(f"{AUTH_URL}/api/auth/me/update/", {
+            'full_name': request.POST.get('full_name'),
+            'phone': request.POST.get('phone'),
+            'wilaya': request.POST.get('wilaya'),
+            'driver_license': request.POST.get('driver_license'),
+            'age': request.POST.get('age') or None,
+            'gender': request.POST.get('gender'),
+            'marital_status': request.POST.get('marital_status'),
+            'family_size': request.POST.get('family_size') or None,
+        }, token=token)
+        if patch_resp and patch_resp.status_code == 200:
+            return redirect('/profile/client/')
+        error = 'Erreur lors de la mise à jour'
+        if patch_resp:
+            try:
+                error = patch_resp.json().get('erreur', error)
+            except Exception:
+                pass
+        return render(request, 'web/edit_profile_client.html', {'profile': profile, 'error': error})
+    return render(request, 'web/edit_profile_client.html', {'profile': profile})
+
+
+def edit_profile_agency(request):
+    token = get_token(request)
+    if not token:
+        return redirect('/login/')
+    resp = api_get(f"{AUTH_URL}/api/auth/me/", token)
+    if not resp or resp.status_code != 200:
+        return redirect('/profile/agency/')
+    profile = resp.json()
+    if request.method == 'POST':
+        patch_resp = api_patch(f"{AUTH_URL}/api/auth/me/update/", {
+            'owner_name': request.POST.get('owner_name'),
+            'phone': request.POST.get('phone'),
+            'wilaya': request.POST.get('wilaya'),
+            'address': request.POST.get('address'),
+            'description': request.POST.get('description'),
+        }, token=token)
+        if patch_resp and patch_resp.status_code == 200:
+            return redirect('/profile/agency/')
+        error = 'Erreur lors de la mise à jour'
+        if patch_resp:
+            try:
+                error = patch_resp.json().get('erreur', error)
+            except Exception:
+                pass
+        return render(request, 'web/edit_profile_agency.html', {'profile': profile, 'error': error})
+    return render(request, 'web/edit_profile_agency.html', {'profile': profile})
+
+
+@csrf_exempt
+def delete_account(request):
+    if request.method != 'POST':
+        return redirect('/')
+    token = get_token(request)
+    if not token:
+        return redirect('/login/')
+    api_delete(f"{AUTH_URL}/api/auth/me/delete/", token=token)
+    response = redirect('/')
+    response.delete_cookie('token')
+    response.delete_cookie('role')
+    return response
+
+
 def profile_admin(request):
     token = get_token(request)
     if not token:
