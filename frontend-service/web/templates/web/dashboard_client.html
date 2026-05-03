@@ -15,12 +15,21 @@
   <div class="bg-white rounded-2xl shadow-sm p-5 flex items-center justify-between gap-4 hover:shadow-md transition-shadow">
     <div class="flex-1 min-w-0">
       <div class="font-bold text-gray-900 text-lg">Réservation #{{ b.id }}</div>
+      {% if b.agency_info.agency_name %}
+      <div class="text-sm font-semibold text-blue-700 mt-0.5">🏢 {{ b.agency_info.agency_name }}</div>
+      {% endif %}
       <div class="text-sm text-gray-500 mt-1">
         📅 {{ b.start_date }} → {{ b.end_date }}
       </div>
       <div class="text-sm text-gray-500 mt-0.5">
         Total : <span class="font-bold text-gray-900">{{ b.total_price }} DZD</span>
       </div>
+      {% if b.agency_info.phone %}
+      <div class="text-sm text-gray-600 mt-1">
+        📞 <a href="tel:{{ b.agency_info.phone }}" class="font-semibold text-blue-600 hover:underline">{{ b.agency_info.phone }}</a>
+        {% if b.agency_info.wilaya %}<span class="text-gray-400 text-xs ml-1">· {{ b.agency_info.wilaya }}</span>{% endif %}
+      </div>
+      {% endif %}
       {% if b.message %}
       <div class="text-xs text-gray-400 mt-1 italic">"{{ b.message }}"</div>
       {% endif %}

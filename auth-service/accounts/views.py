@@ -377,6 +377,19 @@ def update_me(request):
 
 
 @csrf_exempt
+def agency_public_info(request, agency_id):
+    try:
+        agency = Agency.objects.get(id=agency_id)
+        return JsonResponse({
+            'agency_name': agency.agency_name,
+            'phone': agency.phone or '',
+            'wilaya': agency.wilaya or '',
+            'address': agency.address or '',
+        })
+    except Agency.DoesNotExist:
+        return JsonResponse({'erreur': 'Agence introuvable'}, status=404)
+
+
 def delete_me(request):
     if request.method != 'DELETE':
         return JsonResponse({'erreur': 'Méthode non autorisée'}, status=405)

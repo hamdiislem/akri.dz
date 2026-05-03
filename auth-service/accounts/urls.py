@@ -18,4 +18,5 @@ urlpatterns = [
     path('admin/clients/', views.admin_list_clients, name='admin_list_clients'),
     path('admin/clients/<int:client_id>/ban/', views.admin_ban_client, name='admin_ban_client'),
     path('admin/clients/<int:client_id>/unban/', views.admin_unban_client, name='admin_unban_client'),
+    path('agencies/<int:agency_id>/info/', views.agency_public_info, name='agency_public_info'),
 ]

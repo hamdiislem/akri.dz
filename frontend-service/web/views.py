@@ -73,6 +73,18 @@ def parse_list(resp):
     return data.get('results', [])
 
 
+def enrich_bookings_with_agency(bookings):
+    """Attach agency_name and agency_phone to each booking via auth-service."""
+    cache = {}
+    for b in bookings:
+        agency_id = b.get('agency_id')
+        if agency_id and agency_id not in cache:
+            resp = api_get(f"{AUTH_URL}/api/auth/agencies/{agency_id}/info/")
+            cache[agency_id] = resp.json() if resp and resp.status_code == 200 else {}
+        b['agency_info'] = cache.get(agency_id, {})
+    return bookings
+
+
 # ─── HOME ──────────────────────────────────────────────────
 def home(request):
     return render(request, 'web/home.html')
@@ -272,7 +284,7 @@ def profile_client(request):
     resp = api_get(f"{AUTH_URL}/api/auth/me/", token)
     if not resp or resp.status_code != 200:
         return redirect('/dashboard/client/')
-    bookings = parse_list(api_get(f"{API_URL}/api/bookings/mes-reservations/", token))
+    bookings = enrich_bookings_with_agency(parse_list(api_get(f"{API_URL}/api/bookings/mes-reservations/", token)))
     return render(request, 'web/profile_client.html', {'profile': resp.json(), 'bookings': bookings})
 
 
@@ -291,7 +303,7 @@ def dashboard_client(request):
     token = get_token(request)
     if not token:
         return redirect('/login/')
-    bookings = parse_list(api_get(f"{API_URL}/api/bookings/mes-reservations/", token))
+    bookings = enrich_bookings_with_agency(parse_list(api_get(f"{API_URL}/api/bookings/mes-reservations/", token)))
     return render(request, 'web/dashboard_client.html', {'bookings': bookings})
 
 
