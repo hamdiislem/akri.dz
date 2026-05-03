@@ -10,7 +10,7 @@
 </div>
 
 <!-- Stats -->
-<div class="grid grid-cols-3 gap-4 mb-10">
+<div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
   <div class="bg-white rounded-2xl shadow-sm p-5 text-center hover:shadow-md transition-shadow">
     <div class="text-3xl font-black text-blue-600">{{ cars|length }}</div>
     <div class="text-xs text-gray-400 mt-1 uppercase tracking-wide font-semibold">Voitures</div>
@@ -22,6 +22,10 @@
   <div class="bg-white rounded-2xl shadow-sm p-5 text-center hover:shadow-md transition-shadow">
     <div class="text-3xl font-black text-emerald-600">{{ bookings|length }}</div>
     <div class="text-xs text-gray-400 mt-1 uppercase tracking-wide font-semibold">Réservations total</div>
+  </div>
+  <div class="bg-white rounded-2xl shadow-sm p-5 text-center hover:shadow-md transition-shadow">
+    <div class="text-2xl font-black text-violet-600">{{ revenue|floatformat:0 }}</div>
+    <div class="text-xs text-gray-400 mt-1 uppercase tracking-wide font-semibold">Revenus DZD</div>
   </div>
 </div>
 

@@ -336,3 +336,66 @@ def me(request):
 
     except Exception as e:
         return JsonResponse({'erreur': str(e)}, status=401)
+
+
+@csrf_exempt
+def update_me(request):
+    if request.method != 'PATCH':
+        return JsonResponse({'erreur': 'Méthode non autorisée'}, status=405)
+    token = get_token_from_request(request)
+    if not token:
+        return JsonResponse({'erreur': 'Non authentifié'}, status=401)
+    try:
+        r = get_redis()
+        if r.exists(f"blacklist:{token}"):
+            return JsonResponse({'erreur': 'Token invalidé'}, status=401)
+        payload = decode_token(token)
+        user_id = payload['id']
+        role = payload['role']
+        data = json.loads(request.body)
+        if role == 'client':
+            user = Client.objects.get(id=user_id)
+            for field in ['full_name', 'phone', 'wilaya', 'driver_license', 'gender', 'marital_status']:
+                if field in data:
+                    setattr(user, field, data[field])
+            if 'age' in data:
+                user.age = int(data['age']) if data['age'] else None
+            if 'family_size' in data:
+                user.family_size = int(data['family_size']) if data['family_size'] else None
+            user.save()
+            return JsonResponse({'success': True})
+        elif role == 'agency':
+            user = Agency.objects.get(id=user_id)
+            for field in ['owner_name', 'phone', 'wilaya', 'address', 'description']:
+                if field in data:
+                    setattr(user, field, data[field])
+            user.save()
+            return JsonResponse({'success': True})
+        return JsonResponse({'erreur': 'Rôle non supporté'}, status=400)
+    except Exception as e:
+        return JsonResponse({'erreur': str(e)}, status=400)
+
+
+@csrf_exempt
+def delete_me(request):
+    if request.method != 'DELETE':
+        return JsonResponse({'erreur': 'Méthode non autorisée'}, status=405)
+    token = get_token_from_request(request)
+    if not token:
+        return JsonResponse({'erreur': 'Non authentifié'}, status=401)
+    try:
+        r = get_redis()
+        if r.exists(f"blacklist:{token}"):
+            return JsonResponse({'erreur': 'Token invalidé'}, status=401)
+        payload = decode_token(token)
+        user_id = payload['id']
+        role = payload['role']
+        if role == 'client':
+            Client.objects.get(id=user_id).delete()
+        elif role == 'agency':
+            Agency.objects.get(id=user_id).delete()
+        else:
+            return JsonResponse({'erreur': 'Suppression non autorisée'}, status=403)
+        return JsonResponse({'success': True})
+    except Exception as e:
+        return JsonResponse({'erreur': str(e)}, status=400)
