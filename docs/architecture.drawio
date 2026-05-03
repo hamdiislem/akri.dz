@@ -1,0 +1,208 @@
+<mxfile host="app.diagrams.net" modified="2025-05-03" version="21.0.0">
+  <diagram id="akri-arch" name="Akri.dz Architecture">
+    <mxGraphModel dx="1422" dy="762" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="1">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- ═══ TITLE ═══ -->
+        <mxCell id="2" value="Akri.dz — Architecture Microservices (WAMS 2025)"
+          style="text;html=1;align=center;verticalAlign=middle;resizable=0;strokeColor=none;fillColor=none;fontSize=18;fontStyle=1;"
+          vertex="1" parent="1">
+          <mxGeometry x="250" y="15" width="620" height="35" as="geometry" />
+        </mxCell>
+
+        <!-- ═══ BACKGROUND ZONES ═══ -->
+        <mxCell id="40" value="Services Akri.dz"
+          style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EEF4FF;strokeColor=#6c8ebf;fontSize=12;fontStyle=1;verticalAlign=top;align=left;spacingLeft=10;spacingTop=6;"
+          vertex="1" parent="1">
+          <mxGeometry x="190" y="55" width="490" height="565" as="geometry" />
+        </mxCell>
+
+        <mxCell id="41" value="Infrastructure Cloud"
+          style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFAEE;strokeColor=#d6b656;fontSize=12;fontStyle=1;verticalAlign=top;align=left;spacingLeft=10;spacingTop=6;"
+          vertex="1" parent="1">
+          <mxGeometry x="750" y="55" width="200" height="565" as="geometry" />
+        </mxCell>
+
+        <!-- ═══ NODES ═══ -->
+
+        <!-- Browser -->
+        <mxCell id="3" value="&lt;b&gt;Navigateur&lt;/b&gt;&lt;br/&gt;Client Web&lt;br/&gt;&lt;font color='#999999' style='font-size:9px'&gt;HTTP / HTTPS&lt;/font&gt;"
+          style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#333333;fontSize=11;arcSize=12;"
+          vertex="1" parent="1">
+          <mxGeometry x="28" y="245" width="140" height="80" as="geometry" />
+        </mxCell>
+
+        <!-- Frontend Service -->
+        <mxCell id="4" value="&lt;b&gt;Frontend Service&lt;/b&gt;&lt;br/&gt;Django :8002&lt;br/&gt;&lt;font color='#336699' style='font-size:9px'&gt;akri-frontend.onrender.com&lt;/font&gt;"
+          style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontColor=#333333;fontSize=11;arcSize=12;"
+          vertex="1" parent="1">
+          <mxGeometry x="213" y="220" width="185" height="90" as="geometry" />
+        </mxCell>
+
+        <!-- Auth Service -->
+        <mxCell id="5" value="&lt;b&gt;Auth Service&lt;/b&gt;&lt;br/&gt;Django :8000&lt;br/&gt;&lt;font color='#336633' style='font-size:9px'&gt;akri-auth.onrender.com&lt;/font&gt;"
+          style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontColor=#333333;fontSize=11;arcSize=12;"
+          vertex="1" parent="1">
+          <mxGeometry x="483" y="90" width="185" height="90" as="geometry" />
+        </mxCell>
+
+        <!-- API Service -->
+        <mxCell id="6" value="&lt;b&gt;API Service&lt;/b&gt;&lt;br/&gt;Django :8001&lt;br/&gt;&lt;font color='#886600' style='font-size:9px'&gt;akri-api.onrender.com&lt;/font&gt;"
+          style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d6b656;fontColor=#333333;fontSize=11;arcSize=12;"
+          vertex="1" parent="1">
+          <mxGeometry x="483" y="270" width="185" height="90" as="geometry" />
+        </mxCell>
+
+        <!-- Notification Worker -->
+        <mxCell id="7" value="&lt;b&gt;Notification Worker&lt;/b&gt;&lt;br/&gt;Python / Pika&lt;br/&gt;&lt;font color='#553377' style='font-size:9px'&gt;akri-worker.onrender.com&lt;/font&gt;"
+          style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontColor=#333333;fontSize=11;arcSize=12;"
+          vertex="1" parent="1">
+          <mxGeometry x="483" y="460" width="185" height="90" as="geometry" />
+        </mxCell>
+
+        <!-- Consul (dashed — inactive on Render) -->
+        <mxCell id="8" value="&lt;b&gt;Consul&lt;/b&gt;&lt;br/&gt;Service Registry :8500&lt;br/&gt;&lt;font color='#888800' style='font-size:9px'&gt;inactif sur Render (fallback)&lt;/font&gt;"
+          style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffcc;strokeColor=#aaaa00;fontColor=#333333;fontSize=11;arcSize=12;dashed=1;strokeWidth=2;"
+          vertex="1" parent="1">
+          <mxGeometry x="213" y="460" width="185" height="80" as="geometry" />
+        </mxCell>
+
+        <!-- PostgreSQL -->
+        <mxCell id="9" value="&lt;b&gt;PostgreSQL&lt;/b&gt;&lt;br/&gt;Base de données&lt;br/&gt;&lt;font color='#555555' style='font-size:9px'&gt;Render Managed&lt;/font&gt;"
+          style="shape=cylinder3;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#333333;fontSize=11;"
+          vertex="1" parent="1">
+          <mxGeometry x="770" y="80" width="155" height="85" as="geometry" />
+        </mxCell>
+
+        <!-- Redis -->
+        <mxCell id="10" value="&lt;b&gt;Redis&lt;/b&gt;&lt;br/&gt;JWT Blacklist :6379&lt;br/&gt;&lt;font color='#cc4400' style='font-size:9px'&gt;Render Managed&lt;/font&gt;"
+          style="shape=cylinder3;whiteSpace=wrap;html=1;fillColor=#ffd7c0;strokeColor=#cc4400;fontColor=#333333;fontSize=11;"
+          vertex="1" parent="1">
+          <mxGeometry x="770" y="210" width="155" height="85" as="geometry" />
+        </mxCell>
+
+        <!-- CloudAMQP -->
+        <mxCell id="11" value="&lt;b&gt;CloudAMQP&lt;/b&gt;&lt;br/&gt;RabbitMQ (AMQPS)&lt;br/&gt;&lt;font color='#cc0000' style='font-size:9px'&gt;booking.confirmed / .cancelled&lt;/font&gt;"
+          style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontColor=#333333;fontSize=11;arcSize=12;"
+          vertex="1" parent="1">
+          <mxGeometry x="770" y="340" width="155" height="90" as="geometry" />
+        </mxCell>
+
+        <!-- Cloudinary -->
+        <mxCell id="12" value="&lt;b&gt;Cloudinary&lt;/b&gt;&lt;br/&gt;CDN Images&lt;br/&gt;&lt;font color='#005500' style='font-size:9px'&gt;Photos des voitures&lt;/font&gt;"
+          style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontColor=#333333;fontSize=11;arcSize=12;"
+          vertex="1" parent="1">
+          <mxGeometry x="770" y="475" width="155" height="80" as="geometry" />
+        </mxCell>
+
+        <!-- Legend -->
+        <mxCell id="50" value="&lt;b&gt;Légende&lt;/b&gt;&lt;br/&gt;─── Communication synchrone (REST)&lt;br/&gt;- - - Consul optionnel (fallback)&lt;br/&gt;═══ Asynchrone AMQPS (RabbitMQ)"
+          style="text;html=1;strokeColor=#cccccc;fillColor=#ffffff;align=left;verticalAlign=middle;spacingLeft=8;fontSize=10;rounded=1;"
+          vertex="1" parent="1">
+          <mxGeometry x="28" y="395" width="145" height="90" as="geometry" />
+        </mxCell>
+
+        <!-- ═══ EDGES ═══ -->
+
+        <!-- Browser → Frontend : HTTP + cookie JWT -->
+        <mxCell id="20" value="HTTP + cookie JWT"
+          style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;fontSize=10;fontColor=#336699;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;"
+          edge="1" source="3" target="4" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Frontend → Auth : REST /api/auth/ -->
+        <mxCell id="21" value="REST /api/auth/&lt;br/&gt;register, login, me"
+          style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;fontSize=10;fontColor=#337733;"
+          edge="1" source="4" target="5" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Frontend → API : REST /api/ -->
+        <mxCell id="22" value="REST /api/&lt;br/&gt;cars, bookings, reviews"
+          style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;fontSize=10;fontColor=#886600;"
+          edge="1" source="4" target="6" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- API → Auth : verify token (middleware, Consul-aware) -->
+        <mxCell id="23" value="verify token&lt;br/&gt;(middleware Consul-aware)"
+          style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;fontSize=9;fontColor=#555555;dashed=1;endArrow=open;endFill=0;"
+          edge="1" source="6" target="5" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="660" y="315" />
+              <mxPoint x="660" y="135" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Auth → PostgreSQL -->
+        <mxCell id="24" value="SQL"
+          style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;fontSize=10;fontColor=#555555;"
+          edge="1" source="5" target="9" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- API → PostgreSQL -->
+        <mxCell id="25" value="SQL"
+          style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;fontSize=10;fontColor=#555555;"
+          edge="1" source="6" target="9" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Auth → Redis : blacklist token -->
+        <mxCell id="26" value="blacklist token"
+          style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;fontSize=10;fontColor=#cc4400;"
+          edge="1" source="5" target="10" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- API → CloudAMQP : AMQPS publish -->
+        <mxCell id="27" value="AMQPS publish"
+          style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;fontSize=10;fontColor=#b85450;strokeWidth=2;"
+          edge="1" source="6" target="11" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Worker → CloudAMQP : AMQPS consume -->
+        <mxCell id="28" value="AMQPS consume"
+          style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;fontSize=10;fontColor=#b85450;strokeWidth=2;"
+          edge="1" source="7" target="11" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- API → Cloudinary : image upload -->
+        <mxCell id="29" value="upload images"
+          style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;fontSize=10;fontColor=#005500;"
+          edge="1" source="6" target="12" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Auth → Consul : register (dashed) -->
+        <mxCell id="30" value="register"
+          style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;fontSize=9;dashed=1;endArrow=open;endFill=0;fontColor=#888800;strokeColor=#aaaa00;"
+          edge="1" source="5" target="8" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- API → Consul : register + discover (dashed) -->
+        <mxCell id="31" value="register + discover"
+          style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;fontSize=9;dashed=1;endArrow=open;endFill=0;fontColor=#888800;strokeColor=#aaaa00;"
+          edge="1" source="6" target="8" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Worker → Consul : register (dashed) -->
+        <mxCell id="32" value="register"
+          style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;fontSize=9;dashed=1;endArrow=open;endFill=0;fontColor=#888800;strokeColor=#aaaa00;"
+          edge="1" source="7" target="8" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
