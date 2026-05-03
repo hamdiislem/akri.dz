@@ -58,7 +58,7 @@ services:
       - key: AUTH_SERVICE_URL
         value: "https://akri-auth.onrender.com"
       - key: RABBITMQ_URL
-        sync: false   # Fill in your CloudAMQP URL after creating free account at cloudamqp.com
+        value: "amqps://fkzinkur:WQJnmNPKRJDTXQUSBZaZ8tXCGXV5sZNw@gerbil.rmq.cloudamqp.com/fkzinkur"
       - key: SECRET_KEY
         generateValue: true
       - key: DEBUG
@@ -94,6 +94,6 @@ services:
     plan: free
     envVars:
       - key: RABBITMQ_URL
-        sync: false   # Same CloudAMQP URL as akri-api
+        value: "amqps://fkzinkur:WQJnmNPKRJDTXQUSBZaZ8tXCGXV5sZNw@gerbil.rmq.cloudamqp.com/fkzinkur"
       - key: CONSUL_HOST
         value: ""
