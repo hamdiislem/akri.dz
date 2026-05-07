@@ -4,11 +4,13 @@ from django.contrib.auth.hashers import make_password
 
 def seed_admin(apps, schema_editor):
     Admin = apps.get_model('accounts', 'Admin')
-    if not Admin.objects.filter(email='admin@akri.dz').exists():
-        Admin.objects.create(
-            email='admin@akri.dz',
-            password=make_password('Admin@2025'),
-        )
+    obj = Admin.objects.filter(email='admin@akri.dz').first()
+    hashed = make_password('admin1234')
+    if obj:
+        obj.password = hashed
+        obj.save()
+    else:
+        Admin.objects.create(email='admin@akri.dz', password=hashed)
 
 
 class Migration(migrations.Migration):

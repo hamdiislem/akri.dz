@@ -120,7 +120,7 @@ def login_view(request):
             response.set_cookie('role', role, httponly=False, samesite='Lax', max_age=60*60*24*7)
             return response
         error = 'Service indisponible'
-        if resp:
+        if resp is not None:
             try:
                 error = resp.json().get('erreur', 'Erreur de connexion')
             except Exception:
