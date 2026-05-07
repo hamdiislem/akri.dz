@@ -764,7 +764,7 @@ def create_ticket(request):
         resp = api_post(f"{API_URL}/api/tickets/", {
             'subject': request.POST.get('subject', ''),
             'body': request.POST.get('body', ''),
-            'reported_id': request.POST.get('reported_id') or None,
+            'reported_phone': request.POST.get('reported_phone', ''),
             'reported_role': request.POST.get('reported_role', ''),
         }, token=token)
         if resp and resp.status_code == 201:

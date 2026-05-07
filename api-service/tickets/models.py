@@ -12,7 +12,7 @@ class Ticket(models.Model):
     sender_role = models.CharField(max_length=10)   # 'client' | 'agency'
     subject = models.CharField(max_length=200)
     body = models.TextField()
-    reported_id = models.IntegerField(null=True, blank=True)
+    reported_phone = models.CharField(max_length=30, blank=True)
     reported_role = models.CharField(max_length=10, blank=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='OPEN')
     admin_response = models.TextField(blank=True)

@@ -26,7 +26,7 @@ class TicketViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
             sender_role=request.user_info['role'],
             subject=subject,
             body=body,
-            reported_id=data.get('reported_id') or None,
+            reported_phone=data.get('reported_phone', '').strip(),
             reported_role=data.get('reported_role', ''),
         )
         return Response(TicketSerializer(ticket).data, status=201)

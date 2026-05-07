@@ -40,9 +40,9 @@
 
     <p class="text-sm text-gray-600 mb-3">{{ t.body }}</p>
 
-    {% if t.reported_id %}
+    {% if t.reported_phone %}
     <div class="text-xs bg-red-50 text-red-700 rounded-lg px-3 py-1.5 inline-block mb-3">
-      Signalement : {{ t.reported_role }} #{{ t.reported_id }}
+      Signalement : {{ t.reported_role }} — {{ t.reported_phone }}
     </div>
     {% endif %}
 

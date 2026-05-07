@@ -44,6 +44,8 @@ def register_client(request):
         data = json.loads(request.body)
         if Client.objects.filter(email=data.get('email')).exists():
             return JsonResponse({'erreur': 'Email déjà utilisé'}, status=409)
+        if data.get('phone') and Client.objects.filter(phone=data.get('phone')).exists():
+            return JsonResponse({'erreur': 'Numéro de téléphone déjà utilisé'}, status=409)
         age_raw = data.get('age')
         family_size_raw = data.get('family_size')
         client = Client.objects.create(
@@ -73,6 +75,8 @@ def register_agency(request):
             return JsonResponse({'erreur': 'Email déjà utilisé'}, status=409)
         if Agency.objects.filter(rc_number=data.get('rc_number')).exists():
             return JsonResponse({'erreur': 'Numéro RC déjà utilisé'}, status=409)
+        if data.get('phone') and Agency.objects.filter(phone=data.get('phone')).exists():
+            return JsonResponse({'erreur': 'Numéro de téléphone déjà utilisé'}, status=409)
         agency = Agency.objects.create(
             agency_name=data.get('agency_name', ''),
             owner_name=data.get('owner_name', ''),
