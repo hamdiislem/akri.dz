@@ -1,5 +1,6 @@
 from django.http import JsonResponse
 from rest_framework import viewsets, mixins
+from rest_framework.decorators import action
 from rest_framework.response import Response
 from .models import Review, ClientReview
 from .serializers import ReviewSerializer, ClientReviewSerializer
