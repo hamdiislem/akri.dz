@@ -58,9 +58,21 @@ class ClientReviewViewSet(mixins.ListModelMixin, mixins.CreateModelMixin, viewse
     def get_queryset(self):
         queryset = ClientReview.objects.all()
         client_id = self.request.query_params.get('client_id')
+        booking_id = self.request.query_params.get('booking')
         if client_id:
             queryset = queryset.filter(client_id=client_id)
+        if booking_id:
+            queryset = queryset.filter(booking_id=booking_id)
         return queryset
+
+    @action(detail=False, methods=['get'], url_path='mine')
+    def mine(self, request):
+        err = require_auth(request, 'agency')
+        if err:
+            return err
+        reviews = ClientReview.objects.filter(agency_id=request.user_info['id'])
+        serializer = self.get_serializer(reviews, many=True)
+        return Response(serializer.data)
 
     def create(self, request, *args, **kwargs):
         err = require_auth(request, 'agency')

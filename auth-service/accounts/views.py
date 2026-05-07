@@ -418,6 +418,40 @@ def agency_public_info(request, agency_id):
         return JsonResponse({'erreur': 'Agence introuvable'}, status=404)
 
 
+def admin_get_client(request, client_id):
+    _, err = require_admin_token(request)
+    if err:
+        return err
+    try:
+        c = Client.objects.get(id=client_id)
+        return JsonResponse({
+            'id': c.id, 'full_name': c.full_name, 'email': c.email,
+            'phone': c.phone or '', 'wilaya': c.wilaya or '',
+            'age': c.age, 'gender': c.gender, 'marital_status': c.marital_status,
+            'driver_license': c.driver_license or '', 'status': c.status,
+            'member_since': c.created_at.strftime('%d/%m/%Y'),
+        })
+    except Client.DoesNotExist:
+        return JsonResponse({'erreur': 'Client introuvable'}, status=404)
+
+
+def admin_get_agency(request, agency_id):
+    _, err = require_admin_token(request)
+    if err:
+        return err
+    try:
+        a = Agency.objects.get(id=agency_id)
+        return JsonResponse({
+            'id': a.id, 'agency_name': a.agency_name, 'owner_name': a.owner_name,
+            'email': a.email, 'phone': a.phone or '', 'wilaya': a.wilaya or '',
+            'address': a.address or '', 'description': a.description or '',
+            'rc_number': a.rc_number or '', 'status': a.status,
+            'member_since': a.created_at.strftime('%d/%m/%Y'),
+        })
+    except Agency.DoesNotExist:
+        return JsonResponse({'erreur': 'Agence introuvable'}, status=404)
+
+
 def client_public_info(request, client_id):
     token = get_token_from_request(request)
     if not token:

@@ -7,32 +7,51 @@
 </div>
 
 <!-- Stats -->
-<div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-10">
-  <div class="bg-white rounded-2xl shadow-sm p-5 text-center hover:shadow-md transition-shadow">
-    <div class="text-3xl font-black text-blue-600">{{ stats.total_cars|default:"0" }}</div>
+<div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4 mb-10">
+  <div class="bg-white rounded-2xl shadow-sm p-4 text-center hover:shadow-md transition-shadow col-span-1">
+    <div class="text-2xl font-black text-blue-600">{{ stats.total_cars|default:"0" }}</div>
     <div class="text-xs text-gray-400 mt-1 uppercase tracking-wide font-semibold">Voitures</div>
   </div>
-  <div class="bg-white rounded-2xl shadow-sm p-5 text-center hover:shadow-md transition-shadow">
-    <div class="text-3xl font-black text-blue-600">{{ stats.total_bookings|default:"0" }}</div>
+  <div class="bg-white rounded-2xl shadow-sm p-4 text-center hover:shadow-md transition-shadow col-span-1">
+    <div class="text-2xl font-black text-slate-700">{{ stats.total_agencies|default:"0" }}</div>
+    <div class="text-xs text-gray-400 mt-1 uppercase tracking-wide font-semibold">Agences</div>
+  </div>
+  <div class="bg-white rounded-2xl shadow-sm p-4 text-center hover:shadow-md transition-shadow col-span-1">
+    <div class="text-2xl font-black text-slate-700">{{ stats.total_clients|default:"0" }}</div>
+    <div class="text-xs text-gray-400 mt-1 uppercase tracking-wide font-semibold">Clients</div>
+  </div>
+  <div class="bg-white rounded-2xl shadow-sm p-4 text-center hover:shadow-md transition-shadow col-span-1">
+    <div class="text-2xl font-black text-blue-600">{{ stats.total_bookings|default:"0" }}</div>
     <div class="text-xs text-gray-400 mt-1 uppercase tracking-wide font-semibold">Réservations</div>
   </div>
-  <div class="bg-white rounded-2xl shadow-sm p-5 text-center hover:shadow-md transition-shadow">
-    <div class="text-3xl font-black text-amber-500">{{ stats.pending_bookings|default:"0" }}</div>
+  <div class="bg-white rounded-2xl shadow-sm p-4 text-center hover:shadow-md transition-shadow col-span-1">
+    <div class="text-2xl font-black text-amber-500">{{ stats.pending_bookings|default:"0" }}</div>
     <div class="text-xs text-gray-400 mt-1 uppercase tracking-wide font-semibold">En attente</div>
   </div>
-  <div class="bg-white rounded-2xl shadow-sm p-5 text-center hover:shadow-md transition-shadow">
-    <div class="text-3xl font-black text-emerald-600">{{ stats.confirmed_bookings|default:"0" }}</div>
+  <div class="bg-white rounded-2xl shadow-sm p-4 text-center hover:shadow-md transition-shadow col-span-1">
+    <div class="text-2xl font-black text-emerald-600">{{ stats.confirmed_bookings|default:"0" }}</div>
     <div class="text-xs text-gray-400 mt-1 uppercase tracking-wide font-semibold">Confirmées</div>
   </div>
-  <div class="bg-white rounded-2xl shadow-sm p-5 text-center hover:shadow-md transition-shadow">
-    <div class="text-3xl font-black text-purple-600">{{ stats.total_reviews|default:"0" }}</div>
-    <div class="text-xs text-gray-400 mt-1 uppercase tracking-wide font-semibold">Avis</div>
+  <div class="bg-white rounded-2xl shadow-sm p-4 text-center hover:shadow-md transition-shadow col-span-1">
+    <div class="text-2xl font-black text-purple-600">{{ stats.total_reviews|default:"0" }}</div>
+    <div class="text-xs text-gray-400 mt-1 uppercase tracking-wide font-semibold">Avis cars</div>
   </div>
-  <a href="/admin/tickets/" class="bg-white rounded-2xl shadow-sm p-5 text-center hover:shadow-md transition-shadow block">
-    <div class="text-3xl font-black text-orange-500">{{ open_tickets_count|default:"0" }}</div>
+  <a href="/admin/tickets/" class="bg-white rounded-2xl shadow-sm p-4 text-center hover:shadow-md transition-shadow block col-span-1">
+    <div class="text-2xl font-black text-orange-500">{{ open_tickets_count|default:"0" }}</div>
     <div class="text-xs text-gray-400 mt-1 uppercase tracking-wide font-semibold">Tickets ouverts</div>
   </a>
 </div>
+
+<!-- Revenue banner -->
+{% if stats.total_revenue %}
+<div class="bg-gradient-to-r from-emerald-600 to-teal-600 rounded-2xl p-5 mb-10 flex items-center justify-between">
+  <div>
+    <p class="text-emerald-100 text-sm font-semibold uppercase tracking-wide">Revenus totaux (confirmées + terminées)</p>
+    <p class="text-white text-3xl font-black mt-1">{{ stats.total_revenue|floatformat:0 }} <span class="text-emerald-200 text-lg">DZD</span></p>
+  </div>
+  <div class="text-5xl opacity-30">💰</div>
+</div>
+{% endif %}
 
 <!-- Agences -->
 <div class="flex items-center justify-between mb-4 flex-wrap gap-3">
@@ -68,7 +87,9 @@
       {% for a in agencies %}
       <tr class="hover:bg-slate-50 transition-colors" data-wilaya="{{ a.wilaya }}" data-status="{{ a.status }}">
         <td class="px-5 py-3 text-gray-400 font-mono text-xs">{{ a.id }}</td>
-        <td class="px-5 py-3 font-semibold text-gray-900">{{ a.agency_name }}</td>
+        <td class="px-5 py-3 font-semibold text-gray-900">
+          <a href="/admin/agences/{{ a.id }}/profil/" class="hover:text-blue-600 transition-colors">{{ a.agency_name }}</a>
+        </td>
         <td class="px-5 py-3 text-gray-600">{{ a.owner_name }}</td>
         <td class="px-5 py-3 text-gray-500">{{ a.email }}</td>
         <td class="px-5 py-3 text-gray-500">{{ a.wilaya }}</td>
@@ -83,6 +104,7 @@
         </td>
         <td class="px-5 py-3">
           <div class="flex gap-2 flex-wrap">
+            <a href="/admin/agences/{{ a.id }}/profil/" class="px-3 py-1.5 bg-slate-100 text-slate-600 text-xs font-semibold rounded-xl hover:bg-slate-200 transition-colors">Profil</a>
             {% if a.status == 'PENDING' %}
             <form method="post" action="/admin/agences/{{ a.id }}/verifier/">
               {% csrf_token %}
@@ -105,7 +127,7 @@
             <form method="post" action="/admin/agences/{{ a.id }}/supprimer/">
               {% csrf_token %}
               <button class="px-3 py-1.5 bg-red-600 text-white text-xs font-semibold rounded-xl hover:bg-red-700 transition-colors"
-                onclick="return confirm('Supprimer définitivement cette agence ? Cette action est irréversible.')">Supprimer</button>
+                onclick="return confirm('Supprimer définitivement cette agence ? Irréversible.')">Supprimer</button>
             </form>
           </div>
         </td>
@@ -142,6 +164,7 @@
         <th class="px-5 py-3 font-semibold">#</th>
         <th class="px-5 py-3 font-semibold">Nom</th>
         <th class="px-5 py-3 font-semibold">Email</th>
+        <th class="px-5 py-3 font-semibold">Téléphone</th>
         <th class="px-5 py-3 font-semibold">Wilaya</th>
         <th class="px-5 py-3 font-semibold">Statut</th>
         <th class="px-5 py-3 font-semibold">Actions</th>
@@ -151,8 +174,11 @@
       {% for c in clients %}
       <tr class="hover:bg-slate-50 transition-colors" data-wilaya="{{ c.wilaya }}" data-status="{{ c.status }}">
         <td class="px-5 py-3 text-gray-400 font-mono text-xs">{{ c.id }}</td>
-        <td class="px-5 py-3 font-semibold text-gray-900">{{ c.full_name }}</td>
+        <td class="px-5 py-3 font-semibold text-gray-900">
+          <a href="/admin/clients/{{ c.id }}/profil/" class="hover:text-blue-600 transition-colors">{{ c.full_name }}</a>
+        </td>
         <td class="px-5 py-3 text-gray-500">{{ c.email }}</td>
+        <td class="px-5 py-3 text-gray-500">{{ c.phone|default:"—" }}</td>
         <td class="px-5 py-3 text-gray-500">{{ c.wilaya }}</td>
         <td class="px-5 py-3">
           <span class="px-2.5 py-1 rounded-full text-xs font-semibold
@@ -165,6 +191,7 @@
         </td>
         <td class="px-5 py-3">
           <div class="flex gap-2 flex-wrap">
+            <a href="/admin/clients/{{ c.id }}/profil/" class="px-3 py-1.5 bg-slate-100 text-slate-600 text-xs font-semibold rounded-xl hover:bg-slate-200 transition-colors">Profil</a>
             {% if c.status == 'BANNED' %}
             <form method="post" action="/admin/clients/{{ c.id }}/debannir/">
               {% csrf_token %}
@@ -181,7 +208,7 @@
             <form method="post" action="/admin/clients/{{ c.id }}/supprimer/">
               {% csrf_token %}
               <button class="px-3 py-1.5 bg-red-600 text-white text-xs font-semibold rounded-xl hover:bg-red-700 transition-colors"
-                onclick="return confirm('Supprimer définitivement ce client ? Cette action est irréversible.')">Supprimer</button>
+                onclick="return confirm('Supprimer définitivement ce client ? Irréversible.')">Supprimer</button>
             </form>
           </div>
         </td>
@@ -206,24 +233,29 @@
   </select>
 </div>
 {% if bookings %}
-<div class="bg-white rounded-2xl shadow-sm overflow-hidden">
+<div class="bg-white rounded-2xl shadow-sm overflow-hidden mb-10">
   <table class="w-full text-sm" id="bookings-table">
     <thead class="bg-slate-50 text-gray-500 text-left">
       <tr>
         <th class="px-5 py-3 font-semibold">#</th>
-        <th class="px-5 py-3 font-semibold">Voiture</th>
         <th class="px-5 py-3 font-semibold">Client</th>
+        <th class="px-5 py-3 font-semibold">Agence</th>
         <th class="px-5 py-3 font-semibold">Période</th>
         <th class="px-5 py-3 font-semibold">Total</th>
         <th class="px-5 py-3 font-semibold">Statut</th>
+        <th class="px-5 py-3 font-semibold">Action</th>
       </tr>
     </thead>
     <tbody class="divide-y divide-gray-100">
       {% for b in bookings %}
       <tr class="hover:bg-slate-50 transition-colors" data-status="{{ b.status }}">
         <td class="px-5 py-3 text-gray-400 font-mono text-xs">{{ b.id }}</td>
-        <td class="px-5 py-3 text-gray-700">#{{ b.car_id }}</td>
-        <td class="px-5 py-3 text-gray-700">#{{ b.client_id }}</td>
+        <td class="px-5 py-3">
+          <a href="/admin/clients/{{ b.client_id }}/profil/" class="font-semibold text-gray-900 hover:text-blue-600 transition-colors">{{ b.client_name }}</a>
+        </td>
+        <td class="px-5 py-3">
+          <a href="/admin/agences/{{ b.agency_id }}/profil/" class="text-gray-600 hover:text-blue-600 transition-colors">{{ b.agency_name }}</a>
+        </td>
         <td class="px-5 py-3 text-gray-500">{{ b.start_date }} → {{ b.end_date }}</td>
         <td class="px-5 py-3 font-semibold text-gray-900">{{ b.total_price }} DZD</td>
         <td class="px-5 py-3">
@@ -236,13 +268,62 @@
             {% if b.status == 'PENDING' %}En attente{% elif b.status == 'CONFIRMED' %}Confirmée{% elif b.status == 'CANCELLED' %}Annulée{% elif b.status == 'COMPLETED' %}Terminée{% else %}{{ b.status }}{% endif %}
           </span>
         </td>
+        <td class="px-5 py-3">
+          {% if b.status == 'PENDING' or b.status == 'CONFIRMED' %}
+          <form method="post" action="/admin/bookings/{{ b.id }}/annuler/">
+            {% csrf_token %}
+            <button class="px-3 py-1.5 bg-red-100 text-red-600 text-xs font-semibold rounded-xl hover:bg-red-200 transition-colors"
+              onclick="return confirm('Annuler cette réservation ?')">Annuler</button>
+          </form>
+          {% else %}
+          <span class="text-xs text-gray-300">—</span>
+          {% endif %}
+        </td>
       </tr>
       {% endfor %}
     </tbody>
   </table>
 </div>
 {% else %}
-<div class="bg-white rounded-2xl p-8 text-center text-gray-400">Aucune réservation.</div>
+<div class="bg-white rounded-2xl p-8 text-center text-gray-400 mb-10">Aucune réservation.</div>
+{% endif %}
+
+<!-- Évaluations clients par agences -->
+{% if client_reviews %}
+<h2 class="text-lg font-bold text-gray-800 mb-4">Évaluations clients par les agences</h2>
+<div class="bg-white rounded-2xl shadow-sm overflow-hidden mb-10">
+  <table class="w-full text-sm">
+    <thead class="bg-slate-50 text-gray-500 text-left">
+      <tr>
+        <th class="px-5 py-3 font-semibold">Rés.</th>
+        <th class="px-5 py-3 font-semibold">Client</th>
+        <th class="px-5 py-3 font-semibold">Agence</th>
+        <th class="px-5 py-3 font-semibold">Note</th>
+        <th class="px-5 py-3 font-semibold">Commentaire</th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-gray-100">
+      {% for r in client_reviews %}
+      <tr class="hover:bg-slate-50 transition-colors">
+        <td class="px-5 py-3 text-gray-400 font-mono text-xs">#{{ r.booking_id }}</td>
+        <td class="px-5 py-3">
+          <a href="/admin/clients/{{ r.client_id }}/profil/" class="font-semibold text-gray-900 hover:text-blue-600 transition-colors">Client #{{ r.client_id }}</a>
+        </td>
+        <td class="px-5 py-3">
+          <a href="/admin/agences/{{ r.agency_id }}/profil/" class="text-gray-600 hover:text-blue-600 transition-colors">Agence #{{ r.agency_id }}</a>
+        </td>
+        <td class="px-5 py-3">
+          <div class="flex items-center gap-1">
+            <span class="text-amber-400">{% for i in "12345" %}{% if forloop.counter <= r.rating %}★{% else %}☆{% endif %}{% endfor %}</span>
+            <span class="text-xs font-semibold text-gray-600 ml-1">{{ r.rating }}/5</span>
+          </div>
+        </td>
+        <td class="px-5 py-3 text-gray-500 italic text-xs max-w-xs truncate">{{ r.comment|default:"—" }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
 {% endif %}
 
 <script>

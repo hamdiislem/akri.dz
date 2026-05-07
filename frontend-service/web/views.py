@@ -359,7 +359,7 @@ def dashboard_agency(request):
     )
     pending_count = sum(1 for b in bookings if b.get('status') == 'PENDING')
     revenue = sum(float(b.get('total_price', 0) or 0) for b in bookings if b.get('status') == 'COMPLETED')
-    client_reviews = parse_list(api_get(f"{API_URL}/api/client-reviews/", token))
+    client_reviews = parse_list(api_get(f"{API_URL}/api/client-reviews/mine/", token))
     reviewed_booking_ids = {r['booking'] for r in client_reviews}
     return render(request, 'web/dashboard_agency.html', {
         'cars': cars, 'bookings': bookings,
@@ -378,6 +378,7 @@ def dashboard_admin(request):
     agencies_resp = api_get(f"{AUTH_URL}/api/auth/admin/agencies/", token)
     clients_resp = api_get(f"{AUTH_URL}/api/auth/admin/clients/", token)
     tickets_resp = api_get(f"{API_URL}/api/admin/tickets/", token)
+    client_reviews_resp = api_get(f"{API_URL}/api/admin/client-reviews/", token)
     stats = stats_resp.json() if stats_resp and stats_resp.status_code == 200 else {}
     bookings = bookings_resp.json() if bookings_resp and bookings_resp.status_code == 200 else []
     if isinstance(bookings, dict):
@@ -387,11 +388,40 @@ def dashboard_admin(request):
     tickets = tickets_resp.json() if tickets_resp and tickets_resp.status_code == 200 else []
     if isinstance(tickets, dict):
         tickets = tickets.get('results', [])
+    client_reviews = client_reviews_resp.json() if client_reviews_resp and client_reviews_resp.status_code == 200 else []
+    # Build lookup maps for enriching bookings
+    client_map = {c['id']: c['full_name'] for c in clients}
+    agency_map = {a['id']: a['agency_name'] for a in agencies}
+    for b in bookings:
+        b['client_name'] = client_map.get(b.get('client_id'), f"Client #{b.get('client_id')}")
+        b['agency_name'] = agency_map.get(b.get('agency_id'), f"Agence #{b.get('agency_id')}")
     open_tickets_count = sum(1 for t in tickets if t.get('status') == 'OPEN')
+    stats['total_clients'] = len(clients)
+    stats['total_agencies'] = len(agencies)
     return render(request, 'web/dashboard_admin.html', {
         'stats': stats, 'bookings': bookings,
         'agencies': agencies, 'clients': clients,
+        'tickets': tickets,
+        'client_reviews': client_reviews,
         'open_tickets_count': open_tickets_count,
+    })
+
+
+# ─── AGENCY: VOIR PROFIL CLIENT ───────────────────────────
+def agency_view_client_profile(request, client_id):
+    token = get_token(request)
+    if not token:
+        return redirect('/login/')
+    ci_resp = api_get(f"{AUTH_URL}/api/auth/clients/{client_id}/info/", token)
+    if not ci_resp or ci_resp.status_code != 200:
+        return redirect('/dashboard/agency/')
+    client_info = ci_resp.json()
+    reviews = parse_list(api_get(f"{API_URL}/api/client-reviews/?client_id={client_id}", token))
+    return render(request, 'web/client_profile_view.html', {
+        'client_info': client_info,
+        'client_id': client_id,
+        'reviews': reviews,
+        'back_url': '/dashboard/agency/',
     })
 
 
@@ -665,6 +695,51 @@ def admin_supprimer_client(request, client_id):
 def admin_supprimer_agence(request, agency_id):
     if request.method == 'POST':
         api_delete(f"{AUTH_URL}/api/auth/admin/agencies/{agency_id}/delete/", token=get_token(request))
+    return redirect('/dashboard/admin/')
+
+
+# ─── ADMIN: VOIR PROFIL CLIENT / AGENCE ───────────────────
+def admin_view_client(request, client_id):
+    token = get_token(request)
+    if not token:
+        return redirect('/login/')
+    ci_resp = api_get(f"{AUTH_URL}/api/auth/admin/clients/{client_id}/", token)
+    if not ci_resp or ci_resp.status_code != 200:
+        return redirect('/dashboard/admin/')
+    client_info = ci_resp.json()
+    reviews = parse_list(api_get(f"{API_URL}/api/client-reviews/?client_id={client_id}", token))
+    bookings = [b for b in parse_list(api_get(f"{API_URL}/api/admin/bookings/", token)) if b.get('client_id') == client_id]
+    return render(request, 'web/client_profile_view.html', {
+        'client_info': client_info,
+        'client_id': client_id,
+        'reviews': reviews,
+        'bookings': bookings,
+        'back_url': '/dashboard/admin/',
+        'is_admin': True,
+    })
+
+
+def admin_view_agency(request, agency_id):
+    token = get_token(request)
+    if not token:
+        return redirect('/login/')
+    ai_resp = api_get(f"{AUTH_URL}/api/auth/admin/agencies/{agency_id}/", token)
+    if not ai_resp or ai_resp.status_code != 200:
+        return redirect('/dashboard/admin/')
+    agency_info = ai_resp.json()
+    bookings = [b for b in parse_list(api_get(f"{API_URL}/api/admin/bookings/", token)) if b.get('agency_id') == agency_id]
+    return render(request, 'web/agency_profile_view.html', {
+        'agency_info': agency_info,
+        'agency_id': agency_id,
+        'bookings': bookings,
+        'back_url': '/dashboard/admin/',
+    })
+
+
+@csrf_exempt
+def admin_cancel_booking(request, booking_id):
+    if request.method == 'POST':
+        api_post(f"{API_URL}/api/admin/bookings/{booking_id}/annuler/", {}, token=get_token(request))
     return redirect('/dashboard/admin/')
 
 

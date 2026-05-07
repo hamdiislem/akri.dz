@@ -20,6 +20,8 @@ urlpatterns = [
     path('admin/clients/<int:client_id>/unban/', views.admin_unban_client, name='admin_unban_client'),
     path('admin/clients/<int:client_id>/delete/', views.admin_delete_client, name='admin_delete_client'),
     path('admin/agencies/<int:agency_id>/delete/', views.admin_delete_agency, name='admin_delete_agency'),
+    path('admin/clients/<int:client_id>/', views.admin_get_client, name='admin_get_client'),
+    path('admin/agencies/<int:agency_id>/', views.admin_get_agency, name='admin_get_agency'),
     path('agencies/<int:agency_id>/info/', views.agency_public_info, name='agency_public_info'),
     path('clients/<int:client_id>/info/', views.client_public_info, name='client_public_info'),
 ]

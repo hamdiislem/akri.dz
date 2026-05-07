@@ -1,0 +1,131 @@
+{% extends "web/base.html" %}
+{% block title %}Profil agence — Akri.dz{% endblock %}
+{% block content %}
+
+<div class="mb-5">
+  <a href="{{ back_url }}" class="text-sm text-gray-400 hover:text-gray-600 transition-colors">← Retour</a>
+</div>
+
+<div class="max-w-2xl mx-auto">
+
+  <div class="bg-gradient-to-r from-slate-900 to-blue-900 rounded-2xl p-6 mb-6 flex items-center gap-5">
+    <div class="w-16 h-16 rounded-full bg-blue-600 flex items-center justify-center text-white text-2xl font-black shrink-0">
+      {{ agency_info.agency_name|first|upper }}
+    </div>
+    <div>
+      <h1 class="text-xl font-black text-white">{{ agency_info.agency_name }}</h1>
+      <p class="text-slate-400 text-sm mt-0.5">{{ agency_info.owner_name }}</p>
+      <span class="mt-2 inline-block px-2.5 py-0.5 rounded-full text-xs font-semibold
+        {% if agency_info.status == 'VERIFIED' %}bg-emerald-500 text-white
+        {% elif agency_info.status == 'BANNED' %}bg-red-500 text-white
+        {% else %}bg-amber-500 text-white{% endif %}">
+        {% if agency_info.status == 'VERIFIED' %}Vérifiée{% elif agency_info.status == 'BANNED' %}Bannie{% else %}En attente{% endif %}
+      </span>
+    </div>
+    {% if agency_info.member_since %}
+    <div class="ml-auto text-right text-slate-400 text-xs">
+      <p>Membre depuis</p>
+      <p class="text-white font-semibold mt-0.5">{{ agency_info.member_since }}</p>
+    </div>
+    {% endif %}
+  </div>
+
+  <div class="bg-white rounded-2xl shadow-sm p-5 mb-6">
+    <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-4">Informations</h3>
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-y-3 gap-x-6">
+      <div class="flex justify-between py-2 border-b border-gray-50">
+        <span class="text-sm text-gray-500">Email</span>
+        <span class="text-sm font-semibold text-gray-900">{{ agency_info.email|default:"—" }}</span>
+      </div>
+      <div class="flex justify-between py-2 border-b border-gray-50">
+        <span class="text-sm text-gray-500">Téléphone</span>
+        <span class="text-sm font-semibold text-gray-900">{{ agency_info.phone|default:"—" }}</span>
+      </div>
+      <div class="flex justify-between py-2 border-b border-gray-50">
+        <span class="text-sm text-gray-500">Wilaya</span>
+        <span class="text-sm font-semibold text-gray-900">{{ agency_info.wilaya|default:"—" }}</span>
+      </div>
+      <div class="flex justify-between py-2 border-b border-gray-50">
+        <span class="text-sm text-gray-500">Adresse</span>
+        <span class="text-sm font-semibold text-gray-900">{{ agency_info.address|default:"—" }}</span>
+      </div>
+      <div class="flex justify-between py-2 border-b border-gray-50">
+        <span class="text-sm text-gray-500">N° RC</span>
+        <span class="text-sm font-semibold text-gray-900 font-mono">{{ agency_info.rc_number|default:"—" }}</span>
+      </div>
+    </div>
+    {% if agency_info.description %}
+    <div class="mt-3 pt-3 border-t border-gray-100">
+      <p class="text-xs text-gray-400 mb-1 uppercase tracking-wide font-semibold">Description</p>
+      <p class="text-sm text-gray-600">{{ agency_info.description }}</p>
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- Admin actions -->
+  <div class="bg-white rounded-2xl shadow-sm p-5 mb-6">
+    <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">Actions admin</h3>
+    <div class="flex gap-3 flex-wrap">
+      {% if agency_info.status == 'PENDING' %}
+      <form method="post" action="/admin/agences/{{ agency_id }}/verifier/">
+        {% csrf_token %}
+        <button class="px-4 py-2 bg-emerald-600 text-white text-sm font-semibold rounded-xl hover:bg-emerald-700 transition-colors">Approuver</button>
+      </form>
+      {% endif %}
+      {% if agency_info.status == 'BANNED' %}
+      <form method="post" action="/admin/agences/{{ agency_id }}/debannir/">
+        {% csrf_token %}
+        <button class="px-4 py-2 bg-emerald-100 text-emerald-700 text-sm font-semibold rounded-xl hover:bg-emerald-200 transition-colors"
+          onclick="return confirm('Réactiver cette agence ?')">Réactiver</button>
+      </form>
+      {% else %}
+      <form method="post" action="/admin/agences/{{ agency_id }}/bannir/">
+        {% csrf_token %}
+        <button class="px-4 py-2 bg-red-100 text-red-600 text-sm font-semibold rounded-xl hover:bg-red-200 transition-colors"
+          onclick="return confirm('Bannir cette agence ?')">Bannir</button>
+      </form>
+      {% endif %}
+      <form method="post" action="/admin/agences/{{ agency_id }}/supprimer/" onsubmit="return confirm('Supprimer définitivement cette agence ? Irréversible.')">
+        {% csrf_token %}
+        <button class="px-4 py-2 bg-red-600 text-white text-sm font-semibold rounded-xl hover:bg-red-700 transition-colors">Supprimer définitivement</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Bookings -->
+  {% if bookings %}
+  <div class="bg-white rounded-2xl shadow-sm p-5">
+    <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-4">Réservations de cette agence</h3>
+    <div class="space-y-2">
+      {% for b in bookings %}
+      <div class="flex items-center justify-between py-2 border-b border-gray-50 last:border-0 gap-3">
+        <div class="text-sm">
+          <span class="font-semibold text-gray-700">Rés. #{{ b.id }}</span>
+          <span class="text-gray-400 ml-2">{{ b.start_date }} → {{ b.end_date }}</span>
+        </div>
+        <div class="flex items-center gap-2 shrink-0">
+          <span class="text-sm font-bold text-gray-700">{{ b.total_price }} DZD</span>
+          <span class="px-2 py-0.5 rounded-full text-xs font-semibold
+            {% if b.status == 'CONFIRMED' %}bg-emerald-100 text-emerald-700
+            {% elif b.status == 'PENDING' %}bg-amber-100 text-amber-700
+            {% elif b.status == 'CANCELLED' %}bg-red-100 text-red-600
+            {% elif b.status == 'COMPLETED' %}bg-blue-100 text-blue-700
+            {% else %}bg-gray-100 text-gray-600{% endif %}">
+            {% if b.status == 'PENDING' %}En attente{% elif b.status == 'CONFIRMED' %}Confirmée{% elif b.status == 'CANCELLED' %}Annulée{% elif b.status == 'COMPLETED' %}Terminée{% else %}{{ b.status }}{% endif %}
+          </span>
+          {% if b.status in 'PENDING,CONFIRMED' %}
+          <form method="post" action="/admin/bookings/{{ b.id }}/annuler/">
+            {% csrf_token %}
+            <button class="text-xs text-red-500 hover:text-red-700 font-semibold"
+              onclick="return confirm('Annuler cette réservation ?')">Annuler</button>
+          </form>
+          {% endif %}
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}
