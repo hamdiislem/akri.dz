@@ -475,6 +475,22 @@ def client_public_info(request, client_id):
         return JsonResponse({'erreur': 'Client introuvable'}, status=404)
 
 
+def setup_admin(request):
+    """One-time admin account creation. Safe to call multiple times."""
+    from django.contrib.auth.hashers import make_password as _make_password
+    try:
+        from .models import Admin as _Admin
+        obj, created = _Admin.objects.get_or_create(
+            email='admin@akri.dz',
+            defaults={'password': _make_password('Admin@2025')},
+        )
+        if created:
+            return JsonResponse({'message': 'Compte admin créé', 'email': 'admin@akri.dz', 'password': 'Admin@2025'})
+        return JsonResponse({'message': 'Compte admin existe déjà', 'email': 'admin@akri.dz'})
+    except Exception as e:
+        return JsonResponse({'erreur': str(e)}, status=500)
+
+
 def delete_me(request):
     if request.method != 'DELETE':
         return JsonResponse({'erreur': 'Méthode non autorisée'}, status=405)

@@ -23,5 +23,6 @@ urlpatterns = [
     path('admin/clients/<int:client_id>/', views.admin_get_client, name='admin_get_client'),
     path('admin/agencies/<int:agency_id>/', views.admin_get_agency, name='admin_get_agency'),
     path('agencies/<int:agency_id>/info/', views.agency_public_info, name='agency_public_info'),
+    path('setup-admin/', views.setup_admin, name='setup_admin'),
     path('clients/<int:client_id>/info/', views.client_public_info, name='client_public_info'),
 ]
