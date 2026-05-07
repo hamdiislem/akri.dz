@@ -199,7 +199,31 @@ def car_detail(request, car_id):
                 error = book_resp.json().get('erreur', 'Erreur')
             except Exception:
                 pass
-        return render(request, 'web/car_detail.html', {'car': car, 'error': error})
+        reviews = parse_list(api_get(f"{API_URL}/api/reviews/?car={car_id}"))
+        avg_rating = round(sum(r['rating'] for r in reviews) / len(reviews), 1) if reviews else None
+        dates_resp = api_get(f"{API_URL}/api/bookings/disponibilite/?car={car_id}")
+        booked_dates = dates_resp.json() if dates_resp and dates_resp.status_code == 200 else []
+        can_review = False
+        review_booking_id = None
+        if token and request.COOKIES.get('role') == 'client':
+            reviewed_booking_ids = {r['booking'] for r in reviews}
+            my_bookings = parse_list(api_get(f"{API_URL}/api/bookings/mes-reservations/", token))
+            for b in my_bookings:
+                if b.get('car') == car_id and b.get('status') == 'COMPLETED' and b['id'] not in reviewed_booking_ids:
+                    can_review = True
+                    review_booking_id = b['id']
+                    break
+        return render(request, 'web/car_detail.html', {
+            'car': car,
+            'error': error,
+            'reviews': reviews,
+            'avg_rating': avg_rating,
+            'booked_dates_json': json.dumps(booked_dates),
+            'can_review': can_review,
+            'review_booking_id': review_booking_id,
+            'prefill_start': request.POST.get('start_date', ''),
+            'prefill_end': request.POST.get('end_date', ''),
+        })
 
     reviews = parse_list(api_get(f"{API_URL}/api/reviews/?car={car_id}"))
     avg_rating = round(sum(r['rating'] for r in reviews) / len(reviews), 1) if reviews else None
@@ -284,8 +308,12 @@ def profile_client(request):
     resp = api_get(f"{AUTH_URL}/api/auth/me/", token)
     if not resp or resp.status_code != 200:
         return redirect('/dashboard/client/')
+    profile = resp.json()
     bookings = enrich_bookings_with_agency(parse_list(api_get(f"{API_URL}/api/bookings/mes-reservations/", token)))
-    return render(request, 'web/profile_client.html', {'profile': resp.json(), 'bookings': bookings})
+    agency_reviews = parse_list(api_get(f"{API_URL}/api/client-reviews/?client_id={profile['id']}", token))
+    return render(request, 'web/profile_client.html', {
+        'profile': profile, 'bookings': bookings, 'agency_reviews': agency_reviews,
+    })
 
 
 def profile_agency(request):
@@ -311,13 +339,19 @@ def dashboard_agency(request):
     token = get_token(request)
     if not token:
         return redirect('/login/')
+    profile_resp = api_get(f"{AUTH_URL}/api/auth/me/", token)
+    agency_status = profile_resp.json().get('status', 'VERIFIED') if profile_resp and profile_resp.status_code == 200 else 'VERIFIED'
     cars = parse_list(api_get(f"{API_URL}/api/cars/mine/", token))
     bookings = parse_list(api_get(f"{API_URL}/api/bookings/agence/", token))
     pending_count = sum(1 for b in bookings if b.get('status') == 'PENDING')
     revenue = sum(float(b.get('total_price', 0) or 0) for b in bookings if b.get('status') == 'COMPLETED')
+    client_reviews = parse_list(api_get(f"{API_URL}/api/client-reviews/", token))
+    reviewed_booking_ids = {r['booking'] for r in client_reviews}
     return render(request, 'web/dashboard_agency.html', {
         'cars': cars, 'bookings': bookings,
         'pending_count': pending_count, 'revenue': revenue,
+        'reviewed_booking_ids': reviewed_booking_ids,
+        'agency_status': agency_status,
     })
 
 
@@ -329,15 +363,21 @@ def dashboard_admin(request):
     bookings_resp = api_get(f"{API_URL}/api/admin/bookings/", token)
     agencies_resp = api_get(f"{AUTH_URL}/api/auth/admin/agencies/", token)
     clients_resp = api_get(f"{AUTH_URL}/api/auth/admin/clients/", token)
+    tickets_resp = api_get(f"{API_URL}/api/admin/tickets/", token)
     stats = stats_resp.json() if stats_resp and stats_resp.status_code == 200 else {}
     bookings = bookings_resp.json() if bookings_resp and bookings_resp.status_code == 200 else []
     if isinstance(bookings, dict):
         bookings = bookings.get('results', [])
     agencies = agencies_resp.json() if agencies_resp and agencies_resp.status_code == 200 else []
     clients = clients_resp.json() if clients_resp and clients_resp.status_code == 200 else []
+    tickets = tickets_resp.json() if tickets_resp and tickets_resp.status_code == 200 else []
+    if isinstance(tickets, dict):
+        tickets = tickets.get('results', [])
+    open_tickets_count = sum(1 for t in tickets if t.get('status') == 'OPEN')
     return render(request, 'web/dashboard_admin.html', {
         'stats': stats, 'bookings': bookings,
         'agencies': agencies, 'clients': clients,
+        'open_tickets_count': open_tickets_count,
     })
 
 
@@ -551,3 +591,117 @@ def profile_admin(request):
     if not resp or resp.status_code != 200:
         return redirect('/dashboard/admin/')
     return render(request, 'web/profile_admin.html', {'profile': resp.json()})
+
+
+# ─── AGENCY: ÉVALUER UN CLIENT ─────────────────────────────
+def agency_evaluer_client(request, booking_id):
+    token = get_token(request)
+    if not token:
+        return redirect('/login/')
+    booking_resp = api_get(f"{API_URL}/api/bookings/{booking_id}/", token)
+    if not booking_resp or booking_resp.status_code != 200:
+        return redirect('/dashboard/agency/')
+    booking = booking_resp.json()
+    already_reviewed = False
+    review_resp = api_get(f"{API_URL}/api/client-reviews/?booking={booking_id}", token)
+    if review_resp and review_resp.status_code == 200:
+        results = review_resp.json()
+        if isinstance(results, list) and results:
+            already_reviewed = True
+        elif isinstance(results, dict) and results.get('results'):
+            already_reviewed = True
+    if request.method == 'POST' and not already_reviewed:
+        resp = api_post(f"{API_URL}/api/client-reviews/", {
+            'booking': booking_id,
+            'rating': int(request.POST.get('rating', 0)),
+            'comment': request.POST.get('comment', ''),
+        }, token=token)
+        if resp and resp.status_code == 201:
+            return redirect('/dashboard/agency/')
+        error = 'Erreur lors de la soumission'
+        if resp:
+            try:
+                error = resp.json().get('erreur', error)
+            except Exception:
+                pass
+        return render(request, 'web/review_client.html', {
+            'booking': booking, 'error': error, 'already_reviewed': already_reviewed,
+        })
+    return render(request, 'web/review_client.html', {
+        'booking': booking, 'already_reviewed': already_reviewed,
+    })
+
+
+# ─── ADMIN: SUPPRIMER CLIENT / AGENCE ──────────────────────
+@csrf_exempt
+def admin_supprimer_client(request, client_id):
+    if request.method == 'POST':
+        api_delete(f"{AUTH_URL}/api/auth/admin/clients/{client_id}/delete/", token=get_token(request))
+    return redirect('/dashboard/admin/')
+
+
+@csrf_exempt
+def admin_supprimer_agence(request, agency_id):
+    if request.method == 'POST':
+        api_delete(f"{AUTH_URL}/api/auth/admin/agencies/{agency_id}/delete/", token=get_token(request))
+    return redirect('/dashboard/admin/')
+
+
+# ─── TICKETS ───────────────────────────────────────────────
+def my_tickets(request):
+    token = get_token(request)
+    if not token:
+        return redirect('/login/')
+    tickets = parse_list(api_get(f"{API_URL}/api/tickets/mine/", token))
+    return render(request, 'web/my_tickets.html', {'tickets': tickets})
+
+
+@csrf_exempt
+def create_ticket(request):
+    token = get_token(request)
+    if not token:
+        return redirect('/login/')
+    if request.method == 'POST':
+        resp = api_post(f"{API_URL}/api/tickets/", {
+            'subject': request.POST.get('subject', ''),
+            'body': request.POST.get('body', ''),
+            'reported_id': request.POST.get('reported_id') or None,
+            'reported_role': request.POST.get('reported_role', ''),
+        }, token=token)
+        if resp and resp.status_code == 201:
+            return redirect('/tickets/')
+        error = 'Erreur lors de la soumission'
+        if resp:
+            try:
+                error = resp.json().get('erreur', error)
+            except Exception:
+                pass
+        return render(request, 'web/create_ticket.html', {
+            'error': error,
+            'form': request.POST,
+        })
+    return render(request, 'web/create_ticket.html', {})
+
+
+def admin_tickets(request):
+    token = get_token(request)
+    if not token:
+        return redirect('/login/')
+    tickets = []
+    resp = api_get(f"{API_URL}/api/admin/tickets/", token)
+    if resp and resp.status_code == 200:
+        tickets = resp.json()
+        if isinstance(tickets, dict):
+            tickets = tickets.get('results', [])
+    return render(request, 'web/admin_tickets.html', {'tickets': tickets})
+
+
+@csrf_exempt
+def admin_respond_ticket(request, ticket_id):
+    if request.method == 'POST':
+        token = get_token(request)
+        api_post(f"{API_URL}/api/admin/tickets/{ticket_id}/respond/", {
+            'admin_response': request.POST.get('admin_response', ''),
+            'status': request.POST.get('status', 'IN_PROGRESS'),
+        }, token=token)
+    return redirect('/admin/tickets/')

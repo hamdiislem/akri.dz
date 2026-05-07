@@ -62,7 +62,7 @@ class BookingViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
                 car=car,
                 status__in=['PENDING', 'CONFIRMED'],
                 start_date__lt=end,
-                end_date__gt=start,
+                end_date__gte=start,
             ).exists()
             if conflict:
                 return JsonResponse({'erreur': 'Voiture déjà réservée pour ces dates'}, status=409)
