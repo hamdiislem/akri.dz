@@ -85,6 +85,18 @@ def enrich_bookings_with_agency(bookings):
     return bookings
 
 
+def enrich_bookings_with_client(bookings, token):
+    """Attach client info to each booking via auth-service (agency/admin only)."""
+    cache = {}
+    for b in bookings:
+        client_id = b.get('client_id')
+        if client_id and client_id not in cache:
+            resp = api_get(f"{AUTH_URL}/api/auth/clients/{client_id}/info/", token)
+            cache[client_id] = resp.json() if resp and resp.status_code == 200 else {}
+        b['client_info'] = cache.get(client_id, {})
+    return bookings
+
+
 # ─── HOME ──────────────────────────────────────────────────
 def home(request):
     return render(request, 'web/home.html')
@@ -342,7 +354,9 @@ def dashboard_agency(request):
     profile_resp = api_get(f"{AUTH_URL}/api/auth/me/", token)
     agency_status = profile_resp.json().get('status', 'VERIFIED') if profile_resp and profile_resp.status_code == 200 else 'VERIFIED'
     cars = parse_list(api_get(f"{API_URL}/api/cars/mine/", token))
-    bookings = parse_list(api_get(f"{API_URL}/api/bookings/agence/", token))
+    bookings = enrich_bookings_with_client(
+        parse_list(api_get(f"{API_URL}/api/bookings/agence/", token)), token
+    )
     pending_count = sum(1 for b in bookings if b.get('status') == 'PENDING')
     revenue = sum(float(b.get('total_price', 0) or 0) for b in bookings if b.get('status') == 'COMPLETED')
     client_reviews = parse_list(api_get(f"{API_URL}/api/client-reviews/", token))
@@ -602,6 +616,11 @@ def agency_evaluer_client(request, booking_id):
     if not booking_resp or booking_resp.status_code != 200:
         return redirect('/dashboard/agency/')
     booking = booking_resp.json()
+    client_id = booking.get('client_id')
+    client_info = {}
+    if client_id:
+        ci_resp = api_get(f"{AUTH_URL}/api/auth/clients/{client_id}/info/", token)
+        client_info = ci_resp.json() if ci_resp and ci_resp.status_code == 200 else {}
     already_reviewed = False
     review_resp = api_get(f"{API_URL}/api/client-reviews/?booking={booking_id}", token)
     if review_resp and review_resp.status_code == 200:
@@ -625,10 +644,12 @@ def agency_evaluer_client(request, booking_id):
             except Exception:
                 pass
         return render(request, 'web/review_client.html', {
-            'booking': booking, 'error': error, 'already_reviewed': already_reviewed,
+            'booking': booking, 'client_info': client_info,
+            'error': error, 'already_reviewed': already_reviewed,
         })
     return render(request, 'web/review_client.html', {
-        'booking': booking, 'already_reviewed': already_reviewed,
+        'booking': booking, 'client_info': client_info,
+        'already_reviewed': already_reviewed,
     })
 
 

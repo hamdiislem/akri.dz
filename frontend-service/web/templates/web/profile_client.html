@@ -3,6 +3,19 @@
 {% block content %}
 <div class="max-w-2xl mx-auto">
 
+  {% if not profile.phone or not profile.wilaya or not profile.age or not profile.driver_license %}
+  <div class="bg-amber-50 border border-amber-200 text-amber-800 rounded-2xl px-5 py-4 mb-6 flex items-start gap-3">
+    <span class="text-xl mt-0.5">⚠️</span>
+    <div class="flex-1">
+      <p class="font-bold text-sm">Profil incomplet</p>
+      <p class="text-sm mt-0.5">Certaines informations manquent à votre profil. Les agences les voient lors de vos réservations.</p>
+    </div>
+    <a href="/profile/client/edit/" class="shrink-0 bg-amber-600 text-white text-xs font-bold px-3 py-1.5 rounded-xl hover:bg-amber-700 transition-colors">
+      Compléter →
+    </a>
+  </div>
+  {% endif %}
+
   <div class="flex items-center gap-3 mb-6">
     <a href="/dashboard/client/" class="text-gray-400 hover:text-gray-600 text-sm transition-colors">← Mes réservations</a>
     <span class="text-gray-300">/</span>
