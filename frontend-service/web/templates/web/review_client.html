@@ -9,7 +9,17 @@
 <div class="max-w-xl mx-auto">
   <div class="bg-white rounded-2xl shadow-sm p-8">
     <h1 class="text-2xl font-black text-gray-900 mb-1">Évaluer le client</h1>
-    <p class="text-sm text-gray-500 mb-6">Réservation #{{ booking.id }} &middot; {{ booking.start_date }} → {{ booking.end_date }}</p>
+    <p class="text-sm text-gray-500 mb-4">Réservation #{{ booking.id }} &middot; {{ booking.start_date }} → {{ booking.end_date }}</p>
+
+    {% if client_info %}
+    <div class="bg-slate-50 rounded-xl px-4 py-3 mb-6 flex flex-wrap gap-x-5 gap-y-1 text-sm">
+      <span class="font-bold text-gray-800">👤 {{ client_info.full_name|default:"—" }}</span>
+      {% if client_info.phone %}<span class="text-gray-500">📞 {{ client_info.phone }}</span>{% endif %}
+      {% if client_info.wilaya %}<span class="text-gray-500">📍 {{ client_info.wilaya }}</span>{% endif %}
+      {% if client_info.age %}<span class="text-gray-500">🎂 {{ client_info.age }} ans</span>{% endif %}
+      {% if client_info.driver_license %}<span class="text-gray-500 font-mono">🪪 {{ client_info.driver_license }}</span>{% endif %}
+    </div>
+    {% endif %}
 
     {% if already_reviewed %}
     <div class="bg-emerald-50 border border-emerald-200 text-emerald-700 rounded-xl p-4 text-sm font-semibold text-center">

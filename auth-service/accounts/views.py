@@ -418,6 +418,29 @@ def agency_public_info(request, agency_id):
         return JsonResponse({'erreur': 'Agence introuvable'}, status=404)
 
 
+def client_public_info(request, client_id):
+    token = get_token_from_request(request)
+    if not token:
+        return JsonResponse({'erreur': 'Non authentifié'}, status=401)
+    try:
+        payload = decode_token(token)
+        if payload.get('role') not in ('agency', 'admin'):
+            return JsonResponse({'erreur': 'Accès refusé'}, status=403)
+    except Exception:
+        return JsonResponse({'erreur': 'Token invalide'}, status=401)
+    try:
+        client = Client.objects.get(id=client_id)
+        return JsonResponse({
+            'full_name': client.full_name,
+            'phone': client.phone or '',
+            'wilaya': client.wilaya or '',
+            'age': client.age,
+            'driver_license': client.driver_license or '',
+        })
+    except Client.DoesNotExist:
+        return JsonResponse({'erreur': 'Client introuvable'}, status=404)
+
+
 def delete_me(request):
     if request.method != 'DELETE':
         return JsonResponse({'erreur': 'Méthode non autorisée'}, status=405)
