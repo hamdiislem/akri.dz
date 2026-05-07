@@ -7,6 +7,7 @@ from cars.views import CarViewSet
 from bookings.views import BookingViewSet
 from reviews.views import ReviewViewSet, ClientReviewViewSet
 from tickets.views import TicketViewSet
+from admin_api.views import WorkerLogNotificationView
 
 router = routers.DefaultRouter()
 router.register(r'cars', CarViewSet)
@@ -19,4 +20,5 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include(router.urls)),
     path('api/admin/', include('admin_api.urls')),
+    path('api/internal/notifications/', WorkerLogNotificationView.as_view()),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

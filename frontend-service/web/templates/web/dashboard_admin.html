@@ -42,6 +42,57 @@
   </a>
 </div>
 
+<!-- Worker notification feed -->
+<div class="mb-10">
+  <div class="flex items-center gap-3 mb-4">
+    <h2 class="text-lg font-bold text-gray-800">Journal du worker</h2>
+    <span class="flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full
+      {% if notifications %}bg-emerald-100 text-emerald-700{% else %}bg-gray-100 text-gray-400{% endif %}">
+      <span class="w-1.5 h-1.5 rounded-full {% if notifications %}bg-emerald-500 animate-pulse{% else %}bg-gray-300{% endif %} inline-block"></span>
+      {% if notifications %}Worker actif — {{ notifications|length }} événement{{ notifications|length|pluralize }}{% else %}Aucun événement reçu{% endif %}
+    </span>
+  </div>
+  {% if notifications %}
+  <div class="space-y-2">
+    {% for n in notifications %}
+    <div class="bg-white rounded-xl shadow-sm px-5 py-3 flex items-center gap-4 border-l-4
+      {% if n.event_type == 'booking.confirmed' %}border-emerald-500{% else %}border-red-400{% endif %}">
+      <div class="shrink-0 text-xl">
+        {% if n.event_type == 'booking.confirmed' %}✅{% else %}❌{% endif %}
+      </div>
+      <div class="flex-1 min-w-0">
+        <div class="flex items-center gap-2 flex-wrap">
+          <span class="text-sm font-bold {% if n.event_type == 'booking.confirmed' %}text-emerald-700{% else %}text-red-600{% endif %}">
+            {% if n.event_type == 'booking.confirmed' %}Réservation confirmée{% else %}Réservation annulée{% endif %}
+          </span>
+          <span class="text-xs text-gray-400">Rés. #{{ n.booking_id }}</span>
+          {% if n.car %}<span class="text-xs text-gray-500">— {{ n.car }}</span>{% endif %}
+        </div>
+        <div class="text-xs text-gray-400 mt-0.5 flex flex-wrap gap-x-3">
+          {% if n.start_date %}
+          <span>📅 {{ n.start_date }} → {{ n.end_date }}</span>
+          {% endif %}
+          {% if n.total_price %}
+          <span>💰 {{ n.total_price }} DZD</span>
+          {% endif %}
+          {% if n.client_id %}
+          <span>👤 <a href="/admin/clients/{{ n.client_id }}/profil/" class="hover:text-blue-600 transition-colors">Client #{{ n.client_id }}</a></span>
+          {% endif %}
+        </div>
+      </div>
+      <div class="text-xs text-gray-300 shrink-0">{{ n.created_at|slice:":16" }}</div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="bg-white rounded-2xl p-8 text-center text-gray-400 border-2 border-dashed border-gray-200">
+    <div class="text-4xl mb-2 opacity-30">🔔</div>
+    <p class="text-sm">Le worker n'a pas encore traité d'événements.</p>
+    <p class="text-xs text-gray-300 mt-1">Confirmez ou annulez une réservation pour déclencher un événement.</p>
+  </div>
+  {% endif %}
+</div>
+
 <!-- Revenue banner -->
 {% if stats.total_revenue %}
 <div class="bg-gradient-to-r from-emerald-600 to-teal-600 rounded-2xl p-5 mb-10 flex items-center justify-between">

@@ -8,4 +8,5 @@ urlpatterns = [
     path('tickets/<int:ticket_id>/respond/', views.RespondTicketView.as_view(), name='admin_respond_ticket'),
     path('client-reviews/', views.AllClientReviewsView.as_view(), name='admin_client_reviews'),
     path('bookings/<int:booking_id>/annuler/', views.AdminCancelBookingView.as_view(), name='admin_cancel_booking'),
+    path('notifications/', views.AdminNotificationsView.as_view(), name='admin_notifications'),
 ]

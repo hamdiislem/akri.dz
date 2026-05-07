@@ -379,6 +379,7 @@ def dashboard_admin(request):
     clients_resp = api_get(f"{AUTH_URL}/api/auth/admin/clients/", token)
     tickets_resp = api_get(f"{API_URL}/api/admin/tickets/", token)
     client_reviews_resp = api_get(f"{API_URL}/api/admin/client-reviews/", token)
+    notifications_resp = api_get(f"{API_URL}/api/admin/notifications/", token)
     stats = stats_resp.json() if stats_resp and stats_resp.status_code == 200 else {}
     bookings = bookings_resp.json() if bookings_resp and bookings_resp.status_code == 200 else []
     if isinstance(bookings, dict):
@@ -389,6 +390,7 @@ def dashboard_admin(request):
     if isinstance(tickets, dict):
         tickets = tickets.get('results', [])
     client_reviews = client_reviews_resp.json() if client_reviews_resp and client_reviews_resp.status_code == 200 else []
+    notifications = notifications_resp.json() if notifications_resp and notifications_resp.status_code == 200 else []
     # Build lookup maps for enriching bookings
     client_map = {c['id']: c['full_name'] for c in clients}
     agency_map = {a['id']: a['agency_name'] for a in agencies}
@@ -403,6 +405,7 @@ def dashboard_admin(request):
         'agencies': agencies, 'clients': clients,
         'tickets': tickets,
         'client_reviews': client_reviews,
+        'notifications': notifications,
         'open_tickets_count': open_tickets_count,
     })
 

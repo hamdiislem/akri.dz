@@ -3,6 +3,7 @@ import json
 import time
 import threading
 import pika
+import requests as http_requests
 from http.server import HTTPServer, BaseHTTPRequestHandler
 
 RABBITMQ_URL = os.getenv('RABBITMQ_URL', '')
@@ -12,6 +13,28 @@ RABBITMQ_USER = os.getenv('RABBITMQ_USER', 'guest')
 RABBITMQ_PASS = os.getenv('RABBITMQ_PASS', 'guest')
 CONSUL_HOST = os.getenv('CONSUL_HOST', '')
 MY_IP = os.getenv('MY_IP', '127.0.0.1')
+API_SERVICE_URL = os.getenv('API_SERVICE_URL', 'http://localhost:8000')
+WORKER_SECRET = os.getenv('WORKER_SECRET', 'worker-secret-change-me')
+
+
+def log_to_api(event_type, data):
+    """Persist the processed event to the api-service database."""
+    try:
+        payload = {
+            'event_type': event_type,
+            'booking_id': data.get('booking_id'),
+            'client_id': data.get('client_id'),
+            'agency_id': data.get('agency_id'),
+            'car': data.get('car', ''),
+            'total_price': data.get('total_price', ''),
+            'start_date': data.get('start_date', ''),
+            'end_date': data.get('end_date', ''),
+        }
+        url = f'{API_SERVICE_URL}/api/internal/notifications/'
+        r = http_requests.post(url, json=payload, headers={'X-Worker-Key': WORKER_SECRET}, timeout=10)
+        print(f'[Worker] Event logged → HTTP {r.status_code}')
+    except Exception as e:
+        print(f'[Worker] Could not log to API: {e}')
 
 
 def register_with_consul():
@@ -49,6 +72,7 @@ def on_booking_confirmed(ch, method, properties, body):
         print(f"  Période     : {data.get('start_date')} → {data.get('end_date')}")
         print(f"  Total       : {data.get('total_price')} DZD")
         print('=' * 60)
+        log_to_api('booking.confirmed', data)
         ch.basic_ack(delivery_tag=method.delivery_tag)
     except Exception as e:
         print(f'[ERREUR] on_booking_confirmed: {e}')
@@ -65,6 +89,7 @@ def on_booking_cancelled(ch, method, properties, body):
         print(f"  Voiture     : {data.get('car')}")
         print(f"  Client ID   : {data.get('client_id')}")
         print('=' * 60)
+        log_to_api('booking.cancelled', data)
         ch.basic_ack(delivery_tag=method.delivery_tag)
     except Exception as e:
         print(f'[ERREUR] on_booking_cancelled: {e}')

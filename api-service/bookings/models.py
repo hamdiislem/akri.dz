@@ -24,3 +24,18 @@ class Booking(models.Model):
 
     def __str__(self):
         return f"Booking #{self.id} — {self.car} (client {self.client_id})"
+
+
+class NotificationLog(models.Model):
+    event_type = models.CharField(max_length=50)   # booking.confirmed / booking.cancelled
+    booking_id = models.IntegerField()
+    client_id = models.IntegerField(null=True, blank=True)
+    agency_id = models.IntegerField(null=True, blank=True)
+    car = models.CharField(max_length=200, blank=True)
+    total_price = models.CharField(max_length=50, blank=True)
+    start_date = models.CharField(max_length=20, blank=True)
+    end_date = models.CharField(max_length=20, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']

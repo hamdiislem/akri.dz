@@ -1,8 +1,10 @@
+import json as _json
 from django.http import JsonResponse
 from django.views import View
 from django.db.models import Sum
+from django.conf import settings
 from cars.models import Car
-from bookings.models import Booking
+from bookings.models import Booking, NotificationLog
 from reviews.models import Review, ClientReview
 from tickets.models import Ticket
 from utils import require_auth
@@ -59,6 +61,39 @@ class AllClientReviewsView(View):
             return err
         reviews = list(ClientReview.objects.all().order_by('-created_at').values())
         return JsonResponse(reviews, safe=False)
+
+
+class WorkerLogNotificationView(View):
+    """POST /api/internal/notifications/ — called by the worker (secret key auth)"""
+    def post(self, request):
+        key = request.META.get('HTTP_X_WORKER_KEY', '')
+        if key != settings.WORKER_SECRET:
+            return JsonResponse({'erreur': 'Clé invalide'}, status=403)
+        try:
+            data = _json.loads(request.body)
+            NotificationLog.objects.create(
+                event_type=data.get('event_type', ''),
+                booking_id=data.get('booking_id', 0),
+                client_id=data.get('client_id'),
+                agency_id=data.get('agency_id'),
+                car=data.get('car', ''),
+                total_price=str(data.get('total_price', '')),
+                start_date=str(data.get('start_date', '')),
+                end_date=str(data.get('end_date', '')),
+            )
+            return JsonResponse({'message': 'Logged'}, status=201)
+        except Exception as e:
+            return JsonResponse({'erreur': str(e)}, status=400)
+
+
+class AdminNotificationsView(View):
+    """GET /api/admin/notifications/ — last 50 worker events"""
+    def get(self, request):
+        err = require_auth(request, 'admin')
+        if err:
+            return err
+        logs = list(NotificationLog.objects.values()[:50])
+        return JsonResponse(logs, safe=False)
 
 
 class AdminCancelBookingView(View):

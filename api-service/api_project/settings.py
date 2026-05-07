@@ -90,6 +90,9 @@ AUTH_SERVICE_URL = os.getenv('AUTH_SERVICE_URL', 'http://localhost:8001')
 if AUTH_SERVICE_URL and not AUTH_SERVICE_URL.startswith('http'):
     AUTH_SERVICE_URL = f'https://{AUTH_SERVICE_URL}'
 
+# Shared secret used by the notification worker to log events
+WORKER_SECRET = os.getenv('WORKER_SECRET', 'worker-secret-change-me')
+
 # RabbitMQ — supports RABBITMQ_URL (CloudAMQP) or individual vars
 RABBITMQ_URL = os.getenv('RABBITMQ_URL', '')
 RABBITMQ_HOST = os.getenv('RABBITMQ_HOST', 'localhost')
