@@ -293,6 +293,34 @@ def admin_unban_client(request, client_id):
         return JsonResponse({'erreur': 'Client introuvable'}, status=404)
 
 
+@csrf_exempt
+def admin_delete_client(request, client_id):
+    _, err = require_admin_token(request)
+    if err:
+        return err
+    if request.method != 'DELETE':
+        return JsonResponse({'erreur': 'Méthode non autorisée'}, status=405)
+    try:
+        Client.objects.get(id=client_id).delete()
+        return JsonResponse({'message': 'Client supprimé'})
+    except Client.DoesNotExist:
+        return JsonResponse({'erreur': 'Client introuvable'}, status=404)
+
+
+@csrf_exempt
+def admin_delete_agency(request, agency_id):
+    _, err = require_admin_token(request)
+    if err:
+        return err
+    if request.method != 'DELETE':
+        return JsonResponse({'erreur': 'Méthode non autorisée'}, status=405)
+    try:
+        Agency.objects.get(id=agency_id).delete()
+        return JsonResponse({'message': 'Agence supprimée'})
+    except Agency.DoesNotExist:
+        return JsonResponse({'erreur': 'Agence introuvable'}, status=404)
+
+
 def me(request):
     token = get_token_from_request(request)
     if not token:

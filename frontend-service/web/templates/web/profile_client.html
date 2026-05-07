@@ -110,6 +110,29 @@
 
   </div>
 
+  <!-- Agency reviews of this client -->
+  {% if agency_reviews %}
+  <div class="mt-6 bg-white rounded-2xl shadow-sm p-5">
+    <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-4">Évaluations reçues des agences</h3>
+    <div class="space-y-3">
+      {% for r in agency_reviews %}
+      <div class="border-b border-gray-50 pb-3 last:border-0 last:pb-0">
+        <div class="flex items-center gap-2 mb-1">
+          <div class="flex text-amber-400 text-base leading-none">
+            {% for i in "12345" %}{% if forloop.counter <= r.rating %}★{% else %}☆{% endif %}{% endfor %}
+          </div>
+          <span class="text-sm font-semibold text-gray-600">{{ r.rating }}/5</span>
+          <span class="text-xs text-gray-400">— Agence #{{ r.agency_id }}</span>
+        </div>
+        {% if r.comment %}
+        <p class="text-sm text-gray-500 italic">"{{ r.comment }}"</p>
+        {% endif %}
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
   <!-- Booking history -->
   <div class="mt-6 bg-white rounded-2xl shadow-sm p-5">
     <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-4">Historique des réservations</h3>

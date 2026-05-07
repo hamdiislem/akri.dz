@@ -18,6 +18,7 @@
         {% if request.COOKIES.role == 'client' %}
           <a href="/cars/" class="text-slate-300 hover:text-white transition-colors">Voitures</a>
           <a href="/dashboard/client/" class="text-slate-300 hover:text-white transition-colors">Mes réservations</a>
+          <a href="/tickets/" class="text-slate-300 hover:text-white transition-colors">Mes tickets</a>
           <a href="/profile/client/" class="text-slate-300 hover:text-white transition-colors">Mon profil</a>
           <form method="post" action="/logout/" class="inline">{% csrf_token %}
             <button class="text-red-400 hover:text-red-300 transition-colors">Déconnexion</button>
@@ -25,6 +26,7 @@
 
         {% elif request.COOKIES.role == 'agency' %}
           <a href="/dashboard/agency/" class="text-slate-300 hover:text-white transition-colors">Tableau de bord</a>
+          <a href="/tickets/" class="text-slate-300 hover:text-white transition-colors">Mes tickets</a>
           <a href="/profile/agency/" class="text-slate-300 hover:text-white transition-colors">Mon profil</a>
           <a href="/cars/ajouter/" class="bg-blue-600 text-white px-4 py-2 rounded-xl hover:bg-blue-500 transition-colors font-semibold">+ Ajouter une voiture</a>
           <form method="post" action="/logout/" class="inline">{% csrf_token %}
@@ -33,6 +35,7 @@
 
         {% elif request.COOKIES.role == 'admin' %}
           <a href="/dashboard/admin/" class="text-slate-300 hover:text-white transition-colors">Administration</a>
+          <a href="/admin/tickets/" class="text-slate-300 hover:text-white transition-colors">Tickets</a>
           <a href="/profile/admin/" class="text-slate-300 hover:text-white transition-colors">Mon profil</a>
           <form method="post" action="/logout/" class="inline">{% csrf_token %}
             <button class="text-red-400 hover:text-red-300 transition-colors">Déconnexion</button>

@@ -18,5 +18,7 @@ urlpatterns = [
     path('admin/clients/', views.admin_list_clients, name='admin_list_clients'),
     path('admin/clients/<int:client_id>/ban/', views.admin_ban_client, name='admin_ban_client'),
     path('admin/clients/<int:client_id>/unban/', views.admin_unban_client, name='admin_unban_client'),
+    path('admin/clients/<int:client_id>/delete/', views.admin_delete_client, name='admin_delete_client'),
+    path('admin/agencies/<int:agency_id>/delete/', views.admin_delete_agency, name='admin_delete_agency'),
     path('agencies/<int:agency_id>/info/', views.agency_public_info, name='agency_public_info'),
 ]

@@ -5,12 +5,15 @@ from django.conf.urls.static import static
 from rest_framework import routers
 from cars.views import CarViewSet
 from bookings.views import BookingViewSet
-from reviews.views import ReviewViewSet
+from reviews.views import ReviewViewSet, ClientReviewViewSet
+from tickets.views import TicketViewSet
 
 router = routers.DefaultRouter()
 router.register(r'cars', CarViewSet)
 router.register(r'bookings', BookingViewSet)
 router.register(r'reviews', ReviewViewSet)
+router.register(r'client-reviews', ClientReviewViewSet)
+router.register(r'tickets', TicketViewSet)
 
 urlpatterns = [
     path('admin/', admin.site.urls),

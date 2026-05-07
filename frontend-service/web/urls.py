@@ -30,5 +30,12 @@ urlpatterns = [
     path('admin/agences/<int:agency_id>/debannir/', views.admin_debannir_agence, name='admin_debannir_agence'),
     path('admin/clients/<int:client_id>/bannir/', views.admin_bannir_client, name='admin_bannir_client'),
     path('admin/clients/<int:client_id>/debannir/', views.admin_debannir_client, name='admin_debannir_client'),
+    path('admin/clients/<int:client_id>/supprimer/', views.admin_supprimer_client, name='admin_supprimer_client'),
+    path('admin/agences/<int:agency_id>/supprimer/', views.admin_supprimer_agence, name='admin_supprimer_agence'),
     path('bookings/<int:booking_id>/avis/', views.submit_review, name='submit_review'),
+    path('bookings/<int:booking_id>/evaluer-client/', views.agency_evaluer_client, name='agency_evaluer_client'),
+    path('tickets/', views.my_tickets, name='my_tickets'),
+    path('tickets/nouveau/', views.create_ticket, name='create_ticket'),
+    path('admin/tickets/', views.admin_tickets, name='admin_tickets'),
+    path('admin/tickets/<int:ticket_id>/repondre/', views.admin_respond_ticket, name='admin_respond_ticket'),
 ]

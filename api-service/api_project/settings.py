@@ -20,6 +20,7 @@ INSTALLED_APPS = [
     'cars',
     'bookings',
     'reviews',
+    'tickets',
     'admin_api',
 ]
 

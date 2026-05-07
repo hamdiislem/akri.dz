@@ -182,18 +182,24 @@
         </div>
 
       {% elif car.available %}
+        {% if error %}
+        <div class="bg-red-50 border border-red-200 text-red-700 rounded-xl p-3 text-sm mt-2">{{ error }}</div>
+        {% endif %}
         <form method="post" action="/cars/{{ car.id }}/" class="space-y-3 mt-2">
           {% csrf_token %}
           <div>
             <label class="block text-xs font-semibold text-gray-500 mb-1 uppercase tracking-wide">Date de début</label>
             <input type="date" name="start_date" required id="start_date"
+              value="{{ prefill_start }}"
               class="w-full border border-gray-200 rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm">
           </div>
           <div>
             <label class="block text-xs font-semibold text-gray-500 mb-1 uppercase tracking-wide">Date de fin</label>
             <input type="date" name="end_date" required id="end_date"
+              value="{{ prefill_end }}"
               class="w-full border border-gray-200 rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm">
           </div>
+          <div id="range-error" class="hidden bg-amber-50 border border-amber-200 text-amber-700 rounded-xl p-3 text-sm"></div>
           <div>
             <label class="block text-xs font-semibold text-gray-500 mb-1 uppercase tracking-wide">Message (optionnel)</label>
             <textarea name="message" rows="2" class="w-full border border-gray-200 rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm resize-none"></textarea>
@@ -229,7 +235,16 @@ function pad(n) { return String(n).padStart(2, '0'); }
 function toStr(y, m, d) { return `${y}-${pad(m+1)}-${pad(d)}`; }
 
 function isBooked(dateStr) {
-  return bookedRanges.some(r => dateStr >= r.start && dateStr < r.end);
+  return bookedRanges.some(r => dateStr >= r.start && dateStr <= r.end);
+}
+
+function rangeHasBooked(start, end) {
+  const s = new Date(start), e = new Date(end);
+  for (let d = new Date(s); d <= e; d.setDate(d.getDate() + 1)) {
+    const str = d.toISOString().split('T')[0];
+    if (isBooked(str)) return true;
+  }
+  return false;
 }
 
 function renderCalendar() {
@@ -294,17 +309,31 @@ function shiftMonth(delta) {
 
 function pickDate(dateStr) {
   if (!startInput) return;
+  const rangeErrEl = document.getElementById('range-error');
   if (!startInput.value || (startInput.value && endInput.value)) {
     startInput.value = dateStr;
     endInput.value = '';
     if (priceDiv) priceDiv.classList.add('hidden');
+    if (rangeErrEl) rangeErrEl.classList.add('hidden');
   } else if (dateStr > startInput.value) {
-    endInput.value = dateStr;
-    updatePrice();
+    if (rangeHasBooked(startInput.value, dateStr)) {
+      startInput.value = '';
+      endInput.value = '';
+      if (priceDiv) priceDiv.classList.add('hidden');
+      if (rangeErrEl) {
+        rangeErrEl.textContent = 'Ces dates incluent des jours déjà réservés. Veuillez choisir une période disponible.';
+        rangeErrEl.classList.remove('hidden');
+      }
+    } else {
+      endInput.value = dateStr;
+      if (rangeErrEl) rangeErrEl.classList.add('hidden');
+      updatePrice();
+    }
   } else {
     startInput.value = dateStr;
     endInput.value = '';
     if (priceDiv) priceDiv.classList.add('hidden');
+    if (rangeErrEl) rangeErrEl.classList.add('hidden');
   }
   renderCalendar();
 }
@@ -323,15 +352,20 @@ function updatePrice() {
 const now = new Date();
 calYear = now.getFullYear();
 calMonth = now.getMonth();
-renderCalendar();
 
 if (startInput) {
   const today = now.toISOString().split('T')[0];
   startInput.min = today;
   endInput.min = today;
+  // Restore dates after a failed booking submission
+  {% if prefill_start %}startInput.value = '{{ prefill_start }}';{% endif %}
+  {% if prefill_end %}endInput.value = '{{ prefill_end }}';{% endif %}
+  if (startInput.value) endInput.min = startInput.value;
   startInput.addEventListener('change', () => { endInput.min = startInput.value; renderCalendar(); updatePrice(); });
   endInput.addEventListener('change', () => { renderCalendar(); updatePrice(); });
 }
+renderCalendar();
+{% if prefill_start and prefill_end %}updatePrice();{% endif %}
 </script>
 
 {% endblock %}

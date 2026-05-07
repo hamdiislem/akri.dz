@@ -2,11 +2,27 @@
 {% block title %}Tableau de bord Agence — Akri.dz{% endblock %}
 {% block content %}
 
+{% if agency_status == 'PENDING' %}
+<div class="bg-amber-50 border border-amber-200 text-amber-800 rounded-2xl px-5 py-4 mb-6 flex items-start gap-3">
+  <span class="text-xl mt-0.5">⏳</span>
+  <div>
+    <p class="font-bold text-sm">Compte en attente de validation</p>
+    <p class="text-sm mt-0.5">Votre agence est en cours d'examen par l'administrateur. Vous pourrez ajouter des voitures une fois votre compte approuvé.</p>
+  </div>
+</div>
+{% endif %}
+
 <div class="flex items-center justify-between mb-8">
   <h1 class="text-3xl font-black text-gray-900">Tableau de bord</h1>
+  {% if agency_status == 'PENDING' %}
+  <span class="bg-gray-200 text-gray-400 px-5 py-2.5 rounded-xl font-bold text-sm cursor-not-allowed" title="Compte en attente de validation">
+    + Ajouter une voiture
+  </span>
+  {% else %}
   <a href="/cars/ajouter/" class="bg-blue-600 text-white px-5 py-2.5 rounded-xl hover:bg-blue-700 font-bold text-sm transition-colors">
     + Ajouter une voiture
   </a>
+  {% endif %}
 </div>
 
 <!-- Stats -->
@@ -140,6 +156,15 @@
           <input type="hidden" name="next" value="/dashboard/agency/">
           <button class="text-xs bg-red-100 text-red-600 px-3 py-1.5 rounded-xl hover:bg-red-200 transition-colors font-semibold">Annuler</button>
         </form>
+        {% elif b.status == 'COMPLETED' %}
+        {% if b.id not in reviewed_booking_ids %}
+        <a href="/bookings/{{ b.id }}/evaluer-client/"
+           class="text-xs bg-violet-100 text-violet-700 px-3 py-1.5 rounded-xl hover:bg-violet-200 transition-colors font-semibold">
+          Évaluer le client
+        </a>
+        {% else %}
+        <span class="text-xs text-gray-400 italic">Client évalué ✓</span>
+        {% endif %}
         {% endif %}
       </div>
     </div>
