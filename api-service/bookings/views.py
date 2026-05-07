@@ -38,7 +38,7 @@ def publish_to_rabbitmq(queue, message):
         print(f'[RabbitMQ] Erreur: {e}')
 
 
-class BookingViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
+class BookingViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
     queryset = Booking.objects.all()
     serializer_class = BookingSerializer
 
