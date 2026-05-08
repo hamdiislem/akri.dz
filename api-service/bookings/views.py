@@ -6,10 +6,27 @@ from django.conf import settings
 from rest_framework import viewsets, mixins
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from .models import Booking
+from .models import Booking, NotificationLog
 from .serializers import BookingSerializer
 from cars.models import Car
 from utils import require_auth
+
+
+def log_notification(event_type, booking):
+    """Write directly to NotificationLog — no RabbitMQ round-trip needed."""
+    try:
+        NotificationLog.objects.create(
+            event_type=event_type,
+            booking_id=booking.id,
+            client_id=booking.client_id,
+            agency_id=booking.agency_id,
+            car=str(booking.car),
+            total_price=str(booking.total_price),
+            start_date=str(booking.start_date),
+            end_date=str(booking.end_date),
+        )
+    except Exception as e:
+        print(f'[NotificationLog] Could not write: {e}')
 
 
 def publish_to_rabbitmq(queue, message):
@@ -118,6 +135,7 @@ class BookingViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin, viewset
         booking.status = 'CONFIRMED'
         booking.save()
 
+        log_notification('booking.confirmed', booking)
         publish_to_rabbitmq('booking.confirmed', {
             'booking_id': booking.id,
             'car': str(booking.car),
@@ -149,6 +167,7 @@ class BookingViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin, viewset
         booking.status = 'CANCELLED'
         booking.save()
 
+        log_notification('booking.cancelled', booking)
         publish_to_rabbitmq('booking.cancelled', {
             'booking_id': booking.id,
             'car': str(booking.car),
